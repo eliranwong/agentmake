@@ -1,5 +1,6 @@
 from .backends.anthropic import AnthropicLLM
 from .backends.azure import AzureLLM
+from .backends.cohere import CohereLLM
 from .backends.custom import OpenaiCompatibleLLM
 from .backends.deepseek import DeepseekLLM
 from .backends.genai import GenaiLLM
@@ -25,7 +26,7 @@ TOOLMATE_PATH = os.getenv("TOOLMATE_PATH") if os.getenv("TOOLMATE_PATH") else os
 PACKAGE_PATH = os.path.dirname(os.path.realpath(__file__))
 PACKAGE_NAME = os.path.basename(PACKAGE_PATH)
 DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") == "TRUE" else False
-SUPPORTED_AI_BACKENDS = ["anthropic", "azure", "custom", "deepseek", "genai", "github", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"]
+SUPPORTED_AI_BACKENDS = ["anthropic", "azure", "cohere", "custom", "deepseek", "genai", "github", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"]
 DEFAULT_AI_BACKEND = os.getenv("DEFAULT_AI_BACKEND") if os.getenv("DEFAULT_AI_BACKEND") else "ollama"
 DEFAULT_FOLLOW_UP_PROMPT = os.getenv("DEFAULT_FOLLOW_UP_PROMPT") if os.getenv("DEFAULT_FOLLOW_UP_PROMPT") else "Please tell me more."
 
@@ -52,7 +53,7 @@ def generate(
         stream: Optional[bool]=False, # stream partial message deltas as they are available
         stream_events_only: Optional[bool]=False, # return streaming events object only
         api_key: Optional[str]=None, # API key or credentials json file path in case of using Vertex AI as backend; applicable to anthropic, custom, deepseek, genai, github, googleai, groq, mistral, openai, xai
-        api_endpoint: Optional[str]=None, # API endpoint; applicable to anthropic, azure, custom, llamacpp, ollama
+        api_endpoint: Optional[str]=None, # API endpoint; applicable to azure, custom, llamacpp, ollama
         api_project_id: Optional[str]=None, # project id; applicable to Vertex AI only, i.e., vertexai or genai
         api_service_location: Optional[str]=None, # cloud service location; applicable to Vertex AI only, i.e., vertexai or genai
         api_timeout: Optional[Union[int, float]]=None, # timeout for API request; applicable to backends, execept for ollama, genai and vertexai
@@ -88,7 +89,7 @@ def generate(
         backend:
             type: Optional[str]="ollama"
             AI backend
-            supported backends: "anthropic", "azure", "custom", "deepseek", "genai", "github", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"
+            supported backends: "anthropic", "azure", "cohere", "custom", "deepseek", "genai", "github", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"
 
         model:
             type: Optional[str]=None
@@ -140,7 +141,7 @@ def generate(
             type: Optional[Union[List[Optional[str]], str]]=None
             plugin that contain functions to process user input content
             accepts a list of strings or a single string
-            runs multi-turn inferences, to loop through multiple plugins, if it is given as a list
+            run all specified plugins to process user input content on every single turn
             each item must be either one of the following options:
                 1. file name, without extension, of a python file, placed in folder `plugins` under package directory, i.e. the value of PACKAGE_PATH
                 2. file name, without extension, of a python file, placed in folder `plugins` under toolmate directory, i.e. the value of TOOLMATE_PATH
@@ -152,7 +153,7 @@ def generate(
             type: Optional[Union[List[Optional[str]], str]]=None
             plugin that contain functions to process assistant output
             accepts a list of strings or a single string
-            runs multi-turn inferences, to loop through multiple plugins, if it is given as a list
+            run all specified plugins to process assistant output content on every single turn
             each item must be either one of the following options:
                 1. file name, without extension, of a python file, placed in folder `plugins` under package directory, i.e. the value of PACKAGE_PATH
                 2. file name, without extension, of a python file, placed in folder `plugins` under toolmate directory, i.e. the value of TOOLMATE_PATH
@@ -236,12 +237,12 @@ def generate(
         api_key:
             type: Optional[str]=None
             API key or credentials json file path in case of using Vertex AI as backend
-            applicable to anthropic, custom, deepseek, genai, github, googleai, groq, mistral, openai, xai
+            applicable to anthropic, cohere, custom, deepseek, genai, github, googleai, groq, mistral, openai, xai
 
         api_endpoint:
             type: Optional[str]=None
             API endpoint
-            applicable to anthropic, azure, custom, llamacpp, ollama
+            applicable to azure, custom, llamacpp, ollama
 
         api_project_id:
             type: Optional[str]=None
@@ -295,48 +296,42 @@ def generate(
         user_input = follow_up_prompt.pop(0) if follow_up_prompt else DEFAULT_FOLLOW_UP_PROMPT
         messages_copy.append({"role": "user", "content": user_input})
     # handle user input content plugin(s)
-    given_input_content_plugin = None
-    input_content_plugin_func = None
     if input_content_plugin:
-        given_input_content_plugin = deepcopy(input_content_plugin)
-        if isinstance(input_content_plugin, list):
-            input_content_plugin_object = input_content_plugin.pop(0)
-        else: # a string instead
-            input_content_plugin_object = input_content_plugin
-            input_content_plugin = []
-        input_content_plugin_name = input_content_plugin_object[:20]
-        # check if it is a predefined plugin message built-in with this SDK
-        possible_input_content_plugin_file_path_1 = os.path.join(PACKAGE_PATH, "plugins", f"{input_content_plugin_object}.py")
-        possible_input_content_plugin_file_path_2 = os.path.join(TOOLMATE_PATH, "plugins", f"{input_content_plugin_object}.py")
-        if input_content_plugin_object is None:
-            pass
-        elif os.path.isfile(possible_input_content_plugin_file_path_1):
-            input_content_plugin_file_content = readTextFile(possible_input_content_plugin_file_path_1)
-            if input_content_plugin_file_content:
-                input_content_plugin_object = input_content_plugin_file_content
-        elif os.path.isfile(possible_input_content_plugin_file_path_2):
-            input_content_plugin_file_content = readTextFile(possible_input_content_plugin_file_path_2)
-            if input_content_plugin_file_content:
-                input_content_plugin_object = input_content_plugin_file_content
-        elif os.path.isfile(input_content_plugin_object): # input_content_plugin_object itself is a valid filepath
-            input_content_plugin_file_content = readTextFile(input_content_plugin_object)
-            if input_content_plugin_file_content:
-                input_content_plugin_object = input_content_plugin_file_content
-        if input_content_plugin_object:
-            try:
-                exec(input_content_plugin_object, globals())
-                input_content_plugin_func = CONTENT_PLUGIN
-            except Exception as e:
-                print(f"Failed to execute input content plugin `{input_content_plugin_name}`! An error occurred: {e}")
-                if DEVELOPER_MODE:
-                    print(traceback.format_exc())
-        # run user input content plugin
-        if input_content_plugin_func and user_input:
-            messages_copy[-1]["content"] = input_content_plugin_func(user_input)
-        try:
-            del CONTENT_PLUGIN
-        except:
-            pass
+        if isinstance(input_content_plugin, str):
+            input_content_plugin = [input_content_plugin]
+        for input_content_plugin_object in input_content_plugin:
+            input_content_plugin_func = None
+            input_content_plugin_name = input_content_plugin_object[:20]
+
+            # check if it is a predefined plugin message built-in with this SDK
+            possible_input_content_plugin_file_path_1 = os.path.join(PACKAGE_PATH, "plugins", f"{input_content_plugin_object}.py")
+            possible_input_content_plugin_file_path_2 = os.path.join(TOOLMATE_PATH, "plugins", f"{input_content_plugin_object}.py")
+            if input_content_plugin_object is None:
+                pass
+            elif os.path.isfile(possible_input_content_plugin_file_path_1):
+                input_content_plugin_file_content = readTextFile(possible_input_content_plugin_file_path_1)
+                if input_content_plugin_file_content:
+                    input_content_plugin_object = input_content_plugin_file_content
+            elif os.path.isfile(possible_input_content_plugin_file_path_2):
+                input_content_plugin_file_content = readTextFile(possible_input_content_plugin_file_path_2)
+                if input_content_plugin_file_content:
+                    input_content_plugin_object = input_content_plugin_file_content
+            elif os.path.isfile(input_content_plugin_object): # input_content_plugin_object itself is a valid filepath
+                input_content_plugin_file_content = readTextFile(input_content_plugin_object)
+                if input_content_plugin_file_content:
+                    input_content_plugin_object = input_content_plugin_file_content
+            if input_content_plugin_object:
+                try:
+                    exec(input_content_plugin_object, globals())
+                    input_content_plugin_func = CONTENT_PLUGIN
+                except Exception as e:
+                    print(f"Failed to execute input content plugin `{input_content_plugin_name}`! An error occurred: {e}")
+                    if DEVELOPER_MODE:
+                        print(traceback.format_exc())
+            # run user input content plugin
+            if input_content_plugin_func:
+                if user_input := messages_copy[-1].get("content", ""):
+                    messages_copy[-1]["content"] = input_content_plugin_func(user_input)
     # handle agent(s)
     agent_response = None
     agent_func = None
@@ -348,8 +343,8 @@ def generate(
             agent = []
         agent_name = agent_object[:20]
         # check if it is a predefined plugin message built-in with this SDK
-        possible_agent_file_path_1 = os.path.join(PACKAGE_PATH, "agent", f"{agent_object}.py")
-        possible_agent_file_path_2 = os.path.join(TOOLMATE_PATH, "agent", f"{agent_object}.py")
+        possible_agent_file_path_1 = os.path.join(PACKAGE_PATH, "agents", f"{agent_object}.py")
+        possible_agent_file_path_2 = os.path.join(TOOLMATE_PATH, "agents", f"{agent_object}.py")
         if agent_object is None:
             pass
         elif os.path.isfile(possible_agent_file_path_1):
@@ -394,10 +389,6 @@ def generate(
                 word_wrap=word_wrap,
                 **kwargs,
             )
-        try:
-            del AGENT_FUNCTION
-        except:
-            pass
     # handle given system message(s)
     if system and not agent_response:
         if isinstance(system, list):
@@ -498,7 +489,7 @@ def generate(
                     print(traceback.format_exc())
 
     # check if it is last request
-    is_last_request = True if not follow_up_prompt and not system and not context and not tool and not agent and not input_content_plugin and not output_content_plugin and not prefill else False
+    is_last_request = True if not follow_up_prompt and not system and not context and not tool and not agent and not prefill else False
 
     # deep copy schema avoid modifying the original one
     schemaCopy = None if schema is None else deepcopy(schema)
@@ -561,7 +552,7 @@ def generate(
                     system=None if function_response else system,
                     context=None if function_response else context,
                     follow_up_prompt=None if function_response else follow_up_prompt,
-                    input_content_plugin=None if function_response else given_input_content_plugin,
+                    input_content_plugin=None if function_response else input_content_plugin,
                     output_content_plugin=output_content_plugin,
                     agent=None if function_response else agent,
                     tool=None if function_response else tool,
@@ -586,18 +577,6 @@ def generate(
                 output = function_text_output if function_text_output else "Done!"
         else: # structured output
             output = json.dumps(dictionary_output)
-        try:
-            del TOOL_SYSTEM
-        except:
-            pass
-        try:
-            del TOOL_SCHEMA
-        except:
-            pass
-        try:
-            del TOOL_FUNCTION
-        except:
-            pass
         if print_on_terminal:
             print(output)
     else: # regular completion
@@ -605,7 +584,6 @@ def generate(
             completion = AnthropicLLM.getChatCompletion(
                 messages_copy,
                 model=model,
-                schema=schemaCopy,
                 temperature=temperature,
                 max_tokens=max_tokens,
                 stop=stop,
@@ -618,7 +596,6 @@ def generate(
             completion = AzureLLM.getChatCompletion(
                 messages_copy,
                 model=model,
-                schema=schemaCopy,
                 temperature=temperature,
                 max_tokens=max_tokens,
                 stop=stop,
@@ -628,11 +605,22 @@ def generate(
                 api_timeout=api_timeout,
                 **kwargs
             )
+        elif backend == "cohere":
+            completion = CohereLLM.getChatCompletion(
+                messages_copy,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stop=stop,
+                stream=stream,
+                api_key=api_key,
+                api_timeout=api_timeout,
+                **kwargs
+            )
         elif backend == "custom":
             completion = OpenaiCompatibleLLM.getChatCompletion(
                 messages_copy,
                 model=model,
-                schema=schemaCopy,
                 temperature=temperature,
                 max_tokens=max_tokens,
                 stop=stop,
@@ -646,7 +634,6 @@ def generate(
             completion = DeepseekLLM.getChatCompletion(
                 messages_copy,
                 model=model,
-                schema=schemaCopy,
                 temperature=temperature,
                 max_tokens=max_tokens,
                 prefill=prefill_content,
@@ -660,7 +647,6 @@ def generate(
             completion = GenaiLLM.getChatCompletion(
                 messages_copy,
                 model=model,
-                schema=schemaCopy,
                 temperature=temperature,
                 max_tokens=max_tokens,
                 stop=stop,
@@ -674,7 +660,6 @@ def generate(
             completion = GithubLLM.getChatCompletion(
                 messages_copy,
                 model=model,
-                schema=schemaCopy,
                 temperature=temperature,
                 max_tokens=max_tokens,
                 stop=stop,
@@ -687,7 +672,6 @@ def generate(
             completion = GoogleaiLLM.getChatCompletion(
                 messages_copy,
                 model=model,
-                schema=schemaCopy,
                 temperature=temperature,
                 max_tokens=max_tokens,
                 stop=stop,
@@ -700,7 +684,6 @@ def generate(
             completion = GroqLLM.getChatCompletion(
                 messages_copy,
                 model=model,
-                schema=schemaCopy,
                 temperature=temperature,
                 max_tokens=max_tokens,
                 prefill=prefill_content,
@@ -713,7 +696,6 @@ def generate(
         elif backend == "llamacpp":
             completion = LlamacppLLM.getChatCompletion(
                 messages_copy,
-                schema=schemaCopy,
                 temperature=temperature,
                 max_tokens=max_tokens,
                 stop=stop,
@@ -726,7 +708,6 @@ def generate(
             completion = MistralLLM.getChatCompletion(
                 messages_copy,
                 model=model,
-                schema=schemaCopy,
                 temperature=temperature,
                 max_tokens=max_tokens,
                 prefill=prefill_content,
@@ -741,7 +722,6 @@ def generate(
                 messages_copy,
                 model=model,
                 model_keep_alive=model_keep_alive,
-                schema=schemaCopy,
                 temperature=temperature,
                 max_tokens=max_tokens,
                 context_window=context_window,
@@ -756,7 +736,6 @@ def generate(
             completion = OpenaiLLM.getChatCompletion(
                 messages_copy,
                 model=model,
-                schema=schemaCopy,
                 temperature=temperature,
                 max_tokens=max_tokens,
                 stop=stop,
@@ -769,7 +748,6 @@ def generate(
             completion = XaiLLM.getChatCompletion(
                 messages_copy,
                 model=model,
-                schema=schemaCopy,
                 temperature=temperature,
                 max_tokens=max_tokens,
                 stop=stop,
@@ -782,47 +760,42 @@ def generate(
             return completion
         output = getChatCompletionText(backend, completion, stream=stream, print_on_terminal=print_on_terminal, word_wrap=word_wrap)
 
-    # handle assistant output content plugin(s)
-    output_content_plugin_func = None
+    # handle user output content plugin(s)
     if output_content_plugin:
-        if isinstance(output_content_plugin, list):
-            output_content_plugin_object = output_content_plugin.pop(0)
-        else: # a string instead
-            output_content_plugin_object = output_content_plugin
-            output_content_plugin = []
-        output_content_plugin_name = output_content_plugin_object[:20]
-        # check if it is a predefined plugin message built-in with this SDK
-        possible_output_content_plugin_file_path_1 = os.path.join(PACKAGE_PATH, "plugins", f"{output_content_plugin_object}.py")
-        possible_output_content_plugin_file_path_2 = os.path.join(TOOLMATE_PATH, "plugins", f"{output_content_plugin_object}.py")
-        if output_content_plugin_object is None:
-            pass
-        elif os.path.isfile(possible_output_content_plugin_file_path_1):
-            output_content_plugin_file_content = readTextFile(possible_output_content_plugin_file_path_1)
-            if output_content_plugin_file_content:
-                output_content_plugin_object = output_content_plugin_file_content
-        elif os.path.isfile(possible_output_content_plugin_file_path_2):
-            output_content_plugin_file_content = readTextFile(possible_output_content_plugin_file_path_2)
-            if output_content_plugin_file_content:
-                output_content_plugin_object = output_content_plugin_file_content
-        elif os.path.isfile(output_content_plugin_object): # output_content_plugin_object itself is a valid filepath
-            output_content_plugin_file_content = readTextFile(output_content_plugin_object)
-            if output_content_plugin_file_content:
-                output_content_plugin_object = output_content_plugin_file_content
-        if output_content_plugin_object:
-            try:
-                exec(output_content_plugin_object, globals())
-                output_content_plugin_func = CONTENT_PLUGIN
-            except Exception as e:
-                print(f"Failed to execute output content plugin `{output_content_plugin_name}`! An error occurred: {e}")
-                if DEVELOPER_MODE:
-                    print(traceback.format_exc())
-        # run output plugin
-        if output_content_plugin_func and output:
-            output = output_content_plugin_func(output)
-        try:
-            del CONTENT_PLUGIN
-        except:
-            pass
+        if isinstance(output_content_plugin, str):
+            output_content_plugin = [output_content_plugin]
+        for output_content_plugin_object in output_content_plugin:
+            output_content_plugin_func = None
+            output_content_plugin_name = output_content_plugin_object[:20]
+
+            # check if it is a predefined plugin message built-in with this SDK
+            possible_output_content_plugin_file_path_1 = os.path.join(PACKAGE_PATH, "plugins", f"{output_content_plugin_object}.py")
+            possible_output_content_plugin_file_path_2 = os.path.join(TOOLMATE_PATH, "plugins", f"{output_content_plugin_object}.py")
+            if output_content_plugin_object is None:
+                pass
+            elif os.path.isfile(possible_output_content_plugin_file_path_1):
+                output_content_plugin_file_content = readTextFile(possible_output_content_plugin_file_path_1)
+                if output_content_plugin_file_content:
+                    output_content_plugin_object = output_content_plugin_file_content
+            elif os.path.isfile(possible_output_content_plugin_file_path_2):
+                output_content_plugin_file_content = readTextFile(possible_output_content_plugin_file_path_2)
+                if output_content_plugin_file_content:
+                    output_content_plugin_object = output_content_plugin_file_content
+            elif os.path.isfile(output_content_plugin_object): # output_content_plugin_object itself is a valid filepath
+                output_content_plugin_file_content = readTextFile(output_content_plugin_object)
+                if output_content_plugin_file_content:
+                    output_content_plugin_object = output_content_plugin_file_content
+            if output_content_plugin_object:
+                try:
+                    exec(output_content_plugin_object, globals())
+                    output_content_plugin_func = CONTENT_PLUGIN
+                except Exception as e:
+                    print(f"Failed to execute output content plugin `{output_content_plugin_name}`! An error occurred: {e}")
+                    if DEVELOPER_MODE:
+                        print(traceback.format_exc())
+            # run user output content plugin
+            if output_content_plugin_func and output:
+                output = output_content_plugin_func(output)
 
     # update the message list
     if not agent_response:
@@ -927,6 +900,18 @@ def getDictionaryOutput(
             stop=stop,
             api_key=api_key,
             api_endpoint=api_endpoint,
+            api_timeout=api_timeout,
+            **kwargs
+        )
+    elif backend == "cohere":
+        return CohereLLM.getDictionaryOutput(
+            messages,
+            schema,
+            model=model,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            stop=stop,
+            api_key=api_key,
             api_timeout=api_timeout,
             **kwargs
         )

@@ -30,7 +30,7 @@ Args:
     backend:
         type: Optional[str]="ollama"
         AI backend
-        supported backends: "anthropic", "azure", "custom", "deepseek", "genai", "github", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"
+        supported backends: "anthropic", "azure", "cohere", "custom", "deepseek", "genai", "github", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"
 
     model:
         type: Optional[str]=None
@@ -82,7 +82,7 @@ Args:
         type: Optional[Union[List[Optional[str]], str]]=None
         plugin that contain functions to process user input content
         accepts a list of strings or a single string
-        runs multi-turn inferences, to loop through multiple plugins, if it is given as a list
+        run all specified plugins to process user input content on every single turn
         each item must be either one of the following options:
             1. file name, without extension, of a python file, placed in folder `plugins` under package directory, i.e. the value of PACKAGE_PATH
             2. file name, without extension, of a python file, placed in folder `plugins` under toolmate directory, i.e. the value of TOOLMATE_PATH
@@ -94,7 +94,7 @@ Args:
         type: Optional[Union[List[Optional[str]], str]]=None
         plugin that contain functions to process assistant output
         accepts a list of strings or a single string
-        runs multi-turn inferences, to loop through multiple plugins, if it is given as a list
+        run all specified plugins to process assistant output content on every single turn
         each item must be either one of the following options:
             1. file name, without extension, of a python file, placed in folder `plugins` under package directory, i.e. the value of PACKAGE_PATH
             2. file name, without extension, of a python file, placed in folder `plugins` under toolmate directory, i.e. the value of TOOLMATE_PATH
@@ -178,12 +178,12 @@ Args:
     api_key:
         type: Optional[str]=None
         API key or credentials json file path in case of using Vertex AI as backend
-        applicable to anthropic, custom, deepseek, genai, github, googleai, groq, mistral, openai, xai
+        applicable to anthropic, cohere, custom, deepseek, genai, github, googleai, groq, mistral, openai, xai
 
     api_endpoint:
         type: Optional[str]=None
         API endpoint
-        applicable to anthropic, azure, custom, llamacpp, ollama
+        applicable to azure, custom, llamacpp, ollama
 
     api_project_id:
         type: Optional[str]=None

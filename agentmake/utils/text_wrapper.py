@@ -105,17 +105,21 @@ class TextWrapper:
                 finishOutputs(word_wrap, chat_response)
             if streaming_event is None or (not streaming_event.is_set() and not self.streaming_finished):
                 # RETRIEVE THE TEXT FROM THE RESPONSE
-                if openai_style:
+                if event is None:
+                    continue
+                elif openai_style:
                     # openai
                     # when open api key is invalid for some reasons, event response in string
                     if isinstance(event, str):
                         answer = event
                     elif hasattr(event, "data"): # mistralai
                         answer = event.data.choices[0].delta.content
-                    elif not event.choices: # in case of the 1st event of azure's completion
+                    elif hasattr(event, "choices") and not event.choices: # in case of the 1st event of azure's completion
                         continue
                     else:
                         answer = event.choices[0].delta.content
+                elif hasattr(event, "type") and event.type == "content-delta" and hasattr(event, "delta"): # cohere
+                    answer = event.delta.message.content.text
                 elif hasattr(event, "delta") and hasattr(event.delta, "text"): # anthropic
                     answer = event.delta.text
                 elif hasattr(event, "content_block") and hasattr(event.content_block, "text"):
@@ -131,9 +135,12 @@ class TextWrapper:
                     else:
                         # llama.cpp chat
                         answer = event["choices"][0]["delta"].get("content", "")
-                else:
+                elif hasattr(event, "text"):
                     # vertex ai, genai
                     answer = event.text
+                else:
+                    #print(event)
+                    answer = None
                 # STREAM THE ANSWER
                 if answer is not None:
                     if first_event:

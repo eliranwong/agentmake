@@ -1,8 +1,8 @@
-# ToolMate AI - SDK
+# AgentMake AI
 
-ToolMate-SDK: a software developement kit for developing agentic AI applications that support 13 LLM backends and integrate tools and agents. (Developer: Eliran Wong)
+AgentMake AI: a software developement kit for developing agentic AI applications that support 14 LLM backends and integrate tools and agents. (Developer: Eliran Wong)
 
-Supported backends: anthropic, azure, custom, deepseek, genai, github, googleai, groq, llamacpp, mistral, ollama, openai, vertexai, xai
+Supported backends: anthropic, azure, cohere, custom, deepseek, genai, github, googleai, groq, llamacpp, mistral, ollama, openai, vertexai, xai
 
 # A Sibling Project
 
@@ -56,7 +56,7 @@ We support Vertex AI via [Google GenAI SDK](https://pypi.org/project/google-gena
 
 # Usage
 
-This SDK is designed to provide a single function for interacting with all AI backends, delivering a unified experience for generating AI responses. The main APIs are provided with the function `generate` located in this [file](https://github.com/eliranwong/agentmake/blob/main/agentmake/__init__.py#L29).
+This SDK is designed to offer a single function `generate` for interacting with all AI backends, delivering a unified experience for generating AI responses. The main APIs are provided with the function `generate` located in this [file](https://github.com/eliranwong/agentmake/blob/main/agentmake/__init__.py#L29).
 
 Find documentation at https://github.com/eliranwong/agentmake/blob/main/docs/README.md
 
@@ -86,10 +86,6 @@ To work with parameter `tool`, e.g.:
 
 > generate("Send an email to Eliran Wong at eliran.wong@domain.com to express my gratitude for his work.", tool="send_gmail")
 
-To work with parameter `agent`, e.g.:
-
-> generate("Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre.", agent="teamgenai", stream=True)
-
 To work with parameters `input_content_plugin` and `output_content_plugin`, e.g.:
 
 > generate("what AI model best", input_content_plugin="improve_writing", output_content_plugin="translate_into_chinese", stream=True)
@@ -102,6 +98,10 @@ To work with parameter `system`, `context`, `follow_up_prompt`, e.g.:
 
 > generate("Provide a detailed introduction to generative AI.", system=["create_agents", "assign_agents"], follow_up_prompt="Who is the best agent to contribute next?", stream=True, model="llama3.3:70b")
 
+To work with parameter `agent`, e.g.:
+
+> generate("Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre.", agent="teamgenai", stream=True, model="llama3.3:70b")
+
 To work collaboratively with different backends, e.g.
 
 > messages = generate("What is the most effective method for training AI models?", backend="openai")
@@ -112,9 +112,11 @@ To work collaboratively with different backends, e.g.
 
 > generate(messages, backend="mistral", follow_up_prompt="Please provide a summary of the discussion so far.")
 
+
 As you may see, the `generate` function returns the `messages` list, which is passed to the next `generate` function in turns.
 
 Therefore, it is very simple to create a chatbot application, you can do it as few as five lines or less, e.g.:
+
 
 > messages = [{"role": "system", "content": "You are an AI assistant."}]
 
@@ -135,8 +137,9 @@ https://github.com/eliranwong/agentmake/tree/main/agentmake/examples
 * add documentation about tool creation
 * add examples
 * convert availble ToolMate AI tools into tools that runable with this SDK
-* added built-in system messages
-* added built-in predefined contexts
-* added built-in prompts
+* add built-in system messages
+* add built-in predefined contexts
+* add built-in prompts
 * add cli options for running simple inference, tools or testing
 * improve code generation handling
+* add backend support of Cohere API

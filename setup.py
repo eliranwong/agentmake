@@ -24,7 +24,7 @@ with open(os.path.join(package, "requirements.txt"), "r") as fileObj:
 # https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/
 setup(
     name="agentmake",
-    version="0.0.17",
+    version="0.0.21",
     python_requires=">=3.8, <3.13",
     description="ToolMate-SDK: a software developement kit for developing agentic AI applications that support 13 LLM backends and integrate tools and agents. (Developer: Eliran Wong)",
     long_description=long_description,
@@ -32,6 +32,7 @@ setup(
     author_email="support@toolmate.ai",
     packages=[
         package,
+        f"{package}.agents",
         f"{package}.backends",
         f"{package}.contexts",
         f"{package}.plugins",
@@ -42,6 +43,7 @@ setup(
     ],
     package_data={
         package: ["*.*"],
+        f"{package}.agents": ["*.*"],
         f"{package}.backends": ["*.*"],
         f"{package}.contexts": ["*.*"],
         f"{package}.plugins": ["*.*"],

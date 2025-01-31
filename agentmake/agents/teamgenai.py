@@ -160,7 +160,7 @@ def teamgenai(
 
         messages_copy = generate(
             messages_copy,
-            system="assign_agents",
+            system=agent_system,
             follow_up_prompt=f'''# Change Speaker\nThe best agent to contribute next is agent {agent}.\n{agent_role}, it is your turn to contribute.''',
             backend=backend,
             model=model,

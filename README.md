@@ -1,8 +1,8 @@
 # AgentMake AI
 
-AgentMake AI: a software developement kit for developing agentic AI applications that support 13 LLM backends and integrate tools and agents. (Developer: Eliran Wong)
+AgentMake AI: a software developement kit for developing agentic AI applications that support 14 LLM backends and integrate tools and agents. (Developer: Eliran Wong)
 
-Supported backends: anthropic, azure, custom, deepseek, genai, github, googleai, groq, llamacpp, mistral, ollama, openai, vertexai, xai
+Supported backends: anthropic, azure, cohere, custom, deepseek, genai, github, googleai, groq, llamacpp, mistral, ollama, openai, vertexai, xai
 
 # A Sibling Project
 
@@ -86,10 +86,6 @@ To work with parameter `tool`, e.g.:
 
 > generate("Send an email to Eliran Wong at eliran.wong@domain.com to express my gratitude for his work.", tool="send_gmail")
 
-To work with parameter `agent`, e.g.:
-
-> generate("Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre.", agent="teamgenai", stream=True)
-
 To work with parameters `input_content_plugin` and `output_content_plugin`, e.g.:
 
 > generate("what AI model best", input_content_plugin="improve_writing", output_content_plugin="translate_into_chinese", stream=True)
@@ -101,6 +97,10 @@ To work with parameter `system`, `context`, `follow_up_prompt`, e.g.:
 > generate("Is it better to drink wine in the morning, afternoon, or evening?", context="think", follow_up_prompt=["review", "refine"], stream=True)
 
 > generate("Provide a detailed introduction to generative AI.", system=["create_agents", "assign_agents"], follow_up_prompt="Who is the best agent to contribute next?", stream=True, model="llama3.3:70b")
+
+To work with parameter `agent`, e.g.:
+
+> generate("Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre.", agent="teamgenai", stream=True, model="llama3.3:70b")
 
 To work collaboratively with different backends, e.g.
 

@@ -20,6 +20,8 @@ def getChatCompletionText(
     else:
         if backend == "anthropic":
             text_output = completion.content[0].text
+        elif backend == "cohere":
+            text_output = completion.message.content[0].text
         elif backend == "ollama":
             text_output = completion.message.content
         elif backend in ("genai", "vertexai"):
