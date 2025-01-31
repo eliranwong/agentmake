@@ -1,6 +1,6 @@
-# AgentMake AI
+# ToolMate AI - SDK
 
-AgentMake AI: a software developement kit for developing agentic AI applications that support 13 LLM backends and integrate tools and agents. (Developer: Eliran Wong)
+ToolMate-SDK: a software developement kit for developing agentic AI applications that support 13 LLM backends and integrate tools and agents. (Developer: Eliran Wong)
 
 Supported backends: anthropic, azure, custom, deepseek, genai, github, googleai, groq, llamacpp, mistral, ollama, openai, vertexai, xai
 
@@ -56,7 +56,7 @@ We support Vertex AI via [Google GenAI SDK](https://pypi.org/project/google-gena
 
 # Usage
 
-This SDK is designed to offer a single function `generate` for interacting with all AI backends, delivering a unified experience for generating AI responses. The main APIs are provided with the function `generate` located in this [file](https://github.com/eliranwong/agentmake/blob/main/agentmake/__init__.py#L29).
+This SDK is designed to provide a single function for interacting with all AI backends, delivering a unified experience for generating AI responses. The main APIs are provided with the function `generate` located in this [file](https://github.com/eliranwong/agentmake/blob/main/agentmake/__init__.py#L29).
 
 Find documentation at https://github.com/eliranwong/agentmake/blob/main/docs/README.md
 
@@ -104,24 +104,27 @@ To work with parameter `system`, `context`, `follow_up_prompt`, e.g.:
 
 To work collaboratively with different backends, e.g.
 
-```
-messages = generate("What is the most effective method for training AI models?", backend="openai")
-messages = generate(messages, backend="googleai", follow_up_prompt="Can you give me some different options?")
-messages = generate(messages, backend="xai", follow_up_prompt="What are the limitations or potential biases in this information?")
-generate(messages, backend="mistral", follow_up_prompt="Please provide a summary of the discussion so far.")
-```
+> messages = generate("What is the most effective method for training AI models?", backend="openai")
+
+> messages = generate(messages, backend="googleai", follow_up_prompt="Can you give me some different options?")
+
+> messages = generate(messages, backend="xai", follow_up_prompt="What are the limitations or potential biases in this information?")
+
+> generate(messages, backend="mistral", follow_up_prompt="Please provide a summary of the discussion so far.")
 
 As you may see, the `generate` function returns the `messages` list, which is passed to the next `generate` function in turns.
 
 Therefore, it is very simple to create a chatbot application, you can do it as few as five lines or less, e.g.:
 
-```
-messages = [{"role": "system", "content": "You are an AI assistant."}]
-user_input = "Hello!"
-while user_input:
-    messages = generate(messages, follow_up_prompt=user_input, stream=True)
-    user_input = input("Enter your query:\n(enter a blank entry to exit)\n>>> ")
-```
+> messages = [{"role": "system", "content": "You are an AI assistant."}]
+
+> user_input = "Hello!"
+
+> while user_input:
+
+>     messages = generate(messages, follow_up_prompt=user_input, stream=True)
+
+>     user_input = input("Enter your query:\n(enter a blank entry to exit)\n>>> ")
 
 These are just a few simple and straightforward examples.  You may find more examples at:
 
@@ -132,9 +135,8 @@ https://github.com/eliranwong/agentmake/tree/main/agentmake/examples
 * add documentation about tool creation
 * add examples
 * convert availble ToolMate AI tools into tools that runable with this SDK
-* add built-in system messages
-* add built-in predefined contexts
-* add built-in prompts
+* added built-in system messages
+* added built-in predefined contexts
+* added built-in prompts
 * add cli options for running simple inference, tools or testing
 * improve code generation handling
-* add backend support of Cohere API

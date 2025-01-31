@@ -1,0 +1,10 @@
+ollama>=0.4.7
+groq>=0.15.0
+mistralai>=1.5.0
+openai>=1.60.2
+tiktoken>=0.8.0
+anthropic>=0.45.2
+#google-genai>=0.6.0 # not installed on Android termux
+prompt_toolkit
+packaging
+importlib_metadata
