@@ -31,35 +31,35 @@ DEFAULT_AI_BACKEND = os.getenv("DEFAULT_AI_BACKEND") if os.getenv("DEFAULT_AI_BA
 DEFAULT_FOLLOW_UP_PROMPT = os.getenv("DEFAULT_FOLLOW_UP_PROMPT") if os.getenv("DEFAULT_FOLLOW_UP_PROMPT") else "Please tell me more."
 
 def generate(
-        messages: Union[List[Dict[str, str]], str], # user request or messages containing user request; accepts either a single string or a list of dictionaries
-        backend: Optional[str]=DEFAULT_AI_BACKEND, # AI backend; check SUPPORTED_AI_BACKENDS for supported backends
-        model: Optional[str]=None, # AI model name; applicable to all backends, execept for llamacpp
-        model_keep_alive: Optional[str]=None, # time to keep the model loaded in memory; applicable to ollama only
-        system: Optional[Union[List[Optional[str]], str]]=None, # system message; define how the model should generally behave and respond; accepts a list of strings or a single string; loop through multiple system messages for multi-turn inferences if it is a list
-        context: Optional[Union[List[Optional[str]], str]]=None, # predefined context to be added to the user prompt as prefix; accepts a list of strings or a single string; loop through multiple predefined contexts for multi-turn inferences if it is a list
-        follow_up_prompt: Optional[Union[List[str], str]]=None, # follow-up prompts after an assistant message is generated; accepts a list of strings or a single string; loop through multiple follow-up prompts for multi-turn inferences if it is a list
-        input_content_plugin: Optional[Union[List[Optional[str]], str]]=None, # plugin that works on user input; accepts a list of strings or a single string; loop through multiple follow-up prompts for multi-turn inferences if it is a list
-        output_content_plugin: Optional[Union[List[Optional[str]], str]]=None, # plugin that works on assistant output; accepts a list of strings or a single string; loop through multiple follow-up prompts for multi-turn inferences if it is a list
-        agent: Optional[Union[List[Optional[str]], str]]=None,
-        tool: Optional[Union[List[Optional[str]], str]]=None, # a tool either a built-in tool name under the folder `tools` in the package directory or a file path of the tool; accepts a list of strings or a single string; loop through multiple tools for multi-turn actions if it is a list; parameters of both `schema` and `func` are ignored when `tool` parameter is given
-        schema: Optional[dict]=None, # json schema for structured output or function calling
-        func: Optional[Callable[..., Optional[str]]]=None, # function to be called
-        temperature: Optional[float]=None, # temperature for sampling
-        max_tokens: Optional[int]=None, # maximum number of tokens to generate
-        context_window: Optional[int]=None, # context window size; applicable to ollama only
-        batch_size: Optional[int]=None, # batch size; applicable to ollama only
-        prefill: Optional[Union[List[Optional[str]], str]]=None, # prefill of assistant message; applicable to deepseek, mistral, ollama and groq only; accepts a list of strings or a single string; loop through multiple prefills for multi-turn inferences if it is a list
-        stop: Optional[list]=None, # stop sequences
-        stream: Optional[bool]=False, # stream partial message deltas as they are available
-        stream_events_only: Optional[bool]=False, # return streaming events object only
-        api_key: Optional[str]=None, # API key or credentials json file path in case of using Vertex AI as backend; applicable to anthropic, custom, deepseek, genai, github, googleai, groq, mistral, openai, xai
-        api_endpoint: Optional[str]=None, # API endpoint; applicable to azure, custom, llamacpp, ollama
-        api_project_id: Optional[str]=None, # project id; applicable to Vertex AI only, i.e., vertexai or genai
-        api_service_location: Optional[str]=None, # cloud service location; applicable to Vertex AI only, i.e., vertexai or genai
-        api_timeout: Optional[Union[int, float]]=None, # timeout for API request; applicable to backends, execept for ollama, genai and vertexai
-        print_on_terminal: Optional[bool]=True, # print output on terminal
-        word_wrap: Optional[bool]=True, # word wrap output according to current terminal width
-        **kwargs, # pass extra options supported by individual backends
+    messages: Union[List[Dict[str, str]], str], # user request or messages containing user request; accepts either a single string or a list of dictionaries
+    backend: Optional[str]=DEFAULT_AI_BACKEND, # AI backend; check SUPPORTED_AI_BACKENDS for supported backends
+    model: Optional[str]=None, # AI model name; applicable to all backends, execept for llamacpp
+    model_keep_alive: Optional[str]=None, # time to keep the model loaded in memory; applicable to ollama only
+    system: Optional[Union[List[Optional[str]], str]]=None, # system message; define how the model should generally behave and respond; accepts a list of strings or a single string; loop through multiple system messages for multi-turn inferences if it is a list
+    context: Optional[Union[List[Optional[str]], str]]=None, # predefined context to be added to the user prompt as prefix; accepts a list of strings or a single string; loop through multiple predefined contexts for multi-turn inferences if it is a list
+    follow_up_prompt: Optional[Union[List[str], str]]=None, # follow-up prompts after an assistant message is generated; accepts a list of strings or a single string; loop through multiple follow-up prompts for multi-turn inferences if it is a list
+    input_content_plugin: Optional[Union[List[Optional[str]], str]]=None, # plugin that works on user input; accepts a list of strings or a single string; loop through multiple follow-up prompts for multi-turn inferences if it is a list
+    output_content_plugin: Optional[Union[List[Optional[str]], str]]=None, # plugin that works on assistant output; accepts a list of strings or a single string; loop through multiple follow-up prompts for multi-turn inferences if it is a list
+    agent: Optional[Union[List[Optional[str]], str]]=None,
+    tool: Optional[Union[List[Optional[str]], str]]=None, # a tool either a built-in tool name under the folder `tools` in the package directory or a file path of the tool; accepts a list of strings or a single string; loop through multiple tools for multi-turn actions if it is a list; parameters of both `schema` and `func` are ignored when `tool` parameter is given
+    schema: Optional[dict]=None, # json schema for structured output or function calling
+    func: Optional[Callable[..., Optional[str]]]=None, # function to be called
+    temperature: Optional[float]=None, # temperature for sampling
+    max_tokens: Optional[int]=None, # maximum number of tokens to generate
+    context_window: Optional[int]=None, # context window size; applicable to ollama only
+    batch_size: Optional[int]=None, # batch size; applicable to ollama only
+    prefill: Optional[Union[List[Optional[str]], str]]=None, # prefill of assistant message; applicable to deepseek, mistral, ollama and groq only; accepts a list of strings or a single string; loop through multiple prefills for multi-turn inferences if it is a list
+    stop: Optional[list]=None, # stop sequences
+    stream: Optional[bool]=False, # stream partial message deltas as they are available
+    stream_events_only: Optional[bool]=False, # return streaming events object only
+    api_key: Optional[str]=None, # API key or credentials json file path in case of using Vertex AI as backend; applicable to anthropic, custom, deepseek, genai, github, googleai, groq, mistral, openai, xai
+    api_endpoint: Optional[str]=None, # API endpoint; applicable to azure, custom, llamacpp, ollama
+    api_project_id: Optional[str]=None, # project id; applicable to Vertex AI only, i.e., vertexai or genai
+    api_service_location: Optional[str]=None, # cloud service location; applicable to Vertex AI only, i.e., vertexai or genai
+    api_timeout: Optional[Union[int, float]]=None, # timeout for API request; applicable to backends, execept for ollama, genai and vertexai
+    print_on_terminal: Optional[bool]=True, # print output on terminal
+    word_wrap: Optional[bool]=True, # word wrap output according to current terminal width
+    **kwargs, # pass extra options supported by individual backends
 ) -> Union[List[Dict[str, str]], Any]:
     """
     Generate AI assistant response.
@@ -857,23 +857,23 @@ def generate(
     return messages_copy
 
 def getDictionaryOutput(
-        messages: List[Dict[str, str]],
-        schema: dict,
-        backend: str,
-        model: Optional[str]=None,
-        model_keep_alive: Optional[str]=None,
-        temperature: Optional[float]=None, 
-        max_tokens: Optional[int]=None,
-        context_window: Optional[int]=None,
-        batch_size: Optional[int]=None,
-        prefill: Optional[str]=None,
-        stop: Optional[list]=None,
-        api_key: Optional[str]=None,
-        api_endpoint: Optional[str]=None,
-        api_project_id: Optional[str]=None,
-        api_service_location: Optional[str]=None,
-        api_timeout: Optional[Union[int, float]]=None,
-        **kwargs,
+    messages: List[Dict[str, str]],
+    schema: dict,
+    backend: str,
+    model: Optional[str]=None,
+    model_keep_alive: Optional[str]=None,
+    temperature: Optional[float]=None, 
+    max_tokens: Optional[int]=None,
+    context_window: Optional[int]=None,
+    batch_size: Optional[int]=None,
+    prefill: Optional[str]=None,
+    stop: Optional[list]=None,
+    api_key: Optional[str]=None,
+    api_endpoint: Optional[str]=None,
+    api_project_id: Optional[str]=None,
+    api_service_location: Optional[str]=None,
+    api_timeout: Optional[Union[int, float]]=None,
+    **kwargs,
 ) -> dict:
     """
     Returns dictionary in response to user message
