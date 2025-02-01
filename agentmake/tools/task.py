@@ -5,7 +5,8 @@ import platform
 TOOL_PLATFORM = "Linux (" + get_linux_distro().get("name", "") + ")" if platform.system() == "Linux" else platform.system()
 TOOL_PLATFORM = TOOL_PLATFORM.replace("()", "")
 
-TOOL_SYSTEM = f"""You are a senior python engineer. Your expertise is to resolve my request, by generating python code that works on {TOOL_PLATFORM}."""
+TOOL_SYSTEM = f"""You are a senior python engineer. Your expertise is to resolve my request, by generating python code that works on {TOOL_PLATFORM}.
+Remember, you should format the requested information, if any, into a string that is easily readable by humans. Use the 'print' function in the final line to display the requested information."""
 
 TOOL_SCHEMA = {
     "name": "task",
@@ -31,7 +32,7 @@ TOOL_SCHEMA = {
     },
 }
 
-def task(code: str, title: str, risk: str):
+def task(code: str, title: str, risk: str, **kwargs):
     print(f"Running task: {title}")
     #print(f"Risk: {risk}") # implement risk management later
     print()

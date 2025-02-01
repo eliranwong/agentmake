@@ -17,9 +17,9 @@ Review, evaluate, and reflect on your response, identifying any potential errors
 
 3. Potential Errors and Oversights:
 
-  a. Identify Factual Errors: Point out any specific instances where the LLM response provides incorrect or misleading information.
+  a. Identify Factual Errors: Point out any specific instances where the AI response provides incorrect or misleading information.
   b. Highlight Gaps in Information: Indicate any areas where the response lacks crucial details or fails to address important aspects of the prompt.
-  c. Address Logical Fallacies: If the LLM response contains any flawed reasoning or logical inconsistencies, clearly identify and explain them.
+  c. Address Logical Fallacies: If the AI response contains any flawed reasoning or logical inconsistencies, clearly identify and explain them.
   d. Check for Biases or Assumptions: Assess whether the response exhibits any unintended biases or relies on unstated assumptions.
 
 4. Suggestions for Improvement:
@@ -33,7 +33,7 @@ Review, evaluate, and reflect on your response, identifying any potential errors
 
 5. Overall Assessment and Reflection:
 
-  a. Summarize Strengths and Weaknesses: Provide a concise overview of the LLM response's strengths and weaknesses.
-  b. Reflect on Potential Causes of Errors: Consider why the LLM may have made certain errors or oversights. Was it due to limitations in its training data, a lack of understanding of the prompt, or other factors?
-  c. Suggest Strategies for Future Improvement: Based on the evaluation and reflection, propose ways to enhance the LLM's performance on similar tasks in the future.
+  a. Summarize Strengths and Weaknesses: Provide a concise overview of the AI response's strengths and weaknesses.
+  b. Reflect on Potential Causes of Errors: Consider why the AI may have made certain errors or oversights. Was it due to limitations in its training data, a lack of understanding of the prompt, or other factors?
+  c. Suggest Strategies for Future Improvement: Based on the evaluation and reflection, propose ways to enhance the AI's performance on similar tasks in the future.
 

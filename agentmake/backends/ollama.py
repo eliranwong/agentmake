@@ -9,7 +9,7 @@ from ollama import list as ollama_ls
 import ollama
 import re, json
 
-class OllamaLLM:
+class OllamaAI:
 
     DEFAULT_ENDPOINT = f"http://{get_local_ip()}:11434"
     DEFAULT_MODEL = "llama3.2"
@@ -21,39 +21,39 @@ class OllamaLLM:
 
     @staticmethod
     def getChatCompletion(
-            messages: list,
-            model: Optional[str]=None,
-            model_keep_alive: Optional[str]=None,
-            schema: Optional[dict]=None,
-            temperature: Optional[float]=None, 
-            max_tokens: Optional[int]=None,
-            context_window: Optional[int]=None, # applicable to ollama only
-            batch_size: Optional[int]=None, # applicable to ollama only
-            prefill: Optional[str]=None,
-            stop: Optional[list]=None,
-            stream: Optional[bool]=False,
-            #api_key: Optional[str]=None, # api key for backends that require one; enter credentials json file path if using Vertex AI
-            api_endpoint: Optional[str]=None,
-            #api_project_id: Optional[str]=None, # applicable to Vertex AI only
-            #api_service_location: Optional[str]=None, # applicable to Vertex AI only
-            **kwargs,
+        messages: list,
+        model: Optional[str]=None,
+        model_keep_alive: Optional[str]=None,
+        schema: Optional[dict]=None,
+        temperature: Optional[float]=None, 
+        max_tokens: Optional[int]=None,
+        context_window: Optional[int]=None, # applicable to ollama only
+        batch_size: Optional[int]=None, # applicable to ollama only
+        prefill: Optional[str]=None,
+        stop: Optional[list]=None,
+        stream: Optional[bool]=False,
+        #api_key: Optional[str]=None, # api key for backends that require one; enter credentials json file path if using Vertex AI
+        api_endpoint: Optional[str]=None,
+        #api_project_id: Optional[str]=None, # applicable to Vertex AI only
+        #api_service_location: Optional[str]=None, # applicable to Vertex AI only
+        **kwargs,
     ) -> ChatResponse:
         if prefill:
             messages.append({'role': 'assistant', 'content': prefill})
-        model = model if model else OllamaLLM.DEFAULT_MODEL
+        model = model if model else OllamaAI.DEFAULT_MODEL
         # download model if it is not in the model list
-        OllamaLLM.downloadModel(model)
-        return Client(host=api_endpoint if api_endpoint else OllamaLLM.DEFAULT_ENDPOINT).chat(
-            keep_alive=model_keep_alive if model_keep_alive else OllamaLLM.DEFAULT_KEEP_ALIVE,
+        OllamaAI.downloadModel(model)
+        return Client(host=api_endpoint if api_endpoint else OllamaAI.DEFAULT_ENDPOINT).chat(
+            keep_alive=model_keep_alive if model_keep_alive else OllamaAI.DEFAULT_KEEP_ALIVE,
             model=model,
             messages=messages,
             format=getParameterSchema(schema) if schema else None,
             stream=stream,
             options=Options(
-                temperature=temperature if temperature is not None else OllamaLLM.DEFAULT_TEMPERATURE,
-                num_ctx=context_window if context_window is not None else OllamaLLM.DEFAULT_CONTEXT_WINDOW,
-                num_batch=batch_size if batch_size is not None else OllamaLLM.DEFAULT_BATCH_SIZE,
-                num_predict=max_tokens if max_tokens else OllamaLLM.DEFAULT_MAX_TOKENS,
+                temperature=temperature if temperature is not None else OllamaAI.DEFAULT_TEMPERATURE,
+                num_ctx=context_window if context_window is not None else OllamaAI.DEFAULT_CONTEXT_WINDOW,
+                num_batch=batch_size if batch_size is not None else OllamaAI.DEFAULT_BATCH_SIZE,
+                num_predict=max_tokens if max_tokens else OllamaAI.DEFAULT_MAX_TOKENS,
                 stop=stop,
                 **kwargs,
             ),
@@ -61,23 +61,23 @@ class OllamaLLM:
 
     @staticmethod
     def getDictionaryOutput(
-            messages: list,
-            schema: dict,
-            model: Optional[str]=None,
-            model_keep_alive: Optional[str]=None,
-            temperature: Optional[float]=None, 
-            max_tokens: Optional[int]=None,
-            context_window: Optional[int]=None, # applicable to ollama only
-            batch_size: Optional[int]=None, # applicable to ollama only
-            prefill: Optional[str]=None,
-            stop: Optional[list]=None,
-            #api_key: Optional[str]=None, # api key for backends that require one; enter credentials json file path if using Vertex AI
-            api_endpoint: Optional[str]=None,
-            #api_project_id: Optional[str]=None, # applicable to Vertex AI only
-            #api_service_location: Optional[str]=None, # applicable to Vertex AI only
-            **kwargs,
+        messages: list,
+        schema: dict,
+        model: Optional[str]=None,
+        model_keep_alive: Optional[str]=None,
+        temperature: Optional[float]=None, 
+        max_tokens: Optional[int]=None,
+        context_window: Optional[int]=None, # applicable to ollama only
+        batch_size: Optional[int]=None, # applicable to ollama only
+        prefill: Optional[str]=None,
+        stop: Optional[list]=None,
+        #api_key: Optional[str]=None, # api key for backends that require one; enter credentials json file path if using Vertex AI
+        api_endpoint: Optional[str]=None,
+        #api_project_id: Optional[str]=None, # applicable to Vertex AI only
+        #api_service_location: Optional[str]=None, # applicable to Vertex AI only
+        **kwargs,
     ) -> dict:
-        completion = OllamaLLM.getChatCompletion(
+        completion = OllamaAI.getChatCompletion(
             messages,
             model=model,
             schema=schema,

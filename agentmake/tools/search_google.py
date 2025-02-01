@@ -13,7 +13,7 @@ TOOL_SYSTEM = "You expertise is to identify keywords for online searches, in ord
 
 TOOL_SCHEMA = {
     "name": "search_google",
-    "description": "Search Google for real-time information or latest updates when LLM lacks information",
+    "description": "Search Google for real-time information or latest updates when AI lacks information",
     "parameters": {
         "type": "object",
         "properties": {
@@ -26,7 +26,7 @@ TOOL_SCHEMA = {
     },
 }
 
-def search_google(keywords):
+def search_google(keywords, **kwargs):
     info = {}
     for index, item in enumerate(googlesearch.search(keywords, advanced=True, num_results=os.getenv("MAXIMUM_INTERNET_SEARCHES") if os.getenv("MAXIMUM_INTERNET_SEARCHES") else 5)):
         info[f"information {index}"] = {

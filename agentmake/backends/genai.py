@@ -8,7 +8,7 @@ from typing import Optional, Any
 import json, os
 
 
-class GenaiLLM:
+class GenaiAI:
 
     DEFAULT_API_KEY = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
     DEFAULT_API_PROJECT_ID = ""
@@ -45,32 +45,32 @@ class GenaiLLM:
 
     @staticmethod
     def getChatCompletion(
-            messages: list,
-            model: Optional[str]=None,
-            schema: Optional[dict]=None,
-            temperature: Optional[float]=None,
-            max_tokens: Optional[int]=None,
-            #context_window: Optional[int]=None, # applicable to ollama only
-            #batch_size: Optional[int]=None, # applicable to ollama only
-            #prefill: Optional[str]=None,
-            stop: Optional[list]=None,
-            stream: Optional[bool]=False,
-            api_key: Optional[str]=None, # enter credentials json file path if using Vertex AI; or enter Google AI API key for accessing Google AI services
-            #api_endpoint: Optional[str]=None,
-            api_project_id: Optional[str]=None, # applicable to Vertex AI only
-            api_service_location: Optional[str]=None, # applicable to Vertex AI only
-            **kwargs,
+        messages: list,
+        model: Optional[str]=None,
+        schema: Optional[dict]=None,
+        temperature: Optional[float]=None,
+        max_tokens: Optional[int]=None,
+        #context_window: Optional[int]=None, # applicable to ollama only
+        #batch_size: Optional[int]=None, # applicable to ollama only
+        #prefill: Optional[str]=None,
+        stop: Optional[list]=None,
+        stream: Optional[bool]=False,
+        api_key: Optional[str]=None, # enter credentials json file path if using Vertex AI; or enter Google AI API key for accessing Google AI services
+        #api_endpoint: Optional[str]=None,
+        api_project_id: Optional[str]=None, # applicable to Vertex AI only
+        api_service_location: Optional[str]=None, # applicable to Vertex AI only
+        **kwargs,
     ) -> Any:
-        if not api_key and not GenaiLLM.DEFAULT_API_KEY:
+        if not api_key and not GenaiAI.DEFAULT_API_KEY:
             raise ValueError("API key is required.")
         #if prefill:
         #    messages.append({'role': 'assistant', 'content': prefill})
         # convert messages to GenAI format
-        history, system_message, last_user_message = GenaiLLM.toGenAIMessages(messages=messages)
+        history, system_message, last_user_message = GenaiAI.toGenAIMessages(messages=messages)
         # create GenAI client
-        api_project_id = api_project_id if api_project_id else GenaiLLM.DEFAULT_API_PROJECT_ID
-        api_service_location = api_service_location if api_service_location else GenaiLLM.DEFAULT_API_SERVICE_LOCATION
-        api_key = api_key if api_key else GenaiLLM.DEFAULT_API_KEY
+        api_project_id = api_project_id if api_project_id else GenaiAI.DEFAULT_API_PROJECT_ID
+        api_service_location = api_service_location if api_service_location else GenaiAI.DEFAULT_API_SERVICE_LOCATION
+        api_key = api_key if api_key else GenaiAI.DEFAULT_API_KEY
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = api_key if os.path.isfile(api_key) else ""
         genai_client = Client(vertexai=True, project=api_project_id, location=api_service_location) if os.path.isfile(api_key) and api_project_id and api_service_location else Client(api_key=api_key)
         # format GenAI tool
@@ -96,12 +96,12 @@ class GenaiLLM:
         # generate content
         genai_config = GenerateContentConfig(
             system_instruction=system_message,
-            temperature=temperature if temperature is not None else GenaiLLM.DEFAULT_TEMPERATURE,
+            temperature=temperature if temperature is not None else GenaiAI.DEFAULT_TEMPERATURE,
             #top_p=0.95,
             #top_k=20,
             candidate_count=1,
             #seed=5,
-            max_output_tokens=max_tokens if max_tokens else GenaiLLM.DEFAULT_MAX_TOKENS,
+            max_output_tokens=max_tokens if max_tokens else GenaiAI.DEFAULT_MAX_TOKENS,
             stop_sequences=stop if stop else ["STOP!"],
             #presence_penalty=0.0,
             #frequency_penalty=0.0,
@@ -130,7 +130,7 @@ class GenaiLLM:
             tools=tools,
         )
         genai_chat = genai_client.chats.create(
-            model=model if model else GenaiLLM.DEFAULT_MODEL,
+            model=model if model else GenaiAI.DEFAULT_MODEL,
             config=genai_config,
             history=history,
             **kwargs
@@ -139,22 +139,22 @@ class GenaiLLM:
 
     @staticmethod
     def getDictionaryOutput(
-            messages: list,
-            schema: dict,
-            model: Optional[str]=None,
-            temperature: Optional[float]=None, 
-            max_tokens: Optional[int]=None,
-            #context_window: Optional[int]=None, # applicable to ollama only
-            #batch_size: Optional[int]=None, # applicable to ollama only
-            #prefill: Optional[str]=None,
-            stop: Optional[list]=None,
-            api_key: Optional[str]=None, # api key for backends that require one; enter credentials json file path if using Vertex AI
-            #api_endpoint: Optional[str]=None,
-            api_project_id: Optional[str]=None, # applicable to Vertex AI only
-            api_service_location: Optional[str]=None, # applicable to Vertex AI only
-            **kwargs,
+        messages: list,
+        schema: dict,
+        model: Optional[str]=None,
+        temperature: Optional[float]=None, 
+        max_tokens: Optional[int]=None,
+        #context_window: Optional[int]=None, # applicable to ollama only
+        #batch_size: Optional[int]=None, # applicable to ollama only
+        #prefill: Optional[str]=None,
+        stop: Optional[list]=None,
+        api_key: Optional[str]=None, # api key for backends that require one; enter credentials json file path if using Vertex AI
+        #api_endpoint: Optional[str]=None,
+        api_project_id: Optional[str]=None, # applicable to Vertex AI only
+        api_service_location: Optional[str]=None, # applicable to Vertex AI only
+        **kwargs,
     ) -> dict:
-        completion = GenaiLLM.getChatCompletion(
+        completion = GenaiAI.getChatCompletion(
             messages,
             model=model,
             schema=schema,
@@ -173,7 +173,7 @@ class GenaiLLM:
             textOutput = textOutput[8:-4]
         return json.loads(textOutput)
 
-class VertexaiLLM:
+class VertexaiAI:
 
     @staticmethod
     def getChatCompletion(
@@ -193,7 +193,7 @@ class VertexaiLLM:
             api_service_location: Optional[str]=None, # applicable to Vertex AI only
             **kwargs,
     ) -> Any:
-        return GenaiLLM.getChatCompletion(
+        return GenaiAI.getChatCompletion(
             messages,
             model=model,
             schema=schema,
@@ -224,7 +224,7 @@ class VertexaiLLM:
             api_service_location: Optional[str]=None, # applicable to Vertex AI only
             **kwargs,
     ) -> dict:
-        return GenaiLLM.getDictionaryOutput(
+        return GenaiAI.getDictionaryOutput(
             messages,
             schema,
             model=model,

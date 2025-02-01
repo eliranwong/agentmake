@@ -1,12 +1,12 @@
 # AgentMake AI
 
-AgentMake AI: a software developement kit for developing agentic AI applications that support 14 LLM backends and integrate tools and agents. (Developer: Eliran Wong)
+AgentMake AI: a software developement kit for developing agentic AI applications that support 14 AI backends and integrate tools and agents. (Developer: Eliran Wong)
 
 Supported backends: anthropic, azure, cohere, custom, deepseek, genai, github, googleai, groq, llamacpp, mistral, ollama, openai, vertexai, xai
 
-# A Sibling Project
+# A Sibling Projects
 
-This SDK incorporates the best aspects of our favorite project, [Toolmate AI](https://github.com/eliranwong/toolmate), to create a library aimed at further advancing the development of agentic AI applications.
+This SDK incorporates the best aspects of our favorite projects, [LetMeDoIt AI](https://github.com/eliranwong/letmedoit), [Toolmate AI](https://github.com/eliranwong/toolmate) and [TeamGen AI](https://github.com/eliranwong/teamgenai), to create a library aimed at further advancing the development of agentic AI applications.
 
 # Supported backends
 
@@ -16,7 +16,7 @@ This SDK incorporates the best aspects of our favorite project, [Toolmate AI](ht
 
 `cohere` - [Cohere API](https://docs.cohere.com/docs/the-cohere-platform)
 
-`custom` - any openai-compatible backends
+`custom` - any openai-compatible backends that support function calling
 
 `deepseek` - [DeepSeek API](https://platform.deepseek.com/)
 

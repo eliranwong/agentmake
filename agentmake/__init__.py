@@ -1,17 +1,17 @@
-from .backends.anthropic import AnthropicLLM
-from .backends.azure import AzureLLM
-from .backends.cohere import CohereLLM
-from .backends.custom import OpenaiCompatibleLLM
-from .backends.deepseek import DeepseekLLM
-from .backends.genai import GenaiLLM
-from .backends.github import GithubLLM
-from .backends.googleai import GoogleaiLLM
-from .backends.groq import GroqLLM
-from .backends.llamacpp import LlamacppLLM
-from .backends.mistral import MistralLLM
-from .backends.ollama import OllamaLLM
-from .backends.openai import OpenaiLLM
-from .backends.xai import XaiLLM
+from .backends.anthropic import AnthropicAI
+from .backends.azure import AzureAI
+from .backends.cohere import CohereAI
+from .backends.custom import OpenaiCompatibleAI
+from .backends.deepseek import DeepseekAI
+from .backends.genai import GenaiAI
+from .backends.github import GithubAI
+from .backends.googleai import GoogleaiAI
+from .backends.groq import GroqAI
+from .backends.llamacpp import LlamacppAI
+from .backends.mistral import MistralAI
+from .backends.ollama import OllamaAI
+from .backends.openai import OpenaiAI
+from .backends.xai import XaiAI
 
 from .utils.instructions import getRagPrompt
 from .utils.retrieve_text_output import getChatCompletionText
@@ -331,7 +331,26 @@ def generate(
             # run user input content plugin
             if input_content_plugin_func:
                 if user_input := messages_copy[-1].get("content", ""):
-                    messages_copy[-1]["content"] = input_content_plugin_func(user_input)
+                    messages_copy[-1]["content"] = input_content_plugin_func(
+                        user_input,
+                        backend=backend,
+                        model=model,
+                        model_keep_alive=model_keep_alive,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        context_window=context_window,
+                        batch_size=batch_size,
+                        prefill=prefill,
+                        stop=stop,
+                        stream=stream,
+                        api_key=api_key,
+                        api_project_id=api_project_id,
+                        api_service_location=api_service_location,
+                        api_timeout=api_timeout,
+                        print_on_terminal=print_on_terminal,
+                        word_wrap=word_wrap,
+                        **kwargs,
+                    )
     # handle agent(s)
     agent_response = None
     agent_func = None
@@ -493,7 +512,7 @@ def generate(
 
     # deep copy schema avoid modifying the original one
     schemaCopy = None if schema is None else deepcopy(schema)
-    # run LLM
+    # run AI
     if agent_response is not None:
         if stream and stream_events_only and is_last_request:
             return agent_response
@@ -533,7 +552,26 @@ def generate(
             function_text_output = ""
             try:
                 # execute the function
-                function_response = func() if not dictionary_output else func(**dictionary_output) # returned response can be either 1) an empty string: no chat extension 2) a non-empty string: chat extension 3) none: errors encountered in executing the function
+                function_response = func() if not dictionary_output else func(
+                    **dictionary_output,
+                    backend=backend,
+                    model=model,
+                    model_keep_alive=model_keep_alive,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    context_window=context_window,
+                    batch_size=batch_size,
+                    prefill=prefill,
+                    stop=stop,
+                    stream=stream,
+                    api_key=api_key,
+                    api_project_id=api_project_id,
+                    api_service_location=api_service_location,
+                    api_timeout=api_timeout,
+                    print_on_terminal=print_on_terminal,
+                    word_wrap=word_wrap,
+                    **kwargs,
+                ) # returned response can be either 1) an empty string: no chat extension 2) a non-empty string: chat extension 3) none: errors encountered in executing the function
                 function_text_output = terminal_output.getvalue() # capture the function text output for function calling without chat extension
             except:
                 function_response = None # due to unexpected errors encountered in executing the function; fall back to regular completion
@@ -581,7 +619,7 @@ def generate(
             print(output)
     else: # regular completion
         if backend == "anthropic":
-            completion = AnthropicLLM.getChatCompletion(
+            completion = AnthropicAI.getChatCompletion(
                 messages_copy,
                 model=model,
                 temperature=temperature,
@@ -593,7 +631,7 @@ def generate(
                 **kwargs
             )
         elif backend == "azure":
-            completion = AzureLLM.getChatCompletion(
+            completion = AzureAI.getChatCompletion(
                 messages_copy,
                 model=model,
                 temperature=temperature,
@@ -606,7 +644,7 @@ def generate(
                 **kwargs
             )
         elif backend == "cohere":
-            completion = CohereLLM.getChatCompletion(
+            completion = CohereAI.getChatCompletion(
                 messages_copy,
                 model=model,
                 temperature=temperature,
@@ -618,7 +656,7 @@ def generate(
                 **kwargs
             )
         elif backend == "custom":
-            completion = OpenaiCompatibleLLM.getChatCompletion(
+            completion = OpenaiCompatibleAI.getChatCompletion(
                 messages_copy,
                 model=model,
                 temperature=temperature,
@@ -631,7 +669,7 @@ def generate(
                 **kwargs
             )
         elif backend == "deepseek":
-            completion = DeepseekLLM.getChatCompletion(
+            completion = DeepseekAI.getChatCompletion(
                 messages_copy,
                 model=model,
                 temperature=temperature,
@@ -644,7 +682,7 @@ def generate(
                 **kwargs
             )
         elif backend in ("genai", "vertexai"):
-            completion = GenaiLLM.getChatCompletion(
+            completion = GenaiAI.getChatCompletion(
                 messages_copy,
                 model=model,
                 temperature=temperature,
@@ -657,7 +695,7 @@ def generate(
                 **kwargs
             )
         elif backend == "github":
-            completion = GithubLLM.getChatCompletion(
+            completion = GithubAI.getChatCompletion(
                 messages_copy,
                 model=model,
                 temperature=temperature,
@@ -669,7 +707,7 @@ def generate(
                 **kwargs
             )
         elif backend == "googleai":
-            completion = GoogleaiLLM.getChatCompletion(
+            completion = GoogleaiAI.getChatCompletion(
                 messages_copy,
                 model=model,
                 temperature=temperature,
@@ -681,7 +719,7 @@ def generate(
                 **kwargs
             )
         elif backend == "groq":
-            completion = GroqLLM.getChatCompletion(
+            completion = GroqAI.getChatCompletion(
                 messages_copy,
                 model=model,
                 temperature=temperature,
@@ -694,7 +732,7 @@ def generate(
                 **kwargs
             )
         elif backend == "llamacpp":
-            completion = LlamacppLLM.getChatCompletion(
+            completion = LlamacppAI.getChatCompletion(
                 messages_copy,
                 temperature=temperature,
                 max_tokens=max_tokens,
@@ -705,7 +743,7 @@ def generate(
                 **kwargs
             )
         elif backend == "mistral":
-            completion = MistralLLM.getChatCompletion(
+            completion = MistralAI.getChatCompletion(
                 messages_copy,
                 model=model,
                 temperature=temperature,
@@ -718,7 +756,7 @@ def generate(
                 **kwargs
             )
         elif backend == "ollama":
-            completion = OllamaLLM.getChatCompletion(             
+            completion = OllamaAI.getChatCompletion(             
                 messages_copy,
                 model=model,
                 model_keep_alive=model_keep_alive,
@@ -733,7 +771,7 @@ def generate(
                 **kwargs
             )
         elif backend == "openai":
-            completion = OpenaiLLM.getChatCompletion(
+            completion = OpenaiAI.getChatCompletion(
                 messages_copy,
                 model=model,
                 temperature=temperature,
@@ -745,7 +783,7 @@ def generate(
                 **kwargs
             )
         elif backend == "xai":
-            completion = XaiLLM.getChatCompletion(
+            completion = XaiAI.getChatCompletion(
                 messages_copy,
                 model=model,
                 temperature=temperature,
@@ -795,7 +833,26 @@ def generate(
                         print(traceback.format_exc())
             # run user output content plugin
             if output_content_plugin_func and output:
-                output = output_content_plugin_func(output)
+                output = output_content_plugin_func(
+                    output,
+                    backend=backend,
+                    model=model,
+                    model_keep_alive=model_keep_alive,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    context_window=context_window,
+                    batch_size=batch_size,
+                    prefill=prefill,
+                    stop=stop,
+                    stream=stream,
+                    api_key=api_key,
+                    api_project_id=api_project_id,
+                    api_service_location=api_service_location,
+                    api_timeout=api_timeout,
+                    print_on_terminal=print_on_terminal,
+                    word_wrap=word_wrap,
+                    **kwargs,
+                )
 
     # update the message list
     if not agent_response:
@@ -879,7 +936,7 @@ def getDictionaryOutput(
     Returns dictionary in response to user message
     """
     if backend == "anthropic":
-        return AnthropicLLM.getDictionaryOutput(
+        return AnthropicAI.getDictionaryOutput(
             messages,
             schema,
             model=model,
@@ -891,7 +948,7 @@ def getDictionaryOutput(
             **kwargs
         )
     elif backend == "azure":
-        return AzureLLM.getDictionaryOutput(
+        return AzureAI.getDictionaryOutput(
             messages,
             schema,
             model=model,
@@ -904,7 +961,7 @@ def getDictionaryOutput(
             **kwargs
         )
     elif backend == "cohere":
-        return CohereLLM.getDictionaryOutput(
+        return CohereAI.getDictionaryOutput(
             messages,
             schema,
             model=model,
@@ -916,7 +973,7 @@ def getDictionaryOutput(
             **kwargs
         )
     elif backend == "custom":
-        return OpenaiCompatibleLLM.getDictionaryOutput(
+        return OpenaiCompatibleAI.getDictionaryOutput(
             messages,
             schema,
             model=model,
@@ -929,7 +986,7 @@ def getDictionaryOutput(
             **kwargs
         )
     elif backend == "deepseek":
-        return DeepseekLLM.getDictionaryOutput(
+        return DeepseekAI.getDictionaryOutput(
             messages,
             schema,
             model=model,
@@ -942,7 +999,7 @@ def getDictionaryOutput(
             **kwargs
         )
     elif backend in ("genai", "vertexai"):
-        return GenaiLLM.getDictionaryOutput(
+        return GenaiAI.getDictionaryOutput(
             messages,
             schema,
             model=model,
@@ -955,7 +1012,7 @@ def getDictionaryOutput(
             **kwargs
         )
     elif backend == "github":
-        return GithubLLM.getDictionaryOutput(
+        return GithubAI.getDictionaryOutput(
             messages,
             schema,
             model=model,
@@ -967,7 +1024,7 @@ def getDictionaryOutput(
             **kwargs
         )
     elif backend == "googleai":
-        return GoogleaiLLM.getDictionaryOutput(
+        return GoogleaiAI.getDictionaryOutput(
             messages,
             schema,
             model=model,
@@ -979,7 +1036,7 @@ def getDictionaryOutput(
             **kwargs
         )
     elif backend == "groq":
-        return GroqLLM.getDictionaryOutput(
+        return GroqAI.getDictionaryOutput(
             messages,
             schema,
             model=model,
@@ -992,7 +1049,7 @@ def getDictionaryOutput(
             **kwargs
         )
     elif backend == "llamacpp":
-        return LlamacppLLM.getDictionaryOutput(
+        return LlamacppAI.getDictionaryOutput(
             messages,
             schema,
             temperature=temperature,
@@ -1003,7 +1060,7 @@ def getDictionaryOutput(
             **kwargs
         )
     elif backend == "mistral":
-        return MistralLLM.getDictionaryOutput(
+        return MistralAI.getDictionaryOutput(
             messages,
             schema,
             model=model,
@@ -1016,7 +1073,7 @@ def getDictionaryOutput(
             **kwargs
         )
     elif backend == "ollama":
-        return OllamaLLM.getDictionaryOutput(
+        return OllamaAI.getDictionaryOutput(
             messages,
             schema,
             model=model,
@@ -1031,7 +1088,7 @@ def getDictionaryOutput(
             **kwargs
         )
     elif backend == "openai":
-        return OpenaiLLM.getDictionaryOutput(
+        return OpenaiAI.getDictionaryOutput(
             messages,
             schema,
             model=model,
@@ -1043,7 +1100,7 @@ def getDictionaryOutput(
             **kwargs
         )
     elif backend == "xai":
-        return XaiLLM.getDictionaryOutput(
+        return XaiAI.getDictionaryOutput(
             messages,
             schema,
             model=model,

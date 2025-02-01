@@ -26,7 +26,7 @@ TOOL_SCHEMA = {
     },
 }
 
-def send_outlook(email_title: str, eamil_content: str, email_address: str=""):
+def send_outlook(email_title: str, eamil_content: str, email_address: str="", **kwargs):
 
     subject = urllib.parse.quote(email_title)
     body = urllib.parse.quote(eamil_content)
