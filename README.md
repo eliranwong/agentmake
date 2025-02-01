@@ -14,6 +14,8 @@ This SDK incorporates the best aspects of our favorite project, [Toolmate AI](ht
 
 `azure` - [Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)
 
+`cohere` - [Cohere API](https://docs.cohere.com/docs/the-cohere-platform)
+
 `custom` - any openai-compatible backends
 
 `deepseek` - [DeepSeek API](https://platform.deepseek.com/)
