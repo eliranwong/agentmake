@@ -4,7 +4,7 @@ AgentMake AI: a software developement kit for developing agentic AI applications
 
 Supported backends: anthropic, azure, cohere, custom, deepseek, genai, github, googleai, groq, llamacpp, mistral, ollama, openai, vertexai, xai
 
-# A Sibling Projects
+# Sibling Projects
 
 This SDK incorporates the best aspects of our favorite projects, [LetMeDoIt AI](https://github.com/eliranwong/letmedoit), [Toolmate AI](https://github.com/eliranwong/toolmate) and [TeamGen AI](https://github.com/eliranwong/teamgenai), to create a library aimed at further advancing the development of agentic AI applications.
 
