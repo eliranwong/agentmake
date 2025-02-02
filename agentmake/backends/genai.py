@@ -1,21 +1,21 @@
 try:
-    from google.genai.types import Content, GenerateContentConfig, SafetySetting, Tool
+    from google.genai.types import Content, GenerateContentConfig, SafetySetting, Tool, Part
     from google.genai import Client
 except:
     # Google GenAI SDK is not supported on Android Termux
     pass
 from typing import Optional, Any
-import json, os
+import os
 
 
 class GenaiAI:
 
-    DEFAULT_API_KEY = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-    DEFAULT_API_PROJECT_ID = ""
-    DEFAULT_API_SERVICE_LOCATION = "us-central1"
-    DEFAULT_MODEL = "gemini-1.5-pro"
-    DEFAULT_TEMPERATURE = 0.3
-    DEFAULT_MAX_TOKENS = 8192 # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models
+    DEFAULT_API_KEY = os.getenv("GOOGLE_APPLICATION_CREDENTIALS") if os.getenv("GOOGLE_APPLICATION_CREDENTIALS") else os.getenv("GOOGLEAI_API_KEY")
+    DEFAULT_API_PROJECT_ID = os.getenv("VERTEXAI_PROJECT_ID")
+    DEFAULT_API_SERVICE_LOCATION = os.getenv("VERTEXAI_SERVICE_LOCATION") if os.getenv("VERTEXAI_SERVICE_LOCATION") else "us-central1"
+    DEFAULT_MODEL = os.getenv("VERTEXAI_MODEL") if os.getenv("VERTEXAI_MODEL") else "gemini-1.5-pro"
+    DEFAULT_TEMPERATURE = float(os.getenv("VERTEXAI_TEMPERATURE")) if os.getenv("VERTEXAI_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("VERTEXAI_MAX_TOKENS")) if os.getenv("VERTEXAI_MAX_TOKENS") else 8192 # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models
 
     @staticmethod
     def toGenAIMessages(messages: dict=[]) -> Optional[list]:
@@ -27,7 +27,7 @@ class GenaiAI:
                 role = i.get("role", "")
                 content = i.get("content", "")
                 if role in ("user", "assistant"):
-                    history.append(Content(role="user" if role == "user" else "model", parts=[types.Part.from_text(content)]))
+                    history.append(Content(role="user" if role == "user" else "model", parts=[Part.from_text(content)]))
                     if role == "user":
                         last_user_message = content
                 elif role == "system":
@@ -95,7 +95,7 @@ class GenaiAI:
             tools = None
         # generate content
         genai_config = GenerateContentConfig(
-            system_instruction=system_message,
+            system_instruction=system_message+"""\n\n# Output Format\nOutputs in JSON.""" if schema else system_message,
             temperature=temperature if temperature is not None else GenaiAI.DEFAULT_TEMPERATURE,
             #top_p=0.95,
             #top_k=20,
@@ -168,10 +168,11 @@ class GenaiAI:
             api_service_location=api_service_location,
             **kwargs
         )
-        textOutput = completion.candidates[0].content.parts[0].text
-        if textOutput and textOutput.startswith("```json\n"):
+        part = completion.candidates[0].content.parts[0]
+        textOutput = part.function_call.args if part.function_call else part.text
+        if isinstance(textOutput, str) and textOutput and textOutput.startswith("```json\n"):
             textOutput = textOutput[8:-4]
-        return json.loads(textOutput)
+        return "" if textOutput is None else textOutput
 
 class VertexaiAI:
 

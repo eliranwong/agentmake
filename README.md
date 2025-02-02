@@ -129,6 +129,27 @@ These are just a few simple and straightforward examples.  You may find more exa
 
 https://github.com/eliranwong/agentmake/tree/main/agentmake/examples
 
+# Configurations
+
+You may manually export individual environment variables listed in https://github.com/eliranwong/agentmake/blob/main/agentmake.env
+
+Alternately, you may edit a copy, e.g.
+
+```
+cd agentmake
+cp agentmake.env .env
+nano .env
+```
+
+To load the configurations:
+
+```
+from agentmake import load_configurations
+load_configurations()
+```
+
+Remarks: Avoid editing the file agentmake.env, as it is restored to default values upon each upgrade.  Make a copy of it and edit the copied file.
+
 # TODO
 
 * add documentation about tool creation

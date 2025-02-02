@@ -7,10 +7,9 @@ import json, codecs, os
 class XaiAI:
 
     DEFAULT_API_KEY = os.getenv("XAI_API_KEY")
-    DEFAULT_API_ENDPOINT = "https://api.x.ai/v1"
-    DEFAULT_MODEL = "grok-2-latest"
-    DEFAULT_TEMPERATURE = 0.3
-    DEFAULT_MAX_TOKENS = 127999 # visit https://docs.x.ai/docs#models to read about tokens limits. In our latest test, the maximum value accepts 127999.
+    DEFAULT_MODEL = os.getenv("XAI_MODEL") if os.getenv("XAI_MODEL") else "grok-2-latest"
+    DEFAULT_TEMPERATURE = float(os.getenv("XAI_TEMPERATURE")) if os.getenv("XAI_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("XAI_MAX_TOKENS")) if os.getenv("XAI_MAX_TOKENS") else 127999 # visit https://docs.x.ai/docs#models to read about tokens limits. In our latest test, the maximum value accepts 127999.
 
     @staticmethod
     def getChatCompletion(
@@ -37,7 +36,7 @@ class XaiAI:
         #    raise ValueError("API endpoint is required.")
         #if prefill:
         #    messages.append({'role': 'assistant', 'content': prefill})
-        return OpenAI(api_key=api_key if api_key else XaiAI.DEFAULT_API_KEY, base_url=XaiAI.DEFAULT_API_ENDPOINT).chat.completions.create(
+        return OpenAI(api_key=api_key if api_key else XaiAI.DEFAULT_API_KEY, base_url="https://api.x.ai/v1").chat.completions.create(
             model=model if model else XaiAI.DEFAULT_MODEL,
             messages=messages,
             temperature=temperature if temperature is not None else XaiAI.DEFAULT_TEMPERATURE,

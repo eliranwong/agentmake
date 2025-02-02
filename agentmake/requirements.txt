@@ -9,3 +9,4 @@ cohere>=5.13.11
 prompt_toolkit
 packaging
 importlib_metadata
+python-dotenv

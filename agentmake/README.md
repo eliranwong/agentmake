@@ -4,9 +4,9 @@ AgentMake AI: a software developement kit for developing agentic AI applications
 
 Supported backends: anthropic, azure, cohere, custom, deepseek, genai, github, googleai, groq, llamacpp, mistral, ollama, openai, vertexai, xai
 
-# A Sibling Project
+# A Sibling Projects
 
-This SDK incorporates the best aspects of our favorite project, [Toolmate AI](https://github.com/eliranwong/toolmate), to create a library aimed at further advancing the development of agentic AI applications.
+This SDK incorporates the best aspects of our favorite projects, [LetMeDoIt AI](https://github.com/eliranwong/letmedoit), [Toolmate AI](https://github.com/eliranwong/toolmate) and [TeamGen AI](https://github.com/eliranwong/teamgenai), to create a library aimed at further advancing the development of agentic AI applications.
 
 # Supported backends
 
@@ -14,7 +14,9 @@ This SDK incorporates the best aspects of our favorite project, [Toolmate AI](ht
 
 `azure` - [Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)
 
-`custom` - any openai-compatible backends
+`cohere` - [Cohere API](https://docs.cohere.com/docs/the-cohere-platform)
+
+`custom` - any openai-compatible backends that support function calling
 
 `deepseek` - [DeepSeek API](https://platform.deepseek.com/)
 
@@ -103,6 +105,7 @@ To work with parameter `agent`, e.g.:
 > generate("Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre.", agent="teamgenai", stream=True, model="llama3.3:70b")
 
 To work collaboratively with different backends, e.g.
+
 
 > messages = generate("What is the most effective method for training AI models?", backend="openai")
 

@@ -8,10 +8,10 @@ class AzureAI:
     
     DEFAULT_API_VERSION = "2024-10-21" # check the latest api version at https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#data-plane-inference
     DEFAULT_API_KEY = os.getenv("AZURE_OPENAI_API_KEY") if os.getenv("AZURE_OPENAI_API_KEY") else os.getenv("AZURE_API_KEY")
-    DEFAULT_API_ENDPOINT = ""
-    DEFAULT_MODEL = "gpt-4o"
-    DEFAULT_TEMPERATURE = 0.3
-    DEFAULT_MAX_TOKENS = 16384
+    DEFAULT_API_ENDPOINT = os.getenv("AZURE_OPENAI_API_ENDPOINT") if os.getenv("AZURE_OPENAI_API_ENDPOINT") else os.getenv("AZURE_API_ENDPOINT")
+    DEFAULT_MODEL = os.getenv("AZURE_MODEL") if os.getenv("AZURE_MODEL") else "gpt-4o"
+    DEFAULT_TEMPERATURE = float(os.getenv("AZURE_TEMPERATURE")) if os.getenv("AZURE_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("AZURE_MAX_TOKENS")) if os.getenv("AZURE_MAX_TOKENS") else 16384
 
     @staticmethod
     def getChatCompletion(

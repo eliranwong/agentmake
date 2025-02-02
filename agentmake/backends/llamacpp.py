@@ -1,17 +1,19 @@
-from ..utils.online import get_local_ip
+#from ..utils.online import get_local_ip
 from ..utils.schema import getParameterSchema
 from openai import OpenAI
 from openai.types.chat import ChatCompletion
-from openai import NotGiven
 from typing import Optional
-import json
+import json, os
 
 
 class LlamacppAI:
 
-    DEFAULT_API_ENDPOINT = f"http://{get_local_ip()}:8080/v1"
-    DEFAULT_TEMPERATURE = 0.3
-    DEFAULT_MAX_TOKENS = 2048
+    # example command to run a llama.cpp server
+    # ./llama-server --host 127.0.0.1 --port 8080 --threads $(lscpu | grep '^Core(s)' | awk '{print $NF}') --ctx-size 0 --chat-template chatml --parallel 2 --gpu-layers 999 --model 'llm.gguf'
+
+    DEFAULT_API_ENDPOINT = os.getenv("LLAMACPP_API_ENDPOINT") if os.getenv("LLAMACPP_API_ENDPOINT") else "http://127.0.0.1:8080/v1"
+    DEFAULT_TEMPERATURE = float(os.getenv("LLAMACPP_TEMPERATURE")) if os.getenv("LLAMACPP_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("LLAMACPP_MAX_TOKENS")) if os.getenv("LLAMACPP_MAX_TOKENS") else 2048
 
     @staticmethod
     def getChatCompletion(
@@ -42,7 +44,7 @@ class LlamacppAI:
             response_format={
                 "type": "json_object",
                 "schema": getParameterSchema(schema),
-            } if schema else NotGiven,
+            } if schema else None,
             stream=stream,
             stop=stop,
             timeout=api_timeout,

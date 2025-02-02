@@ -17,10 +17,11 @@ from .utils.instructions import getRagPrompt
 from .utils.retrieve_text_output import getChatCompletionText
 from .utils.handle_text import readTextFile
 
+from dotenv import load_dotenv
 from typing import Optional, Callable, Union, Any, List, Dict
 from copy import deepcopy
 from io import StringIO
-import sys, os, json, traceback
+import sys, os, re, json, traceback
 
 TOOLMATE_PATH = os.getenv("TOOLMATE_PATH") if os.getenv("TOOLMATE_PATH") else os.path.join(os.path.expanduser("~"), "toolmate") # It is where users store their custom tools, keeping them outside the package directory.
 PACKAGE_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -29,6 +30,12 @@ DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") == "TRUE" else False
 SUPPORTED_AI_BACKENDS = ["anthropic", "azure", "cohere", "custom", "deepseek", "genai", "github", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"]
 DEFAULT_AI_BACKEND = os.getenv("DEFAULT_AI_BACKEND") if os.getenv("DEFAULT_AI_BACKEND") else "ollama"
 DEFAULT_FOLLOW_UP_PROMPT = os.getenv("DEFAULT_FOLLOW_UP_PROMPT") if os.getenv("DEFAULT_FOLLOW_UP_PROMPT") else "Please tell me more."
+
+def load_configurations(env_file=""):
+    if not env_file:
+        env_file = os.path.join(PACKAGE_PATH, ".env")
+    if os.path.isfile(env_file):
+        load_dotenv(env_file)
 
 def generate(
     messages: Union[List[Dict[str, str]], str], # user request or messages containing user request; accepts either a single string or a list of dictionaries
@@ -572,11 +579,16 @@ def generate(
                     word_wrap=word_wrap,
                     **kwargs,
                 ) # returned response can be either 1) an empty string: no chat extension 2) a non-empty string: chat extension 3) none: errors encountered in executing the function
-                function_text_output = terminal_output.getvalue() # capture the function text output for function calling without chat extension
-            except:
+                function_text_output = terminal_output.getvalue().replace("```output\n```\n", "Done!") # capture the function text output for function calling without chat extension
+                # Restore the original stdout
+                sys.stdout = old_stdout
+            except Exception as e:
+                sys.stdout = old_stdout
+                function_name = re.sub("<function (.*?) .*?$", r"\1", str(func))
+                print(f"Failed to run tool function `{function_name}`! An error occurred: {e}")
+                if DEVELOPER_MODE:
+                    print(traceback.format_exc())
                 function_response = None # due to unexpected errors encountered in executing the function; fall back to regular completion
-            # Restore the original stdout
-            sys.stdout = old_stdout
             # handle function response
             if function_response is None or function_response: # fall back to regular completion if function_response is None; chat extension if function_response
                 if function_response:
@@ -753,6 +765,9 @@ def generate(
                 stream=stream,
                 api_key=api_key,
                 api_timeout=api_timeout,
+                stream_events_only=stream_events_only,
+                print_on_terminal=print_on_terminal,
+                word_wrap=word_wrap,
                 **kwargs
             )
         elif backend == "ollama":

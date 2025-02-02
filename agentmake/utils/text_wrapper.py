@@ -112,8 +112,11 @@ class TextWrapper:
                     # when open api key is invalid for some reasons, event response in string
                     if isinstance(event, str):
                         answer = event
-                    elif hasattr(event, "data"): # mistralai
-                        answer = event.data.choices[0].delta.content
+                    elif hasattr(event, "data") and hasattr(event.data, "choices"): # mistralai
+                        try:
+                            answer = event.data.choices[0].delta.content
+                        except:
+                            answer = None
                     elif hasattr(event, "choices") and not event.choices: # in case of the 1st event of azure's completion
                         continue
                     else:

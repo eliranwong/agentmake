@@ -1,6 +1,7 @@
 from anthropic import Anthropic, NOT_GIVEN
 from anthropic.types import Message
 from typing import Optional
+from copy import deepcopy
 import os
 
 
@@ -8,9 +9,16 @@ class AnthropicAI:
     # docs: https://docs.anthropic.com/en/home
 
     DEFAULT_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-    DEFAULT_MODEL = "claude-3-5-sonnet-latest"
-    DEFAULT_TEMPERATURE = 0.3
-    DEFAULT_MAX_TOKENS = 8192 # https://docs.mistral.ai/getting-started/models/models_overview/
+    DEFAULT_MODEL = os.getenv("ANTHROPIC_MODEL") if os.getenv("ANTHROPIC_MODEL") else "claude-3-5-sonnet-latest"
+    DEFAULT_TEMPERATURE = float(os.getenv("ANTHROPIC_TEMPERATURE")) if os.getenv("ANTHROPIC_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("ANTHROPIC_MAX_TOKENS")) if os.getenv("ANTHROPIC_MAX_TOKENS") else 8192 # https://docs.mistral.ai/getting-started/models/models_overview/
+
+    @staticmethod
+    def removeSystemMessage(messages: list) -> str:
+        for index, message in enumerate(messages):
+            if message.get("role", "") == "system":
+                return messages.pop(index).get("content", "")
+        return ""
 
     @staticmethod
     def getChatCompletion(
@@ -37,9 +45,12 @@ class AnthropicAI:
         #    messages.append({'role': 'assistant', 'content': prefill})
         if schema:
             schema["input_schema"] = schema.pop("parameters")
+        messagesCopy = deepcopy(messages)
+        systemMessage = AnthropicAI.removeSystemMessage(messagesCopy)
         return Anthropic(api_key=api_key if api_key else AnthropicAI.DEFAULT_API_KEY).messages.create(
             model=model if model else AnthropicAI.DEFAULT_MODEL,
-            messages=messages,
+            messages=messagesCopy,
+            system=systemMessage,
             temperature=temperature if temperature is not None else AnthropicAI.DEFAULT_TEMPERATURE,
             max_tokens=max_tokens if max_tokens else AnthropicAI.DEFAULT_MAX_TOKENS,
             tools=[schema] if schema else NOT_GIVEN,

@@ -7,10 +7,10 @@ import json, os
 class OpenaiCompatibleAI:
 
     DEFAULT_API_KEY = os.getenv("CUSTOM_API_KEY")
-    DEFAULT_API_ENDPOINT = ""
-    DEFAULT_MODEL = ""
-    DEFAULT_TEMPERATURE = 0.3
-    DEFAULT_MAX_TOKENS = 4000 # https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits
+    DEFAULT_API_ENDPOINT = os.getenv("CUSTOM_API_ENDPOINT")
+    DEFAULT_MODEL = os.getenv("CUSTOM_MODEL")
+    DEFAULT_TEMPERATURE = float(os.getenv("CUSTOM_TEMPERATURE")) if os.getenv("CUSTOM_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("CUSTOM_MAX_TOKENS")) if os.getenv("CUSTOM_MAX_TOKENS") else 4000 # https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits
 
     @staticmethod
     def getChatCompletion(

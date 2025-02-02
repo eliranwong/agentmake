@@ -1,3 +1,4 @@
+from ..utils.text_wrapper import TextWrapper
 from mistralai import Mistral, ChatCompletionResponse, UNSET, CompletionEvent
 from mistralai.utils.eventstreaming import EventStream
 from typing import Optional, Union
@@ -8,9 +9,9 @@ class MistralAI:
     # docs: https://docs.mistral.ai/
 
     DEFAULT_API_KEY = os.getenv("MISTRAL_API_KEY")
-    DEFAULT_MODEL = "mistral-large-latest"
-    DEFAULT_TEMPERATURE = 0.3
-    DEFAULT_MAX_TOKENS = 8000 # https://docs.mistral.ai/getting-started/models/models_overview/
+    DEFAULT_MODEL = os.getenv("MISTRAL_MODEL") if os.getenv("MISTRAL_MODEL") else "mistral-large-latest"
+    DEFAULT_TEMPERATURE = float(os.getenv("MISTRAL_TEMPERATURE")) if os.getenv("MISTRAL_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("MISTRAL_MAX_TOKENS")) if os.getenv("MISTRAL_MAX_TOKENS") else 8000 # https://docs.mistral.ai/getting-started/models/models_overview/
 
     @staticmethod
     def getChatCompletion(
@@ -29,13 +30,18 @@ class MistralAI:
         #api_project_id: Optional[str]=None, # applicable to Vertex AI only
         #api_service_location: Optional[str]=None, # applicable to Vertex AI only
         api_timeout: Optional[int]=None,
+        # to work with mistral streaming object
+        stream_events_only: Optional[bool]=False,
+        print_on_terminal: Optional[bool]=True,
+        word_wrap: Optional[bool]=True,
         **kwargs,
     ) -> Union[EventStream[CompletionEvent], ChatCompletionResponse]:
         if not api_key and not MistralAI.DEFAULT_API_KEY:
             raise ValueError("API key is required.")
         if prefill:
             messages.append({'role': 'assistant', 'content': prefill, "prefix": True})
-        return Mistral(api_key=api_key if api_key else MistralAI.DEFAULT_API_KEY).chat.stream(
+        client = Mistral(api_key=api_key if api_key else MistralAI.DEFAULT_API_KEY)
+        completion = client.chat.stream(
             model=model if model else MistralAI.DEFAULT_MODEL,
             messages=messages,
             temperature=temperature if temperature is not None else MistralAI.DEFAULT_TEMPERATURE,
@@ -43,7 +49,7 @@ class MistralAI:
             stop=stop,
             timeout_ms=api_timeout,
             **kwargs
-        ) if stream else Mistral(api_key=api_key if api_key else MistralAI.DEFAULT_API_KEY).chat.complete(
+        ) if stream else client.chat.complete(
             model=model if model else MistralAI.DEFAULT_MODEL,
             messages=messages,
             temperature=temperature if temperature is not None else MistralAI.DEFAULT_TEMPERATURE,
@@ -54,6 +60,13 @@ class MistralAI:
             timeout_ms=api_timeout,
             **kwargs
         )
+        if stream:
+            if stream_events_only:
+                return completion
+            text_wrapper = TextWrapper(word_wrap)
+            text_wrapper.streamOutputs(None, completion, openai_style=True, print_on_terminal=print_on_terminal)
+            return text_wrapper.text_output
+        return completion
 
     @staticmethod
     def getDictionaryOutput(

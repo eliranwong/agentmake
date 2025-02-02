@@ -7,9 +7,9 @@ import json, os
 class OpenaiAI:
 
     DEFAULT_API_KEY = os.getenv("OPENAI_API_KEY")
-    DEFAULT_MODEL = "gpt-4o"
-    DEFAULT_TEMPERATURE = 0.3
-    DEFAULT_MAX_TOKENS = 16384 # https://platform.openai.com/docs/models
+    DEFAULT_MODEL = os.getenv("OPENAI_MODEL") if os.getenv("OPENAI_MODEL") else "gpt-4o"
+    DEFAULT_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE")) if os.getenv("OPENAI_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS")) if os.getenv("OPENAI_MAX_TOKENS") else 16384 # https://platform.openai.com/docs/models
 
     @staticmethod
     def getChatCompletion(

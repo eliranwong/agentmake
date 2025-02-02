@@ -6,11 +6,10 @@ import json, codecs, os
 
 class GoogleaiAI:
 
-    DEFAULT_API_KEY = os.getenv("GEMINI_API_KEY")
-    DEFAULT_API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/openai/"
-    DEFAULT_MODEL = "gemini-1.5-pro"
-    DEFAULT_TEMPERATURE = 0.3
-    DEFAULT_MAX_TOKENS = 4000 # https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits
+    DEFAULT_API_KEY = os.getenv("GEMINI_API_KEY") if os.getenv("GEMINI_API_KEY") else os.getenv("GOOGLEAI_API_KEY")
+    DEFAULT_MODEL = os.getenv("GOOGLEAI_MODEL") if os.getenv("GOOGLEAI_MODEL") else "gemini-1.5-pro"
+    DEFAULT_TEMPERATURE = float(os.getenv("GOOGLEAI_TEMPERATURE")) if os.getenv("GOOGLEAI_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("GOOGLEAI_MAX_TOKENS")) if os.getenv("GOOGLEAI_MAX_TOKENS") else 8192 # https://ai.google.dev/gemini-api/docs/models/gemini
 
     @staticmethod
     def getChatCompletion(
@@ -37,15 +36,15 @@ class GoogleaiAI:
         #    raise ValueError("API endpoint is required.")
         #if prefill:
         #    messages.append({'role': 'assistant', 'content': prefill})
-        return OpenAI(api_key=api_key if api_key else GoogleaiAI.DEFAULT_API_KEY, base_url=GoogleaiAI.DEFAULT_API_ENDPOINT).chat.completions.create(
+        return OpenAI(api_key=api_key if api_key else GoogleaiAI.DEFAULT_API_KEY, base_url="https://generativelanguage.googleapis.com/v1beta/openai").chat.completions.create(
             model=model if model else GoogleaiAI.DEFAULT_MODEL,
             messages=messages,
             temperature=temperature if temperature is not None else GoogleaiAI.DEFAULT_TEMPERATURE,
             max_tokens=max_tokens if max_tokens else GoogleaiAI.DEFAULT_MAX_TOKENS,
             tools=[{"type": "function", "function": schema}] if schema else None,
-            tool_choice={"type": "function", "function": {"name": schema["name"]}} if schema else None,
+            tool_choice={"type": "function", "function": {"name": schema["name"]}} if schema else "none",
             stream=stream,
-            stop=stop,
+            #stop=stop,
             timeout=api_timeout,
             **kwargs
         )

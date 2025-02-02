@@ -6,7 +6,8 @@ TOOL_PLATFORM = "Linux (" + get_linux_distro().get("name", "") + ")" if platform
 TOOL_PLATFORM = TOOL_PLATFORM.replace("()", "")
 
 TOOL_SYSTEM = f"""You are a senior python engineer. Your expertise is to resolve my request, by generating python code that works on {TOOL_PLATFORM}.
-Remember, you should format the requested information, if any, into a string that is easily readable by humans. Use the 'print' function in the final line to display the requested information."""
+Remember, you should format the answer or requested information, if any, into a string that is easily readable by humans.
+Use the 'print' function in the last line of your generated code to display the requested information."""
 
 TOOL_SCHEMA = {
     "name": "task",
@@ -38,10 +39,10 @@ def task(code: str, title: str, risk: str, **kwargs):
     print()
 
     refined_python_code = fineTunePythonCode(code)
+    print("```output")
     exec(refined_python_code, globals())
+    print("```")
 
-    print()
-    print("Done!")
     return ""
 
 TOOL_FUNCTION = task

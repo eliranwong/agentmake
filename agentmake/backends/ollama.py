@@ -7,17 +7,17 @@ from ollama._types import ChatResponse
 from ollama import pull
 from ollama import list as ollama_ls
 import ollama
-import re, json
+import re, json, os
 
 class OllamaAI:
 
-    DEFAULT_ENDPOINT = f"http://{get_local_ip()}:11434"
-    DEFAULT_MODEL = "llama3.2"
-    DEFAULT_TEMPERATURE = 0.3
-    DEFAULT_MAX_TOKENS = -1
-    DEFAULT_CONTEXT_WINDOW = 2048
-    DEFAULT_BATCH_SIZE = 512
-    DEFAULT_KEEP_ALIVE = "5m"
+    DEFAULT_ENDPOINT = os.getenv("OLLAMA_ENDPOINT") if os.getenv("OLLAMA_ENDPOINT") else f"http://{get_local_ip()}:11434"
+    DEFAULT_MODEL = os.getenv("OLLAMA_MODEL") if os.getenv("OLLAMA_MODEL") else "llama3.2"
+    DEFAULT_TEMPERATURE = float(os.getenv("OLLAMA_TEMPERATURE")) if os.getenv("OLLAMA_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("OLLAMA_MAX_TOKENS")) if os.getenv("OLLAMA_MAX_TOKENS") else -1
+    DEFAULT_CONTEXT_WINDOW = int(os.getenv("OLLAMA_CONTEXT_WINDOW")) if os.getenv("OLLAMA_CONTEXT_WINDOW") else 2048
+    DEFAULT_BATCH_SIZE = int(os.getenv("OLLAMA_BATCH_SIZE")) if os.getenv("OLLAMA_BATCH_SIZE") else 512
+    DEFAULT_KEEP_ALIVE = os.getenv("OLLAMA_KEEP_ALIVE") if os.getenv("OLLAMA_KEEP_ALIVE") else "5m"
 
     @staticmethod
     def getChatCompletion(

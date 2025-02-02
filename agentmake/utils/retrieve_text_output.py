@@ -38,6 +38,9 @@ def readStreamingChunks(
         print_on_terminal: Optional[bool]=True,
         word_wrap: Optional[bool]=True,
     ) -> str:
+    if isinstance(completion, str):
+        # in case of mistral
+        return completion
     openai_style = True if backend in ("azure", "custom", "deepseek", "github", "googleai", "groq", "llamacpp", "mistral", "openai", "xai") else False
     try:
         text_wrapper = TextWrapper(word_wrap)

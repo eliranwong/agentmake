@@ -8,9 +8,9 @@ import json, os
 class CohereAI:
 
     DEFAULT_API_KEY = os.getenv("COHERE_API_KEY")
-    DEFAULT_MODEL = "command-r-plus" # https://docs.cohere.com/docs/models
-    DEFAULT_TEMPERATURE = 0.3
-    DEFAULT_MAX_TOKENS = 4000 # https://docs.cohere.com/docs/rate-limits
+    DEFAULT_MODEL = os.getenv("COHERE_MODEL") if os.getenv("COHERE_MODEL") else "command-r-plus" # https://docs.cohere.com/docs/models
+    DEFAULT_TEMPERATURE = float(os.getenv("COHERE_TEMPERATURE")) if os.getenv("COHERE_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("COHERE_MAX_TOKENS")) if os.getenv("COHERE_MAX_TOKENS") else 4000 # https://docs.cohere.com/docs/rate-limits
 
     @staticmethod
     def getChatCompletion(

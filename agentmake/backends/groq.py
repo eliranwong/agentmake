@@ -7,9 +7,9 @@ import json, os
 class GroqAI:
 
     DEFAULT_API_KEY = os.getenv("GROQ_API_KEY")
-    DEFAULT_MODEL = "llama-3.3-70b-versatile"
-    DEFAULT_TEMPERATURE = 0.3
-    DEFAULT_MAX_TOKENS = 32768 # https://console.groq.com/docs/models
+    DEFAULT_MODEL = os.getenv("GROQ_MODEL") if os.getenv("GROQ_MODEL") else "llama-3.3-70b-versatile"
+    DEFAULT_TEMPERATURE = float(os.getenv("GROQ_TEMPERATURE")) if os.getenv("GROQ_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("GROQ_MAX_TOKENS")) if os.getenv("GROQ_MAX_TOKENS") else 32768 # https://console.groq.com/docs/models
 
     @staticmethod
     def getChatCompletion(
@@ -40,7 +40,7 @@ class GroqAI:
             temperature=temperature if temperature is not None else GroqAI.DEFAULT_TEMPERATURE,
             max_tokens=max_tokens if max_tokens else GroqAI.DEFAULT_MAX_TOKENS,
             tools=[{"type": "function", "function": schema}] if schema else None,
-            tool_choice={"type": "function", "function": {"name": schema["name"]}} if schema else None,
+            tool_choice={"type": "function", "function": {"name": schema["name"]}} if schema else "none",
             stream=stream,
             stop=stop,
             timeout=api_timeout,
