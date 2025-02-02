@@ -133,7 +133,7 @@ https://github.com/eliranwong/agentmake/tree/main/agentmake/examples
 
 You may manually export individual environment variables listed in https://github.com/eliranwong/agentmake/blob/main/agentmake.env
 
-Alternately, you may edit a copy, e.g.
+Alternately, you may edit a copy of it, e.g.
 
 ```
 cd agentmake
@@ -148,7 +148,20 @@ from agentmake import load_configurations
 load_configurations()
 ```
 
-Remarks: Avoid editing the file agentmake.env, as it is restored to default values upon each upgrade.  Make a copy of it and edit the copied file.
+To use a custom path, e.g.:
+
+```
+cp agentmake.env my_path.env
+```
+
+Specify the path of the *.env file in `load_configurations` function, e.g.:
+
+```
+from agentmake import load_configurations
+load_configurations("my_path.env")
+```
+
+Remarks: Avoid editing the file `agentmake.env` directly, as it is restored to default values upon each upgrade.  It is recommended to make a copy of it and edit the copied file.
 
 # TODO
 
