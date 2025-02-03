@@ -131,7 +131,9 @@ https://github.com/eliranwong/agentmake/tree/main/agentmake/examples
 
 # AI Backends Configurations
 
-## Option 1 - Specify AI backend configurations as [parameters](https://github.com/eliranwong/agentmake/tree/main/docs#usage) when you run the `agentmake` signature function `generate`.
+## Option 1 - Use the `generate` function
+
+Specify AI backend configurations as [parameters](https://github.com/eliranwong/agentmake/tree/main/docs#usage) when you run the `agentmake` signature function `generate`.
 
 Setting configurations via option 1 overrides the default configurations set by option 2 and option 3, but the overriding is effective only when you run the function, with the specified configurations. Default configurations described below in option 2 and 3 still apply next time when you run the `generate` function, without specifying the configurations. This gives you flexibility to specify different settings in addition to the default ones.
 
