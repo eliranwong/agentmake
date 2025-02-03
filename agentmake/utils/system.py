@@ -1,5 +1,13 @@
 import os, re, subprocess, datetime, platform, shutil
 
+def getCliOutput(cli):
+    try:
+        process = subprocess.Popen(cli, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, *_ = process.communicate()
+        return stdout.decode("utf-8")
+    except:
+        return ""
+
 def getOpenCommand():
     thisPlatform = platform.system()
     if shutil.which("termux-share"):

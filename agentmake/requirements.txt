@@ -10,3 +10,4 @@ prompt_toolkit
 packaging
 importlib_metadata
 python-dotenv
+pyperclip

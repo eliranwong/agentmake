@@ -4,7 +4,7 @@ AgentMake AI: a software developement kit for developing agentic AI applications
 
 Supported backends: anthropic, azure, cohere, custom, deepseek, genai, github, googleai, groq, llamacpp, mistral, ollama, openai, vertexai, xai
 
-# A Sibling Projects
+# Sibling Projects
 
 This SDK incorporates the best aspects of our favorite projects, [LetMeDoIt AI](https://github.com/eliranwong/letmedoit), [Toolmate AI](https://github.com/eliranwong/toolmate) and [TeamGen AI](https://github.com/eliranwong/teamgenai), to create a library aimed at further advancing the development of agentic AI applications.
 
@@ -106,7 +106,6 @@ To work with parameter `agent`, e.g.:
 
 To work collaboratively with different backends, e.g.
 
-
 > messages = generate("What is the most effective method for training AI models?", backend="openai")
 
 > messages = generate(messages, backend="googleai", follow_up_prompt="Can you give me some different options?")
@@ -119,7 +118,6 @@ To work collaboratively with different backends, e.g.
 As you may see, the `generate` function returns the `messages` list, which is passed to the next `generate` function in turns.
 
 Therefore, it is very simple to create a chatbot application, you can do it as few as five lines or less, e.g.:
-
 
 > messages = [{"role": "system", "content": "You are an AI assistant."}]
 
@@ -134,6 +132,52 @@ Therefore, it is very simple to create a chatbot application, you can do it as f
 These are just a few simple and straightforward examples.  You may find more examples at:
 
 https://github.com/eliranwong/agentmake/tree/main/agentmake/examples
+
+# AI Backends Configurations
+
+## Option 1 - Use the `generate` function
+
+Specify AI backend configurations as [parameters](https://github.com/eliranwong/agentmake/tree/main/docs#usage) when you run the `agentmake` signature function `generate`.
+
+Setting configurations via option 1 overrides the default configurations set by option 2 and option 3, but the overriding is effective only when you run the function, with the specified configurations. Default configurations described below in option 2 and 3 still apply next time when you run the `generate` function, without specifying the configurations. This gives you flexibility to specify different settings in addition to the default ones.
+
+## Option 2 - Export individual environment variables
+
+You may manually export individual environment variables listed in https://github.com/eliranwong/agentmake/blob/main/agentmake.env
+
+## Option 3 - Export default environment variables once for all
+
+You may edit a copy of `agentmake.env`, e.g.
+
+```
+cd agentmake
+cp agentmake.env .env
+nano .env
+```
+
+To load the configurations:
+
+```
+from agentmake import load_configurations
+load_configurations()
+```
+
+To use a custom path, e.g.:
+
+```
+cd agentmake
+cp agentmake.env my_path.env
+nano my_path.env
+```
+
+Specify the path of the `.env` file in the `load_configurations` function, e.g.:
+
+```
+from agentmake import load_configurations
+load_configurations("my_path.env")
+```
+
+Remarks: Avoid editing the file `agentmake.env` directly, as it is restored to its default values upon each upgrade.  It is recommended to make a copy of it and edit the copied file.
 
 # TODO
 

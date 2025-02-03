@@ -24,7 +24,7 @@ with open(os.path.join(package, "requirements.txt"), "r") as fileObj:
 # https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/
 setup(
     name="agentmake",
-    version="0.0.26",
+    version="0.0.32",
     python_requires=">=3.8, <3.13",
     description="ToolMate-SDK: a software developement kit for developing agentic AI applications that support 14 AI backends and integrate tools and agents. (Developer: Eliran Wong)",
     long_description=long_description,
@@ -40,6 +40,7 @@ setup(
         f"{package}.systems",
         f"{package}.tools",
         f"{package}.utils",
+        f"{package}.temp",
     ],
     package_data={
         package: ["*.*"],
@@ -51,6 +52,7 @@ setup(
         f"{package}.systems": ["*.*"],
         f"{package}.tools": ["*.*"],
         f"{package}.utils": ["*.*"],
+        f"{package}.temp": ["*.*"],
     },
     license="GNU General Public License (GPL)",
     install_requires=install_requires,
@@ -59,7 +61,10 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            #f"tmsdk={package}.main:main", # cli for quick run
+            f"agentmake={package}.main:main", # cli for quick run
+            f"ai={package}.main:main", # shortcut to `agentmake`
+            f"aic={package}.main:chat", # shortcut to `agentmake -c`
+            f"etextedit={package}.etextedit:main",
         ],
     },
     keywords="toolmate ai sdk anthropic azure chatgpt deepseek genai github googleai groq llamacpp mistral ollama openai vertexai xai",

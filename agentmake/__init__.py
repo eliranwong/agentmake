@@ -26,10 +26,12 @@ import sys, os, re, json, traceback
 TOOLMATE_PATH = os.getenv("TOOLMATE_PATH") if os.getenv("TOOLMATE_PATH") else os.path.join(os.path.expanduser("~"), "toolmate") # It is where users store their custom tools, keeping them outside the package directory.
 PACKAGE_PATH = os.path.dirname(os.path.realpath(__file__))
 PACKAGE_NAME = os.path.basename(PACKAGE_PATH)
-DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") == "TRUE" else False
+DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
 SUPPORTED_AI_BACKENDS = ["anthropic", "azure", "cohere", "custom", "deepseek", "genai", "github", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"]
 DEFAULT_AI_BACKEND = os.getenv("DEFAULT_AI_BACKEND") if os.getenv("DEFAULT_AI_BACKEND") else "ollama"
 DEFAULT_FOLLOW_UP_PROMPT = os.getenv("DEFAULT_FOLLOW_UP_PROMPT") if os.getenv("DEFAULT_FOLLOW_UP_PROMPT") else "Please tell me more."
+DEFAULT_TEXT_EDITOR = os.getenv("DEFAULT_TEXT_EDITOR") if os.getenv("DEFAULT_TEXT_EDITOR") else "etextedit"
+DEFAULT_MARKDOWN_THEME = os.getenv("DEFAULT_MARKDOWN_THEME") if os.getenv("DEFAULT_MARKDOWN_THEME") else "github-dark"
 
 def load_configurations(env_file=""):
     if not env_file:

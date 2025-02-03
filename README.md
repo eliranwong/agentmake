@@ -175,6 +175,20 @@ load_configurations("my_path.env")
 
 Remarks: Avoid editing the file `agentmake.env` directly, as it is restored to its default values upon each upgrade.  It is recommended to make a copy of it and edit the copied file.
 
+# CLI Options
+
+Command CLI are designed for quick run of AI features.
+
+Check for CLI options, run:
+
+> agentmark -h
+
+Two shortcut commands
+
+`ai` == `agentmake`
+
+`aic` == `agentmake -c` with chat features enabled
+
 # TODO
 
 * add documentation about tool creation
@@ -183,6 +197,5 @@ Remarks: Avoid editing the file `agentmake.env` directly, as it is restored to i
 * add built-in system messages
 * add built-in predefined contexts
 * add built-in prompts
-* add cli options for running simple inference, tools or testing
 * improve code generation handling
 * add backend support of Cohere API
