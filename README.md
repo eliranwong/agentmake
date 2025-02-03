@@ -129,11 +129,21 @@ These are just a few simple and straightforward examples.  You may find more exa
 
 https://github.com/eliranwong/agentmake/tree/main/agentmake/examples
 
-# Configurations
+# AI Backends Configurations
+
+## Option 1 - Use the `generate` function
+
+Specify AI backend configurations as [parameters](https://github.com/eliranwong/agentmake/tree/main/docs#usage) when you run the `agentmake` signature function `generate`.
+
+Setting configurations via option 1 overrides the default configurations set by option 2 and option 3, but the overriding is effective only when you run the function, with the specified configurations. Default configurations described below in option 2 and 3 still apply next time when you run the `generate` function, without specifying the configurations. This gives you flexibility to specify different settings in addition to the default ones.
+
+## Option 2 - Export individual environment variables
 
 You may manually export individual environment variables listed in https://github.com/eliranwong/agentmake/blob/main/agentmake.env
 
-Alternately, you may edit a copy of it, e.g.
+## Option 3 - Export default environment variables once for all
+
+You may edit a copy of `agentmake.env`, e.g.
 
 ```
 cd agentmake
@@ -151,17 +161,19 @@ load_configurations()
 To use a custom path, e.g.:
 
 ```
+cd agentmake
 cp agentmake.env my_path.env
+nano my_path.env
 ```
 
-Specify the path of the *.env file in `load_configurations` function, e.g.:
+Specify the path of the `.env` file in the `load_configurations` function, e.g.:
 
 ```
 from agentmake import load_configurations
 load_configurations("my_path.env")
 ```
 
-Remarks: Avoid editing the file `agentmake.env` directly, as it is restored to default values upon each upgrade.  It is recommended to make a copy of it and edit the copied file.
+Remarks: Avoid editing the file `agentmake.env` directly, as it is restored to its default values upon each upgrade.  It is recommended to make a copy of it and edit the copied file.
 
 # TODO
 
