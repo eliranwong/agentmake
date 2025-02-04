@@ -58,7 +58,7 @@ We support Vertex AI via [Google GenAI SDK](https://pypi.org/project/google-gena
 
 # Usage
 
-This SDK is designed to offer a single function `generate` for interacting with all AI backends, delivering a unified experience for generating AI responses. The main APIs are provided with the function `generate` located in this [file](https://github.com/eliranwong/agentmake/blob/main/agentmake/__init__.py#L29).
+This SDK is designed to offer a single signature function `agentmake` for interacting with all AI backends, delivering a unified experience for generating AI responses. The main APIs are provided with the function `agentmake` located in this [file](https://github.com/eliranwong/agentmake/blob/main/agentmake/__init__.py#L54).
 
 Find documentation at https://github.com/eliranwong/agentmake/blob/main/docs/README.md
 
@@ -68,56 +68,57 @@ The following examples assumes [Ollama](https://ollama.com/) is [installed](http
 
 To import:
 
-> from agentmake import generate
+> from agentmake import agentmake
 
-To generate, e.g.:
+To run, e.g.:
 
-> generate("What is AI?")
+> agentmake("What is AI?")
 
 To work with parameter `tool`, e.g.:
 
-> generate("What is ToolMate AI?", tool="search_google")
+> agentmake("What is ToolMate AI?", tool="search_google")
 
-> generate("How many 'r's are there in the word 'strawberry'?", tool="task")
+> agentmake("How many 'r's are there in the word 'strawberry'?", tool="task")
 
-> generate("What time is it right now?", tool="task")
+> agentmake("What time is it right now?", tool="task")
 
-> generate("Open github.com in a web browser.", tool="task")
+> agentmake("Open github.com in a web browser.", tool="task")
 
-> generate("Convert file 'music.wav' into mp3 format.", tool="task")
+> agentmake("Convert file 'music.wav' into mp3 format.", tool="task")
 
-> generate("Send an email to Eliran Wong at eliran.wong@domain.com to express my gratitude for his work.", tool="send_gmail")
+> agentmake("Send an email to Eliran Wong at eliran.wong@domain.com to express my gratitude for his work.", tool="send_gmail")
 
 To work with parameters `input_content_plugin` and `output_content_plugin`, e.g.:
 
-> generate("what AI model best", input_content_plugin="improve_writing", output_content_plugin="translate_into_chinese", stream=True)
+> agentmake("what AI model best", input_content_plugin="improve_writing", output_content_plugin="translate_into_chinese", stream=True)
 
 To work with parameter `system`, `context`, `follow_up_prompt`, e.g.:
 
-> generate("Is it better to drink wine in the morning, afternoon, or evening?", context="reflect", stream=True)
+> agentmake("Is it better to drink wine in the morning, afternoon, or evening?", context="reflect", stream=True)
 
-> generate("Is it better to drink wine in the morning, afternoon, or evening?", context="think", follow_up_prompt=["review", "refine"], stream=True)
+> agentmake("Is it better to drink wine in the morning, afternoon, or evening?", context="think", follow_up_prompt=["review", "refine"], stream=True)
 
-> generate("Provide a detailed introduction to generative AI.", system=["create_agents", "assign_agents"], follow_up_prompt="Who is the best agent to contribute next?", stream=True, model="llama3.3:70b")
+> agentmake("Provide a detailed introduction to generative AI.", system=["create_agents", "assign_agents"], follow_up_prompt="Who is the best agent to contribute next?", stream=True, model="llama3.3:70b")
 
 To work with parameter `agent`, e.g.:
 
-> generate("Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre.", agent="teamgenai", stream=True, model="llama3.3:70b")
+> agentmake("Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre.", agent="teamgenai", stream=True, model="llama3.3:70b")
 
 To work collaboratively with different backends, e.g.
 
-> messages = generate("What is the most effective method for training AI models?", backend="openai")
+> messages = agentmake("What is the most effective method for training AI models?", backend="openai")
 
-> messages = generate(messages, backend="googleai", follow_up_prompt="Can you give me some different options?")
+> messages = agentmake(messages, backend="googleai", follow_up_prompt="Can you give me some different options?")
 
-> messages = generate(messages, backend="xai", follow_up_prompt="What are the limitations or potential biases in this information?")
+> messages = agentmake(messages, backend="xai", follow_up_prompt="What are the limitations or potential biases in this information?")
 
-> generate(messages, backend="mistral", follow_up_prompt="Please provide a summary of the discussion so far.")
+> agentmake(messages, backend="mistral", follow_up_prompt="Please provide a summary of the discussion so far.")
 
 
-As you may see, the `generate` function returns the `messages` list, which is passed to the next `generate` function in turns.
+As you may see, the `agentmake` function returns the `messages` list, which is passed to the next `agentmake` function in turns.
 
 Therefore, it is very simple to create a chatbot application, you can do it as few as five lines or less, e.g.:
+
 
 > messages = [{"role": "system", "content": "You are an AI assistant."}]
 
@@ -125,7 +126,7 @@ Therefore, it is very simple to create a chatbot application, you can do it as f
 
 > while user_input:
 
->     messages = generate(messages, follow_up_prompt=user_input, stream=True)
+>     messages = agentmake(messages, follow_up_prompt=user_input, stream=True)
 
 >     user_input = input("Enter your query:\n(enter a blank entry to exit)\n>>> ")
 
@@ -133,13 +134,45 @@ These are just a few simple and straightforward examples.  You may find more exa
 
 https://github.com/eliranwong/agentmake/tree/main/agentmake/examples
 
+# CLI Options
+
+Command CLI are designed for quick run of AI features.
+
+Check for CLI options, run:
+
+> agentmark -h
+
+Two shortcut commands:
+
+`ai` == `agentmake`
+
+`aic` == `agentmake -c` with chat features enabled
+
+The available CLI options use the same parameter names as the `agentmake` function for AI backend configurations, to offer users a unified experience. Below are some CLI examples, that are equivalent to some of the examples mentioned above:
+
+> ai What is AI?
+
+> ai What is ToolMate AI --tool search_google
+
+> ai Convert file music.wav into mp3 format. --tool task
+
+> ai Send an email to Eliran Wong at eliran.wong@domain.com to express my gratitude for his work --tool send_gmail
+
+> ai what AI model best --input_content_plugin improve_writing --output_content_plugin translate_into_chinese
+
+> ai Is it better to drink wine in the morning, afternoon, or evening? --context think --follow_up_prompt review --follow_up_prompt refine
+
+> ai Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre --agent teamgenai --model "llama3.3:70b"
+
 # AI Backends Configurations
 
-## Option 1 - Use the `generate` function
+To use `ollama` as the default backend, you need to [download and install](https://ollama.com/download) Ollama. To use backends other than Ollama, you need to use your own API keys.  There are a few options you may configure the AI backends to work with `agentmake`.
 
-Specify AI backend configurations as [parameters](https://github.com/eliranwong/agentmake/tree/main/docs#usage) when you run the `agentmake` signature function `generate`.
+## Option 1 - Use the `agentmake` function
 
-Setting configurations via option 1 overrides the default configurations set by option 2 and option 3, but the overriding is effective only when you run the function, with the specified configurations. Default configurations described below in option 2 and 3 still apply next time when you run the `generate` function, without specifying the configurations. This gives you flexibility to specify different settings in addition to the default ones.
+Specify AI backend configurations as [parameters](https://github.com/eliranwong/agentmake/tree/main/docs#usage) when you run the `agentmake` signature function `agentmake`.
+
+Setting configurations via option 1 overrides the default configurations set by option 2 and option 3, but the overriding is effective only when you run the function, with the specified configurations. Default configurations described below in option 2 and 3 still apply next time when you run the `agentmake` function, without specifying the AI backend parameters. This gives you flexibility to specify different settings in addition to the default ones.
 
 ## Option 2 - Export individual environment variables
 
@@ -155,29 +188,15 @@ cp agentmake.env .env
 nano .env
 ```
 
-To load the configurations:
+The changes apply next time when you run `agentmake` function or cli.
 
-```
-from agentmake import load_configurations
-load_configurations()
-```
+Alternately, use built-in `agentmake` cli option to edit the variables:
 
-To use a custom path, e.g.:
+> agentmake -ec
 
-```
-cd agentmake
-cp agentmake.env my_path.env
-nano my_path.env
-```
+This command automatically make a copy of `agentmake.env` and save it as `.env` if it does not exist.
 
-Specify the path of the `.env` file in the `load_configurations` function, e.g.:
-
-```
-from agentmake import load_configurations
-load_configurations("my_path.env")
-```
-
-Remarks: Avoid editing the file `agentmake.env` directly, as it is restored to its default values upon each upgrade.  It is recommended to make a copy of it and edit the copied file.
+Remarks: Please do not edit the file `agentmake.env` directly, as it is restored to its default values upon each upgrade.  It is recommended to make a copy of it and edit the copied file.
 
 # TODO
 
@@ -187,6 +206,5 @@ Remarks: Avoid editing the file `agentmake.env` directly, as it is restored to i
 * add built-in system messages
 * add built-in predefined contexts
 * add built-in prompts
-* add cli options for running simple inference, tools or testing
 * improve code generation handling
 * add backend support of Cohere API

@@ -1,6 +1,6 @@
 # How to Create a Tool?
 
-You may create custom tools, to work with the `tool` parameter of the `generate` function.
+You may create custom tools, to work with the `tool` parameter of the `agentmake` function.
 
 A `agentmake` tool takes actions to resolve user requests with function calling.
 

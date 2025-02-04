@@ -1,12 +1,13 @@
 ollama>=0.4.7
-groq>=0.15.0
+groq>=0.17.0
 mistralai>=1.5.0
-openai>=1.60.2
+openai>=1.61.0
 tiktoken>=0.8.0
 anthropic>=0.45.2
 cohere>=5.13.11
 #google-genai>=0.6.0 # not installed on Android termux
 prompt_toolkit
+pygments
 packaging
 importlib_metadata
 python-dotenv

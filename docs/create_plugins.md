@@ -1,6 +1,6 @@
 # How to Create a Plugin?
 
-You may create custom plugins, to work with the `plugin` parameter of the `generate` function.
+You may create custom plugins, to work with the `plugin` parameter of the `agentmake` function.
 
 A `agentmake` plugin can process either user input or assistant output or both.
 

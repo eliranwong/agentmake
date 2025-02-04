@@ -1,4 +1,4 @@
-from agentmake import TOOLMATE_PATH, DEFAULT_AI_BACKEND, DEFAULT_FOLLOW_UP_PROMPT, DEVELOPER_MODE, generate
+from agentmake import TOOLMATE_PATH, DEFAULT_AI_BACKEND, DEFAULT_FOLLOW_UP_PROMPT, DEVELOPER_MODE, agentmake
 from agentmake.utils.handle_text import writeTextFile
 from agentmake.utils.system import getCurrentDateTime, getOpenCommand
 from pathlib import Path
@@ -52,7 +52,7 @@ def teamgenai(
         print(f"# User request\n{userRequest}\n")
 
     # agent configurations
-    messages_copy = generate(
+    messages_copy = agentmake(
         messages_copy,
         system="create_agents",
         backend=backend,
@@ -100,7 +100,7 @@ def teamgenai(
 
     while len(agents) >= agent > 0:
 
-        messages_copy = generate(
+        messages_copy = agentmake(
             messages_copy,
             system="assign_agents",
             follow_up_prompt="Who is the best agent to contribute next?",
@@ -158,7 +158,7 @@ def teamgenai(
             print(f"# Calling Agent {agent} ...")
             print(agent_system, "\n")
 
-        messages_copy = generate(
+        messages_copy = agentmake(
             messages_copy,
             system=agent_system,
             follow_up_prompt=f'''# Change Speaker\nThe best agent to contribute next is agent {agent}.\n{agent_role}, it is your turn to contribute.''',
@@ -181,7 +181,7 @@ def teamgenai(
         )
 
     # Conclusion
-    messages_copy = generate(
+    messages_copy = agentmake(
         messages_copy,
         system="write_final_answer",
         follow_up_prompt=f"""# Instruction

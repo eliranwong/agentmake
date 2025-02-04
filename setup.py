@@ -24,7 +24,7 @@ with open(os.path.join(package, "requirements.txt"), "r") as fileObj:
 # https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/
 setup(
     name="agentmake",
-    version="0.0.32",
+    version="0.0.33",
     python_requires=">=3.8, <3.13",
     description="ToolMate-SDK: a software developement kit for developing agentic AI applications that support 14 AI backends and integrate tools and agents. (Developer: Eliran Wong)",
     long_description=long_description,
@@ -57,7 +57,7 @@ setup(
     license="GNU General Public License (GPL)",
     install_requires=install_requires,
     extras_require={
-        'genai': ["google-genai>=0.6.0"],  # Dependencies for running Vertex AI
+        'genai': ["google-genai>=0.8.0"],  # Dependencies for running Vertex AI
     },
     entry_points={
         "console_scripts": [

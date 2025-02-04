@@ -1,6 +1,6 @@
 # How to Create a Tool?
 
-You may create custom agents, to work with the `agent` parameter of the `generate` function.
+You may create custom agents, to work with the `agent` parameter of the `agentmake` function.
 
 A `agentmake` agent automates multi-turn work and decision.
 

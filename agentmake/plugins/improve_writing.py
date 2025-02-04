@@ -1,4 +1,4 @@
-from agentmake import generate, DEFAULT_AI_BACKEND
+from agentmake import agentmake, DEFAULT_AI_BACKEND
 from typing import Optional, Union, List
 import os, json
 
@@ -36,7 +36,7 @@ def improve_writing(
     content,
     **kwargs,
 ):
-    messages = generate(
+    messages = agentmake(
         content,
         system=TOOL_SYSTEM,
         schema=TOOL_SCHEMA,

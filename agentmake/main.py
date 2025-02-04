@@ -1,4 +1,4 @@
-from agentmake import PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, generate, load_configurations
+from agentmake import PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations
 from agentmake.etextedit import launch
 from agentmake.utils.handle_text import readTextFile, writeTextFile
 from agentmake.utils.retrieve_text_output import wrapText
@@ -18,7 +18,7 @@ def chat():
 def main(keep_chat_record=False):
     # Create the parser
     parser = argparse.ArgumentParser(description = """ToolMate AI API client `tm` cli options""")
-    # Add arguments for running `generate` function
+    # Add arguments for running `agentmake` function
     parser.add_argument("default", nargs="*", default=None, help="user prompt")
     parser.add_argument("-b", "--backend", action="store", dest="backend", help="AI backend")
     parser.add_argument("-m", "--model", action="store", dest="model", help="AI model")
@@ -43,8 +43,6 @@ def main(keep_chat_record=False):
     parser.add_argument("-sl", "--api_service_location", action="store", dest="api_service_location", help="cloud service location; applicable to Vertex AI only")
     parser.add_argument("-tim", "--api_timeout", action="store", dest="api_timeout", type=float, help="timeout for API request")
     parser.add_argument("-ww", "--word_wrap", action="store_true", dest="word_wrap", help="wrap output text according to current terminal width")
-    # AI backend configurations
-    parser.add_argument("-lc", "--load_configurations", action="store", dest="load_configurations", help="load the environment variables specified in the given file")
     # chat features
     parser.add_argument("-c", "--chat", action="store_true", dest="chat", help="enable chat feature")
     parser.add_argument("-cf", "--chat_file", action="store", dest="chat_file", help="load the conversation recorded in the given file")
@@ -55,14 +53,16 @@ def main(keep_chat_record=False):
     parser.add_argument("-pa", "--paste", action="store_true", dest="paste", help="paste the clipboard text as a suffix to the user prompt")
     parser.add_argument("-py", "--copy", action="store_true", dest="copy", help="copy assistant response to the clipboard")
     # others
-    parser.add_argument("-ed", "--edit", action="store_true", dest="edit", help="edit user instruction with text editor")
+    parser.add_argument("-ec", "--edit_configurations", action="store_true", dest="edit_configurations", help="edit default configurations with text editor")
+    parser.add_argument("-ei", "--edit_input", action="store_true", dest="edit_input", help="edit user input with text editor")
     parser.add_argument("-mh", "--markdown_highlights", action="store_true", dest="markdown_highlights", help="highlight markdown syntax")
     # Parse arguments
     args = parser.parse_args()
 
-    # load configurations
-    if args.load_configurations and os.path.isfile(args.load_configurations):
-        load_configurations(args.load_configurations)
+    # edit configurations
+    if args.edit_configurations:
+        edit_configurations()
+
     # enable chat feature
     if args.chat:
         keep_chat_record = True
@@ -75,13 +75,13 @@ def main(keep_chat_record=False):
         clipboardText = ""
     user_prompt = user_prompt + stdin_text + clipboardText
     # edit with text editor
-    if args.edit and DEFAULT_TEXT_EDITOR:
+    if args.edit_input and DEFAULT_TEXT_EDITOR:
         if DEFAULT_TEXT_EDITOR == "etextedit":
             user_prompt = launch(input_text=user_prompt, filename=None, exitWithoutSaving=True, customTitle="Edit instruction below; exit when you finish")
         else:
             tempTextFile = os.path.join(PACKAGE_PATH, "temp", "edit_instruction")
             writeTextFile(tempTextFile, user_prompt)
-            os.system(f"{DEFAULT_TEXT_EDITOR} {tempTextFile}")
+            os.system(f'''{DEFAULT_TEXT_EDITOR} "{tempTextFile}"''')
             user_prompt = readTextFile(tempTextFile)
     # run inference
     if user_prompt:
@@ -103,8 +103,8 @@ def main(keep_chat_record=False):
 
         messages = config.messages if keep_chat_record and config.messages else user_prompt
 
-        # run generate function
-        config.messages = generate(
+        # run agentmake function
+        config.messages = agentmake(
             messages=messages,
             backend=args.backend if args.backend else DEFAULT_AI_BACKEND,
             model=args.model,
