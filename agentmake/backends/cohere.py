@@ -7,7 +7,7 @@ import json, os
 
 class CohereAI:
 
-    DEFAULT_API_KEY = os.getenv("COHERE_API_KEY")
+    DEFAULT_API_KEY = os.getenv("COHERE_API_KEY").split(",") if os.getenv("COHERE_API_KEY") and "," in os.getenv("COHERE_API_KEY") else [os.getenv("COHERE_API_KEY")]
     DEFAULT_MODEL = os.getenv("COHERE_MODEL") if os.getenv("COHERE_MODEL") else "command-r-plus" # https://docs.cohere.com/docs/models
     DEFAULT_TEMPERATURE = float(os.getenv("COHERE_TEMPERATURE")) if os.getenv("COHERE_TEMPERATURE") else 0.3
     DEFAULT_MAX_TOKENS = int(os.getenv("COHERE_MAX_TOKENS")) if os.getenv("COHERE_MAX_TOKENS") else 4000 # https://docs.cohere.com/docs/rate-limits
@@ -31,11 +31,19 @@ class CohereAI:
         api_timeout: Optional[int]=None,
         **kwargs,
     ) -> ChatResponse:
-        if not api_key and not CohereAI.DEFAULT_API_KEY:
-            raise ValueError("API key is required.")
+        if not api_key and not CohereAI.DEFAULT_API_KEY[0]:
+            raise ValueError("Cohere API key is required.")
         #if prefill:
         #    messages.append({'role': 'assistant', 'content': prefill})
-        client = cohere.ClientV2(api_key=api_key if api_key else CohereAI.DEFAULT_API_KEY)
+        # rotate multiple API keys
+        if api_key:
+            this_api_key = api_key
+        else:
+            if len(CohereAI.DEFAULT_API_KEY) > 1:
+                first_item = CohereAI.DEFAULT_API_KEY.pop(0)
+                CohereAI.DEFAULT_API_KEY.append(first_item)
+            this_api_key = CohereAI.DEFAULT_API_KEY[0]
+        client = cohere.ClientV2(api_key=this_api_key)
         func = client.chat_stream if stream else client.chat
         return func(
             model=model if model else CohereAI.DEFAULT_MODEL,

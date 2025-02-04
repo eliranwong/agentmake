@@ -51,7 +51,7 @@ Args:
         runs multi-turn inferences, to loop through multiple system messages, if it is given as a list
         each item must be either one of the following options:
             1. file name, without extension, of a markdown file, placed in folder `systems` under package directory, i.e. the value of PACKAGE_PATH
-            2. file name, without extension, of a markdown file, placed in folder `systems` under toolmate directory, i.e. the value of TOOLMATE_PATH
+            2. file name, without extension, of a markdown file, placed in folder `systems` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
             3. a valid plain text file path
             4. a string of a system message
 
@@ -62,7 +62,7 @@ Args:
         runs multi-turn inferences, to loop through multiple predefined contexts, if it is given as a list
         each item must be either one of the following options:
             1. file name, without extension, of a markdown file, placed in folder `contexts` under package directory, i.e. the value of PACKAGE_PATH
-            2. file name, without extension, of a markdown file, placed in folder `contexts` under toolmate directory, i.e. the value of TOOLMATE_PATH
+            2. file name, without extension, of a markdown file, placed in folder `contexts` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
             3. a valid plain text file path
             4. a string of a predefined context
 
@@ -73,7 +73,7 @@ Args:
         runs multi-turn inferences, to loop through multiple follow-up prompts, if it is given as a list
         each item must be either one of the following options:
             1. file name, without extension, of a markdown file, placed in folder `prompts` under package directory, i.e. the value of PACKAGE_PATH
-            2. file name, without extension, of a markdown file, placed in folder `prompts` under toolmate directory, i.e. the value of TOOLMATE_PATH
+            2. file name, without extension, of a markdown file, placed in folder `prompts` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
             3. a valid plain text file path
             4. a string of a prompt
         remarks: if the last item of the given messages is not a user message, the first item in the follow_up_prompt list, if there is one, is used as the user message.
@@ -85,7 +85,7 @@ Args:
         run all specified plugins to process user input content on every single turn
         each item must be either one of the following options:
             1. file name, without extension, of a python file, placed in folder `plugins` under package directory, i.e. the value of PACKAGE_PATH
-            2. file name, without extension, of a python file, placed in folder `plugins` under toolmate directory, i.e. the value of TOOLMATE_PATH
+            2. file name, without extension, of a python file, placed in folder `plugins` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
             3. a valid plain text file path
             4. a python script containing at least one variable:
                 i. CONTENT_PLUGIN - the function object that processes user input content
@@ -97,7 +97,7 @@ Args:
         run all specified plugins to process assistant output content on every single turn
         each item must be either one of the following options:
             1. file name, without extension, of a python file, placed in folder `plugins` under package directory, i.e. the value of PACKAGE_PATH
-            2. file name, without extension, of a python file, placed in folder `plugins` under toolmate directory, i.e. the value of TOOLMATE_PATH
+            2. file name, without extension, of a python file, placed in folder `plugins` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
             3. a valid plain text file path
             4. a python script containing at least one variable:
                 i. CONTENT_PLUGIN - the function object that processes assistant output content
@@ -109,7 +109,7 @@ Args:
         runs multi-turn actions, to loop through multiple agents, if it is given as a list
         each item must be either one of the following options:
             1. file name, without extension, of a python file, placed in folder `agents` under package directory, i.e. the value of PACKAGE_PATH
-            2. file name, without extension, of a python file, placed in folder `agents` under agentmate directory, i.e. the value of TOOLMATE_PATH
+            2. file name, without extension, of a python file, placed in folder `agents` under agentmate directory, i.e. the value of AGENTMAKE_USER_DIR
             3. a valid plain text file path
             4. a python script containing at least one variable:
                 i. AGENT_FUNCTION - the funciton object being called with the agent
@@ -122,7 +122,7 @@ Args:
         runs multi-turn actions, to loop through multiple tools, if it is given as a list
         each item must be either one of the following options:
             1. file name, without extension, of a python file, placed in folder `tools` under package directory, i.e. the value of PACKAGE_PATH
-            2. file name, without extension, of a python file, placed in folder `tools` under toolmate directory, i.e. the value of TOOLMATE_PATH
+            2. file name, without extension, of a python file, placed in folder `tools` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
             3. a valid plain text file path
             4. a python script containing at least three variables:
                 i. TOOL_SYSTEM - the system message for running the tool
@@ -198,7 +198,7 @@ Args:
     api_timeout:
         type: Optional[Union[int, float]]=None
         timeout for API request
-        applicable to backends, execept for ollama, genai and vertexai
+        applicable to all backends, execept for ollama
 
     print_on_terminal:
         type: Optional[bool]=True
@@ -220,8 +220,6 @@ Return:
 ```
 
 # More
-
-[Custom Content](https://github.com/eliranwong/agentmake/blob/main/docs/custom_content.md)
 
 [Create tools](https://github.com/eliranwong/agentmake/blob/main/docs/create_tools.md)
 

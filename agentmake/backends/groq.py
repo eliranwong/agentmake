@@ -6,7 +6,7 @@ import json, os
 
 class GroqAI:
 
-    DEFAULT_API_KEY = os.getenv("GROQ_API_KEY")
+    DEFAULT_API_KEY = os.getenv("GROQ_API_KEY").split(",") if os.getenv("GROQ_API_KEY") and "," in os.getenv("GROQ_API_KEY") else [os.getenv("GROQ_API_KEY")]
     DEFAULT_MODEL = os.getenv("GROQ_MODEL") if os.getenv("GROQ_MODEL") else "llama-3.3-70b-versatile"
     DEFAULT_TEMPERATURE = float(os.getenv("GROQ_TEMPERATURE")) if os.getenv("GROQ_TEMPERATURE") else 0.3
     DEFAULT_MAX_TOKENS = int(os.getenv("GROQ_MAX_TOKENS")) if os.getenv("GROQ_MAX_TOKENS") else 32768 # https://console.groq.com/docs/models
@@ -30,11 +30,19 @@ class GroqAI:
         api_timeout: Optional[float]=None,
         **kwargs,
     ) -> ChatCompletion:
-        if not api_key and not GroqAI.DEFAULT_API_KEY:
-            raise ValueError("API key is required.")
+        if not api_key and not GroqAI.DEFAULT_API_KEY[0]:
+            raise ValueError("Groq API key is required.")
         if prefill:
             messages.append({'role': 'assistant', 'content': prefill})
-        return Groq(api_key=api_key if api_key else GroqAI.DEFAULT_API_KEY).chat.completions.create(
+        # rotate multiple API keys
+        if api_key:
+            this_api_key = api_key
+        else:
+            if len(GroqAI.DEFAULT_API_KEY) > 1:
+                first_item = GroqAI.DEFAULT_API_KEY.pop(0)
+                GroqAI.DEFAULT_API_KEY.append(first_item)
+            this_api_key = GroqAI.DEFAULT_API_KEY[0]
+        return Groq(api_key=this_api_key).chat.completions.create(
             model=model if model else GroqAI.DEFAULT_MODEL,
             messages=messages,
             temperature=temperature if temperature is not None else GroqAI.DEFAULT_TEMPERATURE,

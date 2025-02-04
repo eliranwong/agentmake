@@ -31,7 +31,7 @@ class OpenaiAI:
         **kwargs,
     ) -> ChatCompletion:
         if not api_key and not OpenaiAI.DEFAULT_API_KEY:
-            raise ValueError("API key is required.")
+            raise ValueError("OpenAI API key is required.")
         #if prefill:
         #    messages.append({'role': 'assistant', 'content': prefill})
         return OpenAI(api_key=api_key if api_key else OpenaiAI.DEFAULT_API_KEY).chat.completions.create(

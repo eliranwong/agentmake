@@ -1,4 +1,4 @@
-from agentmake import TOOLMATE_PATH, DEFAULT_AI_BACKEND, DEFAULT_FOLLOW_UP_PROMPT, DEVELOPER_MODE, agentmake
+from agentmake import AGENTMAKE_USER_DIR, DEFAULT_AI_BACKEND, DEFAULT_FOLLOW_UP_PROMPT, DEVELOPER_MODE, agentmake
 from agentmake.utils.handle_text import writeTextFile
 from agentmake.utils.system import getCurrentDateTime, getOpenCommand
 from pathlib import Path
@@ -218,7 +218,7 @@ Please provide me with the final answer to my original request based on the work
 
 def generate_teamgenai_record(backend, messages, userRequest, agents, agents_description, print_on_terminal):
     timestamp = getCurrentDateTime()
-    storagePath = os.path.join(TOOLMATE_PATH, "teamgenai", timestamp)
+    storagePath = os.path.join(AGENTMAKE_USER_DIR, "teamgenai", timestamp)
     Path(storagePath).mkdir(parents=True, exist_ok=True)
     if print_on_terminal:
         print()

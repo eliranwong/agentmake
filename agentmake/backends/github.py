@@ -6,7 +6,7 @@ import json, os
 
 class GithubAI:
 
-    DEFAULT_API_KEY = os.getenv("GITHUB_API_KEY")
+    DEFAULT_API_KEY = os.getenv("GITHUB_API_KEY").split(",") if os.getenv("GITHUB_API_KEY") and "," in os.getenv("GITHUB_API_KEY") else [os.getenv("GITHUB_API_KEY")]
     DEFAULT_MODEL = os.getenv("GITHUB_MODEL") if os.getenv("GITHUB_MODEL") else "gpt-4o"
     DEFAULT_TEMPERATURE = float(os.getenv("GITHUB_TEMPERATURE")) if os.getenv("GITHUB_TEMPERATURE") else 0.3
     DEFAULT_MAX_TOKENS = int(os.getenv("GITHUB_MAX_TOKENS")) if os.getenv("GITHUB_MAX_TOKENS") else 4000 # https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits
@@ -30,13 +30,21 @@ class GithubAI:
         api_timeout: Optional[float]=None,
         **kwargs,
     ) -> ChatCompletion:
-        if not api_key and not GithubAI.DEFAULT_API_KEY:
-            raise ValueError("API key is required.")
+        if not api_key and not GithubAI.DEFAULT_API_KEY[0]:
+            raise ValueError("Github API key is required.")
         #if not api_endpoint and not GithubAI.DEFAULT_API_ENDPOINT:
         #    raise ValueError("API endpoint is required.")
         #if prefill:
         #    messages.append({'role': 'assistant', 'content': prefill})
-        return OpenAI(api_key=api_key if api_key else GithubAI.DEFAULT_API_KEY, base_url="https://models.inference.ai.azure.com").chat.completions.create(
+        # rotate multiple API keys
+        if api_key:
+            this_api_key = api_key
+        else:
+            if len(GithubAI.DEFAULT_API_KEY) > 1:
+                first_item = GithubAI.DEFAULT_API_KEY.pop(0)
+                GithubAI.DEFAULT_API_KEY.append(first_item)
+            this_api_key = GithubAI.DEFAULT_API_KEY[0]
+        return OpenAI(api_key=this_api_key, base_url="https://models.inference.ai.azure.com").chat.completions.create(
             model=model if model else GithubAI.DEFAULT_MODEL,
             messages=messages,
             temperature=temperature if temperature is not None else GithubAI.DEFAULT_TEMPERATURE,

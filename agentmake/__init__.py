@@ -1,8 +1,9 @@
 from dotenv import load_dotenv
-import os, shutil
+import os, shutil, warnings
 
 PACKAGE_PATH = os.path.dirname(os.path.realpath(__file__))
 PACKAGE_NAME = os.path.basename(PACKAGE_PATH)
+AGENTMAKE_USER_DIR = os.getenv("AGENTMAKE_USER_DIR") if os.getenv("AGENTMAKE_USER_DIR") else os.path.join(os.path.expanduser("~"), "agentmake") # It is where users store their custom components, i.e. `tools`, `agents`, `plugins`, `systems`, `contexts`, and `prompts`.Custom components are placed outside the package directory, to avoid overriding upon upgrades.
 
 def load_configurations(env_file=""):
     if not env_file:
@@ -19,7 +20,10 @@ from .backends.azure import AzureAI
 from .backends.cohere import CohereAI
 from .backends.custom import OpenaiCompatibleAI
 from .backends.deepseek import DeepseekAI
-from .backends.genai import GenaiAI
+with warnings.catch_warnings():
+    # skip a warning that is raised with the google-genai library itself
+    warnings.filterwarnings("ignore", message="<built-in function any> is not a Python type.*", category=UserWarning, module="pydantic._internal._generate_schema")
+    from .backends.genai import GenaiAI
 from .backends.github import GithubAI
 from .backends.googleai import GoogleaiAI
 from .backends.groq import GroqAI
@@ -38,10 +42,10 @@ from copy import deepcopy
 from io import StringIO
 import sys, re, json, traceback
 
-TOOLMATE_PATH = os.getenv("TOOLMATE_PATH") if os.getenv("TOOLMATE_PATH") else os.path.join(os.path.expanduser("~"), "toolmate") # It is where users store their custom tools, keeping them outside the package directory.
 DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
 SUPPORTED_AI_BACKENDS = ["anthropic", "azure", "cohere", "custom", "deepseek", "genai", "github", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"]
 DEFAULT_AI_BACKEND = os.getenv("DEFAULT_AI_BACKEND") if os.getenv("DEFAULT_AI_BACKEND") else "ollama"
+DEFAULT_SYSTEM_MESSAGE = os.getenv("DEFAULT_SYSTEM_MESSAGE") if os.getenv("DEFAULT_SYSTEM_MESSAGE") else "You are an AI assistant."
 DEFAULT_FOLLOW_UP_PROMPT = os.getenv("DEFAULT_FOLLOW_UP_PROMPT") if os.getenv("DEFAULT_FOLLOW_UP_PROMPT") else "Please tell me more."
 DEFAULT_TEXT_EDITOR = os.getenv("DEFAULT_TEXT_EDITOR") if os.getenv("DEFAULT_TEXT_EDITOR") else "etextedit"
 DEFAULT_MARKDOWN_THEME = os.getenv("DEFAULT_MARKDOWN_THEME") if os.getenv("DEFAULT_MARKDOWN_THEME") else "github-dark"
@@ -77,7 +81,7 @@ def agentmake(
     api_endpoint: Optional[str]=None, # API endpoint; applicable to azure, custom, llamacpp, ollama
     api_project_id: Optional[str]=None, # project id; applicable to Vertex AI only, i.e., vertexai or genai
     api_service_location: Optional[str]=None, # cloud service location; applicable to Vertex AI only, i.e., vertexai or genai
-    api_timeout: Optional[Union[int, float]]=None, # timeout for API request; applicable to backends, execept for ollama, genai and vertexai
+    api_timeout: Optional[Union[int, float]]=None, # timeout for API request; applicable to all backends, execept for ollama
     print_on_terminal: Optional[bool]=True, # print output on terminal
     word_wrap: Optional[bool]=True, # word wrap output according to current terminal width
     **kwargs, # pass extra options supported by individual backends
@@ -131,7 +135,7 @@ def agentmake(
             runs multi-turn inferences, to loop through multiple system messages, if it is given as a list
             each item must be either one of the following options:
                 1. file name, without extension, of a markdown file, placed in folder `systems` under package directory, i.e. the value of PACKAGE_PATH
-                2. file name, without extension, of a markdown file, placed in folder `systems` under toolmate directory, i.e. the value of TOOLMATE_PATH
+                2. file name, without extension, of a markdown file, placed in folder `systems` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
                 3. a valid plain text file path
                 4. a string of a system message
 
@@ -142,7 +146,7 @@ def agentmake(
             runs multi-turn inferences, to loop through multiple predefined contexts, if it is given as a list
             each item must be either one of the following options:
                 1. file name, without extension, of a markdown file, placed in folder `contexts` under package directory, i.e. the value of PACKAGE_PATH
-                2. file name, without extension, of a markdown file, placed in folder `contexts` under toolmate directory, i.e. the value of TOOLMATE_PATH
+                2. file name, without extension, of a markdown file, placed in folder `contexts` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
                 3. a valid plain text file path
                 4. a string of a predefined context
 
@@ -153,7 +157,7 @@ def agentmake(
             runs multi-turn inferences, to loop through multiple follow-up prompts, if it is given as a list
             each item must be either one of the following options:
                 1. file name, without extension, of a markdown file, placed in folder `prompts` under package directory, i.e. the value of PACKAGE_PATH
-                2. file name, without extension, of a markdown file, placed in folder `prompts` under toolmate directory, i.e. the value of TOOLMATE_PATH
+                2. file name, without extension, of a markdown file, placed in folder `prompts` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
                 3. a valid plain text file path
                 4. a string of a prompt
             remarks: if the last item of the given messages is not a user message, the first item in the follow_up_prompt list, if there is one, is used as the user message.
@@ -165,7 +169,7 @@ def agentmake(
             run all specified plugins to process user input content on every single turn
             each item must be either one of the following options:
                 1. file name, without extension, of a python file, placed in folder `plugins` under package directory, i.e. the value of PACKAGE_PATH
-                2. file name, without extension, of a python file, placed in folder `plugins` under toolmate directory, i.e. the value of TOOLMATE_PATH
+                2. file name, without extension, of a python file, placed in folder `plugins` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
                 3. a valid plain text file path
                 4. a python script containing at least one variable:
                     i. CONTENT_PLUGIN - the function object that processes user input content
@@ -177,7 +181,7 @@ def agentmake(
             run all specified plugins to process assistant output content on every single turn
             each item must be either one of the following options:
                 1. file name, without extension, of a python file, placed in folder `plugins` under package directory, i.e. the value of PACKAGE_PATH
-                2. file name, without extension, of a python file, placed in folder `plugins` under toolmate directory, i.e. the value of TOOLMATE_PATH
+                2. file name, without extension, of a python file, placed in folder `plugins` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
                 3. a valid plain text file path
                 4. a python script containing at least one variable:
                     i. CONTENT_PLUGIN - the function object that processes assistant output content
@@ -189,7 +193,7 @@ def agentmake(
             runs multi-turn actions, to loop through multiple agents, if it is given as a list
             each item must be either one of the following options:
                 1. file name, without extension, of a python file, placed in folder `agents` under package directory, i.e. the value of PACKAGE_PATH
-                2. file name, without extension, of a python file, placed in folder `agents` under agentmate directory, i.e. the value of TOOLMATE_PATH
+                2. file name, without extension, of a python file, placed in folder `agents` under agentmate directory, i.e. the value of AGENTMAKE_USER_DIR
                 3. a valid plain text file path
                 4. a python script containing at least one variable:
                     i. AGENT_FUNCTION - the funciton object being called with the agent
@@ -202,7 +206,7 @@ def agentmake(
             runs multi-turn actions, to loop through multiple tools, if it is given as a list
             each item must be either one of the following options:
                 1. file name, without extension, of a python file, placed in folder `tools` under package directory, i.e. the value of PACKAGE_PATH
-                2. file name, without extension, of a python file, placed in folder `tools` under toolmate directory, i.e. the value of TOOLMATE_PATH
+                2. file name, without extension, of a python file, placed in folder `tools` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
                 3. a valid plain text file path
                 4. a python script containing at least three variables:
                     i. TOOL_SYSTEM - the system message for running the tool
@@ -278,7 +282,7 @@ def agentmake(
         api_timeout:
             type: Optional[Union[int, float]]=None
             timeout for API request
-            applicable to backends, execept for ollama, genai and vertexai
+            applicable to all backends, execept for ollama
 
         print_on_terminal:
             type: Optional[bool]=True
@@ -304,7 +308,7 @@ def agentmake(
     original_system = ""
     chat_system = ""
     # deep copy messages avoid modifying the original one
-    messages_copy = deepcopy(messages) if isinstance(messages, list) else [{"role": "system", "content": "You are a helpful AI assistant."}, {"role": "user", "content": messages}]
+    messages_copy = deepcopy(messages) if isinstance(messages, list) else [{"role": "system", "content": DEFAULT_SYSTEM_MESSAGE}, {"role": "user", "content": messages}]
     # convert follow-up-prompt to a list if it is given as a string
     if follow_up_prompt and isinstance(follow_up_prompt, str):
         follow_up_prompt = [follow_up_prompt]
@@ -326,7 +330,7 @@ def agentmake(
 
             # check if it is a predefined plugin message built-in with this SDK
             possible_input_content_plugin_file_path_1 = os.path.join(PACKAGE_PATH, "plugins", f"{input_content_plugin_object}.py")
-            possible_input_content_plugin_file_path_2 = os.path.join(TOOLMATE_PATH, "plugins", f"{input_content_plugin_object}.py")
+            possible_input_content_plugin_file_path_2 = os.path.join(AGENTMAKE_USER_DIR, "plugins", f"{input_content_plugin_object}.py")
             if input_content_plugin_object is None:
                 pass
             elif os.path.isfile(possible_input_content_plugin_file_path_1):
@@ -384,7 +388,7 @@ def agentmake(
         agent_name = agent_object[:20]
         # check if it is a predefined plugin message built-in with this SDK
         possible_agent_file_path_1 = os.path.join(PACKAGE_PATH, "agents", f"{agent_object}.py")
-        possible_agent_file_path_2 = os.path.join(TOOLMATE_PATH, "agents", f"{agent_object}.py")
+        possible_agent_file_path_2 = os.path.join(AGENTMAKE_USER_DIR, "agents", f"{agent_object}.py")
         if agent_object is None:
             pass
         elif os.path.isfile(possible_agent_file_path_1):
@@ -438,7 +442,7 @@ def agentmake(
             system = []
         # check if it is a predefined system message built-in with this SDK
         possible_system_file_path_1 = os.path.join(PACKAGE_PATH, "systems", f"{system_instruction}.md")
-        possible_system_file_path_2 = os.path.join(TOOLMATE_PATH, "systems", f"{system_instruction}.md")
+        possible_system_file_path_2 = os.path.join(AGENTMAKE_USER_DIR, "systems", f"{system_instruction}.md")
         if system_instruction is None:
             pass
         elif os.path.isfile(possible_system_file_path_1):
@@ -464,7 +468,7 @@ def agentmake(
             context = []
         # check if it is a predefined context built-in with this SDK
         possible_context_file_path_1 = os.path.join(PACKAGE_PATH, "contexts", f"{context_content}.md")
-        possible_context_file_path_2 = os.path.join(TOOLMATE_PATH, "contexts", f"{context_content}.md")
+        possible_context_file_path_2 = os.path.join(AGENTMAKE_USER_DIR, "contexts", f"{context_content}.md")
         if context_content is None:
             pass
         elif os.path.isfile(possible_context_file_path_1):
@@ -500,7 +504,7 @@ def agentmake(
         tool_name = tool_object[:20]
         # check if it is a predefined tool built-in with this SDK
         possible_tool_file_path_1 = os.path.join(PACKAGE_PATH, "tools", f"{tool_object}.py")
-        possible_tool_file_path_2 = os.path.join(TOOLMATE_PATH, "tools", f"{tool_object}.py")
+        possible_tool_file_path_2 = os.path.join(AGENTMAKE_USER_DIR, "tools", f"{tool_object}.py")
         if tool_object is None:
             pass
         elif os.path.isfile(possible_tool_file_path_1):
@@ -718,6 +722,7 @@ def agentmake(
                 api_key=api_key,
                 api_project_id=api_project_id,
                 api_service_location=api_service_location,
+                api_timeout=api_timeout,
                 **kwargs
             )
         elif backend == "github":
@@ -837,7 +842,7 @@ def agentmake(
 
             # check if it is a predefined plugin message built-in with this SDK
             possible_output_content_plugin_file_path_1 = os.path.join(PACKAGE_PATH, "plugins", f"{output_content_plugin_object}.py")
-            possible_output_content_plugin_file_path_2 = os.path.join(TOOLMATE_PATH, "plugins", f"{output_content_plugin_object}.py")
+            possible_output_content_plugin_file_path_2 = os.path.join(AGENTMAKE_USER_DIR, "plugins", f"{output_content_plugin_object}.py")
             if output_content_plugin_object is None:
                 pass
             elif os.path.isfile(possible_output_content_plugin_file_path_1):
@@ -897,7 +902,7 @@ def agentmake(
         follow_up_prompt_content = follow_up_prompt.pop(0)
         # check if it is a predefined follow_up_prompt built-in with this SDK
         possible_follow_up_prompt_file_path_1 = os.path.join(PACKAGE_PATH, "prompts", f"{follow_up_prompt_content}.md")
-        possible_follow_up_prompt_file_path_2 = os.path.join(TOOLMATE_PATH, "prompts", f"{follow_up_prompt_content}.md")
+        possible_follow_up_prompt_file_path_2 = os.path.join(AGENTMAKE_USER_DIR, "prompts", f"{follow_up_prompt_content}.md")
         if os.path.isfile(possible_follow_up_prompt_file_path_1):
             follow_up_prompt_file_content = readTextFile(possible_follow_up_prompt_file_path_1)
             if follow_up_prompt_file_content:
@@ -1038,6 +1043,7 @@ def getDictionaryOutput(
             api_key=api_key,
             api_project_id=api_project_id,
             api_service_location=api_service_location,
+            api_timeout=api_timeout,
             **kwargs
         )
     elif backend == "github":

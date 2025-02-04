@@ -33,9 +33,9 @@ class AzureAI:
         **kwargs,
     ) -> ChatCompletion:
         if not api_key and not AzureAI.DEFAULT_API_KEY:
-            raise ValueError("API key is required.")
+            raise ValueError("Azure API key is required.")
         if not api_endpoint and not AzureAI.DEFAULT_API_ENDPOINT:
-            raise ValueError("API endpoint is required.")
+            raise ValueError("Azure API endpoint is required.")
         #if prefill:
         #    messages.append({'role': 'assistant', 'content': prefill})
         return AzureOpenAI(api_key=api_key if api_key else AzureAI.DEFAULT_API_KEY, azure_endpoint=api_endpoint if api_endpoint else AzureAI.DEFAULT_API_ENDPOINT, api_version=AzureAI.DEFAULT_API_VERSION).chat.completions.create(

@@ -40,7 +40,7 @@ class AnthropicAI:
         **kwargs,
     ) -> Message:
         if not api_key and not AnthropicAI.DEFAULT_API_KEY:
-            raise ValueError("API key is required.")
+            raise ValueError("Anthropic API key is required.")
         #if prefill:
         #    messages.append({'role': 'assistant', 'content': prefill})
         if schema:

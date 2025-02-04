@@ -31,7 +31,7 @@ class GoogleaiAI:
         **kwargs,
     ) -> ChatCompletion:
         if not api_key and not GoogleaiAI.DEFAULT_API_KEY:
-            raise ValueError("API key is required.")
+            raise ValueError("GoogleAI API key is required.")
         #if not api_endpoint and not GoogleaiAI.DEFAULT_API_ENDPOINT:
         #    raise ValueError("API endpoint is required.")
         #if prefill:

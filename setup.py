@@ -24,7 +24,7 @@ with open(os.path.join(package, "requirements.txt"), "r") as fileObj:
 # https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/
 setup(
     name="agentmake",
-    version="0.0.33",
+    version="0.0.35",
     python_requires=">=3.8, <3.13",
     description="ToolMate-SDK: a software developement kit for developing agentic AI applications that support 14 AI backends and integrate tools and agents. (Developer: Eliran Wong)",
     long_description=long_description,
@@ -67,7 +67,7 @@ setup(
             f"etextedit={package}.etextedit:main",
         ],
     },
-    keywords="toolmate ai sdk anthropic azure chatgpt deepseek genai github googleai groq llamacpp mistral ollama openai vertexai xai",
+    keywords="toolmate ai sdk anthropic azure chatgpt cohere deepseek genai github googleai groq llamacpp mistral ollama openai vertexai xai",
     url="https://github.com/eliranwong/agentmake",
     project_urls={
         "Source": "https://github.com/eliranwong/agentmake",

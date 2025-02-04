@@ -8,7 +8,7 @@ import json, os
 class MistralAI:
     # docs: https://docs.mistral.ai/
 
-    DEFAULT_API_KEY = os.getenv("MISTRAL_API_KEY")
+    DEFAULT_API_KEY = os.getenv("MISTRAL_API_KEY").split(",") if os.getenv("MISTRAL_API_KEY") and "," in os.getenv("MISTRAL_API_KEY") else [os.getenv("MISTRAL_API_KEY")]
     DEFAULT_MODEL = os.getenv("MISTRAL_MODEL") if os.getenv("MISTRAL_MODEL") else "mistral-large-latest"
     DEFAULT_TEMPERATURE = float(os.getenv("MISTRAL_TEMPERATURE")) if os.getenv("MISTRAL_TEMPERATURE") else 0.3
     DEFAULT_MAX_TOKENS = int(os.getenv("MISTRAL_MAX_TOKENS")) if os.getenv("MISTRAL_MAX_TOKENS") else 8000 # https://docs.mistral.ai/getting-started/models/models_overview/
@@ -36,11 +36,19 @@ class MistralAI:
         word_wrap: Optional[bool]=True,
         **kwargs,
     ) -> Union[EventStream[CompletionEvent], ChatCompletionResponse]:
-        if not api_key and not MistralAI.DEFAULT_API_KEY:
-            raise ValueError("API key is required.")
+        if not api_key and not MistralAI.DEFAULT_API_KEY[0]:
+            raise ValueError("Mistral API key is required.")
         if prefill:
             messages.append({'role': 'assistant', 'content': prefill, "prefix": True})
-        client = Mistral(api_key=api_key if api_key else MistralAI.DEFAULT_API_KEY)
+        # rotate multiple API keys
+        if api_key:
+            this_api_key = api_key
+        else:
+            if len(MistralAI.DEFAULT_API_KEY) > 1:
+                first_item = MistralAI.DEFAULT_API_KEY.pop(0)
+                MistralAI.DEFAULT_API_KEY.append(first_item)
+            this_api_key = MistralAI.DEFAULT_API_KEY[0]
+        client = Mistral(api_key=this_api_key)
         completion = client.chat.stream(
             model=model if model else MistralAI.DEFAULT_MODEL,
             messages=messages,

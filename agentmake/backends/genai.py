@@ -1,5 +1,5 @@
 try:
-    from google.genai.types import Content, GenerateContentConfig, SafetySetting, Tool, Part
+    from google.genai.types import Content, GenerateContentConfig, SafetySetting, Tool, Part, HttpOptions
     from google.genai import Client
 except:
     # Google GenAI SDK is not supported on Android Termux
@@ -27,7 +27,7 @@ class GenaiAI:
                 role = i.get("role", "")
                 content = i.get("content", "")
                 if role in ("user", "assistant"):
-                    history.append(Content(role="user" if role == "user" else "model", parts=[Part.from_text(content)]))
+                    history.append(Content(role="user" if role == "user" else "model", parts=[Part.from_text(text=content)]))
                     if role == "user":
                         last_user_message = content
                 elif role == "system":
@@ -59,10 +59,11 @@ class GenaiAI:
         #api_endpoint: Optional[str]=None,
         api_project_id: Optional[str]=None, # applicable to Vertex AI only
         api_service_location: Optional[str]=None, # applicable to Vertex AI only
+        api_timeout: Optional[int]=None,
         **kwargs,
     ) -> Any:
         if not api_key and not GenaiAI.DEFAULT_API_KEY:
-            raise ValueError("API key is required.")
+            raise ValueError("VertexAI credential json file path or GoogleAI API key is required.")
         #if prefill:
         #    messages.append({'role': 'assistant', 'content': prefill})
         # convert messages to GenAI format
@@ -95,6 +96,7 @@ class GenaiAI:
             tools = None
         # generate content
         genai_config = GenerateContentConfig(
+            http_options=HttpOptions(timeout=api_timeout),
             system_instruction=system_message+"""\n\n# Output Format\nOutputs in JSON.""" if schema else system_message,
             temperature=temperature if temperature is not None else GenaiAI.DEFAULT_TEMPERATURE,
             #top_p=0.95,
@@ -152,6 +154,7 @@ class GenaiAI:
         #api_endpoint: Optional[str]=None,
         api_project_id: Optional[str]=None, # applicable to Vertex AI only
         api_service_location: Optional[str]=None, # applicable to Vertex AI only
+        api_timeout: Optional[int]=None,
         **kwargs,
     ) -> dict:
         completion = GenaiAI.getChatCompletion(
@@ -166,6 +169,7 @@ class GenaiAI:
             #api_endpoint=api_endpoint,
             api_project_id=api_project_id,
             api_service_location=api_service_location,
+            api_timeout=api_timeout,
             **kwargs
         )
         part = completion.candidates[0].content.parts[0]

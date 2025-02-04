@@ -31,7 +31,7 @@ class DeepseekAI:
         **kwargs,
     ) -> ChatCompletion:
         if not api_key and not DeepseekAI.DEFAULT_API_KEY:
-            raise ValueError("API key is required.")
+            raise ValueError("Deepseek API key is required.")
         #if not api_endpoint and not DeepseekAI.DEFAULT_API_ENDPOINT:
         #    raise ValueError("API endpoint is required.")
         if prefill:

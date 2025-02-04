@@ -31,7 +31,7 @@ class XaiAI:
         **kwargs,
     ) -> ChatCompletion:
         if not api_key and not XaiAI.DEFAULT_API_KEY:
-            raise ValueError("API key is required.")
+            raise ValueError("X AI API key is required.")
         #if not api_endpoint and not XaiAI.DEFAULT_API_ENDPOINT:
         #    raise ValueError("API endpoint is required.")
         #if prefill:
