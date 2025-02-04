@@ -1,6 +1,6 @@
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.input import create_input
-import asyncio, shutil, os, wcwidth
+import asyncio, shutil, os, wcwidth, re
 
 
 class TextWrapper:
@@ -91,7 +91,7 @@ class TextWrapper:
             self.streaming_finished = True
             self.text_output = chat_response
             if print_on_terminal:
-                print("\n\n")
+                print() if re.search("\n[ ]*$", chat_response) else print("\n")
 
         chat_response = ""
         self.line_width = 0

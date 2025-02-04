@@ -1,7 +1,7 @@
 from openai import OpenAI
 from openai.types.chat import ChatCompletion
 from typing import Optional
-import json, os
+import json, os, re
 
 
 class OpenaiAI:
@@ -34,16 +34,24 @@ class OpenaiAI:
             raise ValueError("OpenAI API key is required.")
         #if prefill:
         #    messages.append({'role': 'assistant', 'content': prefill})
+        # tweaks for reasoning models
+        model = model if model else OpenaiAI.DEFAULT_MODEL
+        extras = {} if re.search("^o[0-9]", model) else {
+            "temperature": temperature if temperature is not None else OpenaiAI.DEFAULT_TEMPERATURE,
+            "max_tokens": max_tokens if max_tokens else OpenaiAI.DEFAULT_MAX_TOKENS,
+            "stream": stream,
+        }
         return OpenAI(api_key=api_key if api_key else OpenaiAI.DEFAULT_API_KEY).chat.completions.create(
             model=model if model else OpenaiAI.DEFAULT_MODEL,
             messages=messages,
-            temperature=temperature if temperature is not None else OpenaiAI.DEFAULT_TEMPERATURE,
-            max_tokens=max_tokens if max_tokens else OpenaiAI.DEFAULT_MAX_TOKENS,
+            #temperature=temperature if temperature is not None else OpenaiAI.DEFAULT_TEMPERATURE,
+            #max_tokens=max_tokens if max_tokens else OpenaiAI.DEFAULT_MAX_TOKENS,
             tools=[{"type": "function", "function": schema}] if schema else None,
             tool_choice={"type": "function", "function": {"name": schema["name"]}} if schema else None,
-            stream=stream,
+            #stream=stream,
             stop=stop,
             timeout=api_timeout,
+            **extras,
             **kwargs
         )
 

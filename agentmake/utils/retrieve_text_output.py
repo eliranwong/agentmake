@@ -14,7 +14,8 @@ def getChatCompletionText(
         print_on_terminal: Optional[bool]=True,
         word_wrap: Optional[bool]=True,
     ) -> str:
-    if stream:
+    stream_openai_reasoning_model = True if stream and backend=="openai" and hasattr(completion, "choices") else False
+    if stream and not stream_openai_reasoning_model: # openai reasoning models do not support streaming
         text_output = readStreamingChunks(backend, completion, print_on_terminal, word_wrap)
         # TODO: ensure client connection, e.g. llama.cpp client, is closed properly
     else:
@@ -30,6 +31,8 @@ def getChatCompletionText(
             text_output = completion.choices[0].message.content
         if print_on_terminal:
             print(wrapText(text_output) if word_wrap else text_output)
+            if stream_openai_reasoning_model:
+                print()
     return text_output
 
 def readStreamingChunks(
