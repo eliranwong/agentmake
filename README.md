@@ -1,8 +1,14 @@
 # AgentMake AI
 
-AgentMake AI: a software developement kit for developing agentic AI applications that support 14 AI backends and integrate tools and agents. (Developer: Eliran Wong)
+AgentMake AI: a software developement kit for developing agentic AI applications that support 14 AI backends and work with 7 agentic components, such as tools and agents. (Developer: Eliran Wong)
 
 Supported backends: anthropic, azure, cohere, custom, deepseek, genai, github, googleai, groq, llamacpp, mistral, ollama, openai, vertexai, xai
+
+# Audio Introduction
+
+[![Watch the video](https://img.youtube.com/vi/JyJxrvrJyqM/maxresdefault.jpg)](https://youtu.be/JyJxrvrJyqM)
+
+[9-min introduction](https://youtu.be/JyJxrvrJyqM) [24-min introduction](https://youtu.be/NMmuuWm2ixY)
 
 # Sibling Projects
 
@@ -46,9 +52,9 @@ For simplicity, `agentmake` uses `ollama` as the default backend, if parameter `
 
 `agentmake` is designed to work with seven kinds of components for building agentic applications:
 
-1. `system` - System messages are crucial in guiding how AI assistants interact with users.
+1. `system` - System messages are crucial for guiding how AI agents interact with users.
 
-2. `context` - Predefined contexts that are added to users' prompts as prefixes, before they are passed to the AI models.
+2. `context` - Predefined instructions that are added to users' prompts as prefixes, before they are passed to the AI models.
 
 3. `input_content_plugin` - Input content plugins process or transform user inputs before they are passed to the AI models.
 
@@ -235,9 +241,12 @@ Alternately, use built-in `agentmake` cli option to edit the variables:
 
 > agentmake -ec
 
-This command automatically make a copy of `agentmake.env` and save it as `.env` if it does not exist.
+This command automatically make a copy of `agentmake.env` and save it as `.env` if it does not exist. Remember to save your changes before exiting the text editor to make the changes effective.
 
-Remarks: Please do not edit the file `agentmake.env` directly, as it is restored to its default values upon each upgrade.  It is recommended to make a copy of it and edit the copied file.
+Remarks:
+
+1. Please do not edit the file `agentmake.env` directly, as it is restored to its default values upon each upgrade.  It is recommended to make a copy of it and edit the copied file.
+2. Multiple API keys are supported for running backends `cohere`, `github`, `groq` and `mistral`. You may configure API keys for these backend in the `.env` file by using commas `,` as separators, e.g. `COHERE_API_KEY=cohere_api_key_1,cohere_api_key_2,cohere_api_key_3`
 
 # TODO
 

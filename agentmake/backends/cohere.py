@@ -2,8 +2,9 @@ import cohere
 from cohere import ChatResponse
 from cohere.core.request_options import RequestOptions
 from typing import Optional
-import json, os
+import json, os, traceback
 
+DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
 
 class CohereAI:
 
@@ -35,29 +36,43 @@ class CohereAI:
             raise ValueError("Cohere API key is required.")
         #if prefill:
         #    messages.append({'role': 'assistant', 'content': prefill})
-        # rotate multiple API keys
-        if api_key:
-            this_api_key = api_key
-        else:
-            if len(CohereAI.DEFAULT_API_KEY) > 1:
-                first_item = CohereAI.DEFAULT_API_KEY.pop(0)
-                CohereAI.DEFAULT_API_KEY.append(first_item)
-            this_api_key = CohereAI.DEFAULT_API_KEY[0]
-        client = cohere.ClientV2(api_key=this_api_key)
-        func = client.chat_stream if stream else client.chat
-        return func(
-            model=model if model else CohereAI.DEFAULT_MODEL,
-            messages=messages,
-            temperature=temperature if temperature is not None else CohereAI.DEFAULT_TEMPERATURE,
-            max_tokens=max_tokens if max_tokens else CohereAI.DEFAULT_MAX_TOKENS,
-            tools=[{"type": "function", "function": schema}] if schema else None,
-            tool_choice="REQUIRED" if schema else None,
-            strict_tools= True if schema else None,
-            #stream=stream,
-            stop_sequences=stop,
-            request_options=RequestOptions(timeout_in_seconds=api_timeout),
-            **kwargs
-        )
+        completion = None
+        used_api_keys = []
+        while completion is None:
+            # rotate multiple API keys
+            if api_key:
+                this_api_key = api_key
+            else:
+                if len(CohereAI.DEFAULT_API_KEY) > 1:
+                    first_item = CohereAI.DEFAULT_API_KEY.pop(0)
+                    CohereAI.DEFAULT_API_KEY.append(first_item)
+                this_api_key = CohereAI.DEFAULT_API_KEY[0]
+            if this_api_key in used_api_keys:
+                break
+            else:
+                used_api_keys.append(this_api_key)
+            client = cohere.ClientV2(api_key=this_api_key)
+            func = client.chat_stream if stream else client.chat
+            try:
+                completion = func(
+                    model=model if model else CohereAI.DEFAULT_MODEL,
+                    messages=messages,
+                    temperature=temperature if temperature is not None else CohereAI.DEFAULT_TEMPERATURE,
+                    max_tokens=max_tokens if max_tokens else CohereAI.DEFAULT_MAX_TOKENS,
+                    tools=[{"type": "function", "function": schema}] if schema else None,
+                    tool_choice="REQUIRED" if schema else None,
+                    strict_tools= True if schema else None,
+                    #stream=stream,
+                    stop_sequences=stop,
+                    request_options=RequestOptions(timeout_in_seconds=api_timeout),
+                    **kwargs
+                )
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                if DEVELOPER_MODE:
+                    print(traceback.format_exc())
+                print(f"Failed API key: {this_api_key}")
+        return completion
 
     @staticmethod
     def getDictionaryOutput(

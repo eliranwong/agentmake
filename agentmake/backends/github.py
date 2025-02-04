@@ -1,8 +1,9 @@
 from openai import OpenAI
 from openai.types.chat import ChatCompletion
 from typing import Optional
-import json, os
+import json, os, traceback
 
+DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
 
 class GithubAI:
 
@@ -36,26 +37,40 @@ class GithubAI:
         #    raise ValueError("API endpoint is required.")
         #if prefill:
         #    messages.append({'role': 'assistant', 'content': prefill})
-        # rotate multiple API keys
-        if api_key:
-            this_api_key = api_key
-        else:
-            if len(GithubAI.DEFAULT_API_KEY) > 1:
-                first_item = GithubAI.DEFAULT_API_KEY.pop(0)
-                GithubAI.DEFAULT_API_KEY.append(first_item)
-            this_api_key = GithubAI.DEFAULT_API_KEY[0]
-        return OpenAI(api_key=this_api_key, base_url="https://models.inference.ai.azure.com").chat.completions.create(
-            model=model if model else GithubAI.DEFAULT_MODEL,
-            messages=messages,
-            temperature=temperature if temperature is not None else GithubAI.DEFAULT_TEMPERATURE,
-            max_tokens=max_tokens if max_tokens else GithubAI.DEFAULT_MAX_TOKENS,
-            tools=[{"type": "function", "function": schema}] if schema else None,
-            tool_choice={"type": "function", "function": {"name": schema["name"]}} if schema else None,
-            stream=stream,
-            stop=stop,
-            timeout=api_timeout,
-            **kwargs
-        )
+        completion = None
+        used_api_keys = []
+        while completion is None:
+            # rotate multiple API keys
+            if api_key:
+                this_api_key = api_key
+            else:
+                if len(GithubAI.DEFAULT_API_KEY) > 1:
+                    first_item = GithubAI.DEFAULT_API_KEY.pop(0)
+                    GithubAI.DEFAULT_API_KEY.append(first_item)
+                this_api_key = GithubAI.DEFAULT_API_KEY[0]
+            if this_api_key in used_api_keys:
+                break
+            else:
+                used_api_keys.append(this_api_key)
+            try:
+                completion = OpenAI(api_key=this_api_key, base_url="https://models.inference.ai.azure.com").chat.completions.create(
+                    model=model if model else GithubAI.DEFAULT_MODEL,
+                    messages=messages,
+                    temperature=temperature if temperature is not None else GithubAI.DEFAULT_TEMPERATURE,
+                    max_tokens=max_tokens if max_tokens else GithubAI.DEFAULT_MAX_TOKENS,
+                    tools=[{"type": "function", "function": schema}] if schema else None,
+                    tool_choice={"type": "function", "function": {"name": schema["name"]}} if schema else None,
+                    stream=stream,
+                    stop=stop,
+                    timeout=api_timeout,
+                    **kwargs
+                )
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                if DEVELOPER_MODE:
+                    print(traceback.format_exc())
+                print(f"Failed API key: {this_api_key}")
+        return completion
 
     @staticmethod
     def getDictionaryOutput(

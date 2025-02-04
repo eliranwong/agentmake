@@ -2,8 +2,9 @@ from ..utils.text_wrapper import TextWrapper
 from mistralai import Mistral, ChatCompletionResponse, UNSET, CompletionEvent
 from mistralai.utils.eventstreaming import EventStream
 from typing import Optional, Union
-import json, os
+import json, os, traceback
 
+DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
 
 class MistralAI:
     # docs: https://docs.mistral.ai/
@@ -40,40 +41,53 @@ class MistralAI:
             raise ValueError("Mistral API key is required.")
         if prefill:
             messages.append({'role': 'assistant', 'content': prefill, "prefix": True})
-        # rotate multiple API keys
-        if api_key:
-            this_api_key = api_key
-        else:
-            if len(MistralAI.DEFAULT_API_KEY) > 1:
-                first_item = MistralAI.DEFAULT_API_KEY.pop(0)
-                MistralAI.DEFAULT_API_KEY.append(first_item)
-            this_api_key = MistralAI.DEFAULT_API_KEY[0]
-        client = Mistral(api_key=this_api_key)
-        completion = client.chat.stream(
-            model=model if model else MistralAI.DEFAULT_MODEL,
-            messages=messages,
-            temperature=temperature if temperature is not None else MistralAI.DEFAULT_TEMPERATURE,
-            max_tokens=max_tokens if max_tokens else MistralAI.DEFAULT_MAX_TOKENS,
-            stop=stop,
-            timeout_ms=api_timeout,
-            **kwargs
-        ) if stream else client.chat.complete(
-            model=model if model else MistralAI.DEFAULT_MODEL,
-            messages=messages,
-            temperature=temperature if temperature is not None else MistralAI.DEFAULT_TEMPERATURE,
-            max_tokens=max_tokens if max_tokens else MistralAI.DEFAULT_MAX_TOKENS,
-            tools=[{"type": "function", "function": schema}] if schema else UNSET,
-            tool_choice="any" if schema else None,
-            stop=stop,
-            timeout_ms=api_timeout,
-            **kwargs
-        )
-        if stream:
-            if stream_events_only:
-                return completion
-            text_wrapper = TextWrapper(word_wrap)
-            text_wrapper.streamOutputs(None, completion, openai_style=True, print_on_terminal=print_on_terminal)
-            return text_wrapper.text_output
+        completion = None
+        used_api_keys = []
+        while completion is None:
+            # rotate multiple API keys
+            if api_key:
+                this_api_key = api_key
+            else:
+                if len(MistralAI.DEFAULT_API_KEY) > 1:
+                    first_item = MistralAI.DEFAULT_API_KEY.pop(0)
+                    MistralAI.DEFAULT_API_KEY.append(first_item)
+                this_api_key = MistralAI.DEFAULT_API_KEY[0]
+            if this_api_key in used_api_keys:
+                break
+            else:
+                used_api_keys.append(this_api_key)
+            try:
+                client = Mistral(api_key=this_api_key)
+                completion = client.chat.stream(
+                    model=model if model else MistralAI.DEFAULT_MODEL,
+                    messages=messages,
+                    temperature=temperature if temperature is not None else MistralAI.DEFAULT_TEMPERATURE,
+                    max_tokens=max_tokens if max_tokens else MistralAI.DEFAULT_MAX_TOKENS,
+                    stop=stop,
+                    timeout_ms=api_timeout,
+                    **kwargs
+                ) if stream else client.chat.complete(
+                    model=model if model else MistralAI.DEFAULT_MODEL,
+                    messages=messages,
+                    temperature=temperature if temperature is not None else MistralAI.DEFAULT_TEMPERATURE,
+                    max_tokens=max_tokens if max_tokens else MistralAI.DEFAULT_MAX_TOKENS,
+                    tools=[{"type": "function", "function": schema}] if schema else UNSET,
+                    tool_choice="any" if schema else None,
+                    stop=stop,
+                    timeout_ms=api_timeout,
+                    **kwargs
+                )
+                if stream:
+                    if stream_events_only:
+                        return completion
+                    text_wrapper = TextWrapper(word_wrap)
+                    text_wrapper.streamOutputs(None, completion, openai_style=True, print_on_terminal=print_on_terminal)
+                    return text_wrapper.text_output
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                if DEVELOPER_MODE:
+                    print(traceback.format_exc())
+                print(f"Failed API key: {this_api_key}")
         return completion
 
     @staticmethod

@@ -24,9 +24,9 @@ with open(os.path.join(package, "requirements.txt"), "r") as fileObj:
 # https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/
 setup(
     name="agentmake",
-    version="0.0.35",
+    version="0.0.36",
     python_requires=">=3.8, <3.13",
-    description="ToolMate-SDK: a software developement kit for developing agentic AI applications that support 14 AI backends and integrate tools and agents. (Developer: Eliran Wong)",
+    description="ToolMate-SDK: a software developement kit for developing agentic AI applications that support 14 AI backends and work with 7 agentic components, such as tools and agents.. (Developer: Eliran Wong)",
     long_description=long_description,
     author="Eliran Wong",
     author_email="support@toolmate.ai",
