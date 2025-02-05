@@ -148,9 +148,17 @@ To work with parameter `tool`, e.g.:
 
 > agentmake("Send an email to Eliran Wong at eliran.wong@domain.com to express my gratitude for his work.", tool="send_gmail")
 
+To work with a `tool` that is placed in a sub-folder, e.g.:
+
+> agentmake("Extract text from image file 'sample.png'.", tool=os.path.join("ocr", "openai"))
+
 To work with parameters `input_content_plugin` and `output_content_plugin`, e.g.:
 
 > agentmake("what AI model best", input_content_plugin="improve_writing", output_content_plugin="translate_into_chinese", stream=True)
+
+To work with `plugin` that is placed in a sub-folder, e.g.:
+
+> agentmake("你好吗？", output_content_plugin=os.path.join("chinese", "convert_simplified"))
 
 To work with parameter `system`, `instruction`, `follow_up_prompt`, e.g.:
 
@@ -166,24 +174,27 @@ To work with parameter `agent`, e.g.:
 
 To work collaboratively with different backends, e.g.
 
-```
-messages = agentmake("What is the most effective method for training AI models?", backend="openai")
-messages = agentmake(messages, backend="googleai", follow_up_prompt="Can you give me some different options?")
-messages = agentmake(messages, backend="xai", follow_up_prompt="What are the limitations or potential biases in this information?")
-agentmake(messages, backend="mistral", follow_up_prompt="Please provide a summary of the discussion so far.")
-```
+> messages = agentmake("What is the most effective method for training AI models?", backend="openai")
+
+> messages = agentmake(messages, backend="googleai", follow_up_prompt="Can you give me some different options?")
+
+> messages = agentmake(messages, backend="xai", follow_up_prompt="What are the limitations or potential biases in this information?")
+
+> agentmake(messages, backend="mistral", follow_up_prompt="Please provide a summary of the discussion so far.")
 
 As you may see, the `agentmake` function returns the `messages` list, which is passed to the next `agentmake` function in turns.
 
 Therefore, it is very simple to create a chatbot application, you can do it as few as five lines or less, e.g.:
 
-```
-messages = [{"role": "system", "content": "You are an AI assistant."}]
-user_input = "Hello!"
-while user_input:
-    messages = agentmake(messages, follow_up_prompt=user_input, stream=True)
-    user_input = input("Enter your query:\n(enter a blank entry to exit)\n>>> ")
-```
+> messages = [{"role": "system", "content": "You are an AI assistant."}]
+
+> user_input = "Hello!"
+
+> while user_input:
+
+>     messages = agentmake(messages, follow_up_prompt=user_input, stream=True)
+
+>     user_input = input("Enter your query:\n(enter a blank entry to exit)\n>>> ")
 
 These are just a few simple and straightforward examples.  You may find more examples at:
 
@@ -213,7 +224,11 @@ The available CLI options use the same parameter names as the `agentmake` functi
 
 > ai Send an email to Eliran Wong at eliran.wong@domain.com to express my gratitude for his work --tool send_gmail
 
+> ai Extract text from image file sample.png. --tool=ocr/openai
+
 > ai what AI model best --input_content_plugin improve_writing --output_content_plugin translate_into_chinese
+
+> ai 你好吗？ --output_content_plugin=chinese/convert_simplified
 
 > ai Is it better to drink wine in the morning, afternoon, or evening? --instruction think --follow_up_prompt review --follow_up_prompt refine
 
@@ -267,7 +282,7 @@ To use a fabric pattern in `agentmake`:
 1. Install [fabric](https://github.com/danielmiessler/fabric/tree/main/patterns)
 2. Specify a fabric pattern in `agentmake` parameter `system` or `instruction`, by prefixing the selected pattern with `fabric.`
 
-> ai --tool search_google --system fabric.analyze_claims The United Kingdom is a Christian country.
+> agentmake("The United Kingdom is a Christian country.", tool="search_google", system="fabric.analyze_claims")
 
 # TODO
 

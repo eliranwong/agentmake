@@ -5,7 +5,7 @@ except:
     installPipPackage(f"--upgrade opencc-python-reimplemented")
     from opencc import OpenCC
 
-def convert_traditional_chinese(content):
+def convert_traditional_chinese(content, **kwargs):
     try:
         return OpenCC('t2s').convert(content)
     except:

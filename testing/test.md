@@ -6,7 +6,6 @@
 
 > agentmake(messages, backend="mistral", follow_up_prompt="Please provide a summary of the discussion so far.")
 
-
 As you may see, the `agentmake` function returns the `messages` list, which is passed to the next `agentmake` function in turns.
 
 Therefore, it is very simple to create a chatbot application, you can do it as few as five lines or less, e.g.:

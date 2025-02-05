@@ -37,7 +37,7 @@ TOOL_SCHEMA = {
     },
 }
 
-def add_calendar_event(title: str, description: str, url: str="", start_time_converted_in_milliseconds: str="", end_time_converted_in_milliseconds: str="", location: str=""):
+def add_calendar_event(title: str, description: str, url: str="", start_time_converted_in_milliseconds: str="", end_time_converted_in_milliseconds: str="", location: str="", **kwargs):
     start_time = start_time_converted_in_milliseconds
     end_time = end_time_converted_in_milliseconds
 
