@@ -52,6 +52,7 @@ DEFAULT_SYSTEM_MESSAGE = os.getenv("DEFAULT_SYSTEM_MESSAGE") if os.getenv("DEFAU
 DEFAULT_FOLLOW_UP_PROMPT = os.getenv("DEFAULT_FOLLOW_UP_PROMPT") if os.getenv("DEFAULT_FOLLOW_UP_PROMPT") else "Please tell me more."
 DEFAULT_TEXT_EDITOR = os.getenv("DEFAULT_TEXT_EDITOR") if os.getenv("DEFAULT_TEXT_EDITOR") else "etextedit"
 DEFAULT_MARKDOWN_THEME = os.getenv("DEFAULT_MARKDOWN_THEME") if os.getenv("DEFAULT_MARKDOWN_THEME") else "github-dark"
+DEFAULT_FABRIC_PATTERNS_PATH = os.getenv("DEFAULT_FABRIC_PATTERNS_PATH") if os.getenv("DEFAULT_FABRIC_PATTERNS_PATH") else os.path.join(os.path.expanduser("~"), ".config", "fabric", "patterns")
 
 def edit_configurations(env_file=""):
     if not env_file:
@@ -141,6 +142,7 @@ def agentmake(
                 2. file name, without extension, of a markdown file, placed in folder `systems` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
                 3. a valid plain text file path
                 4. a string of a system message
+            Fabric integration: `agentmake` supports the use of `fabric` patterns as `system` components for running `agentmake` function or CLI options [READ HERE](https://github.com/eliranwong/agentmake#fabric-integration).
 
         instruction:
             type: Optional[Union[List[Optional[str]], str]]=None
@@ -152,6 +154,7 @@ def agentmake(
                 2. file name, without extension, of a markdown file, placed in folder `instructions` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
                 3. a valid plain text file path
                 4. a string of a predefined instruction
+            Fabric integration: `agentmake` supports the use of `fabric` patterns as `instruction` components for running `agentmake` function or CLI options [READ HERE](https://github.com/eliranwong/agentmake#fabric-integration).
 
         follow_up_prompt:
             type: Optional[Union[List[str], str]]=None
@@ -451,6 +454,8 @@ def agentmake(
         possible_system_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "systems", f"{system_instruction}.md")
         if system_instruction is None:
             pass
+        elif isFabricPattern(system_instruction): # fabric integration
+            system_instruction = getFabricPatternSystem(system_instruction[7:])
         elif os.path.isfile(possible_system_file_path_1):
             system_file_content = readTextFile(possible_system_file_path_1)
             if system_file_content:
@@ -477,6 +482,8 @@ def agentmake(
         possible_instruction_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "instructions", f"{instruction_content}.md")
         if instruction_content is None:
             pass
+        elif isFabricPattern(instruction_content): # fabric integration
+            instruction_content = getFabricPatternSystem(instruction_content[7:], instruction=True)
         elif os.path.isfile(possible_instruction_file_path_1):
             instruction_file_content = readTextFile(possible_instruction_file_path_1)
             if instruction_file_content:
@@ -1248,3 +1255,16 @@ If any required parameters are not provided by the users, you should either:
         return system
     except:
         return ""
+
+# fabric integration
+def isFabricPattern(item):
+    return True if item.startswith("fabric.") and os.path.isfile(os.path.join(os.path.expanduser(DEFAULT_FABRIC_PATTERNS_PATH), item[7:], "system.md")) else False
+
+def getFabricPatternSystem(pattern, instruction=False):
+    system = None
+    fabricPattern = os.path.join(os.path.expanduser(DEFAULT_FABRIC_PATTERNS_PATH), pattern, "system.md")
+    if os.path.isfile(fabricPattern):
+        system = readTextFile(fabricPattern)
+        if not instruction:
+            system = re.sub(r'# INPUT.*', '', system, flags=re.DOTALL).rstrip()
+    return system

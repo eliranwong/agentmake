@@ -14,6 +14,10 @@ Supported backends: anthropic, azure, cohere, custom, deepseek, genai, github, g
 
 This SDK incorporates the best aspects of our favorite projects, [LetMeDoIt AI](https://github.com/eliranwong/letmedoit), [Toolmate AI](https://github.com/eliranwong/toolmate) and [TeamGen AI](https://github.com/eliranwong/teamgenai), to create a library aimed at further advancing the development of agentic AI applications.
 
+# Supported Platforms
+
+Windows, macOS, Linux, ChromeOS, Android via Termux
+
 # Supported backends
 
 `anthropic` - [Anthropic API](https://console.anthropic.com/)
@@ -52,9 +56,9 @@ For simplicity, `agentmake` uses `ollama` as the default backend, if parameter `
 
 `agentmake` is designed to work with seven kinds of components for building agentic applications:
 
-1. `system` - System messages are crucial for defining the roles of the AI agents and guiding how AI agents interact with users. Check out our [examples](https://github.com/eliranwong/agentmake/tree/main/agentmake/systems).
+1. `system` - System messages are crucial for defining the roles of the AI agents and guiding how AI agents interact with users. Check out our [examples](https://github.com/eliranwong/agentmake/tree/main/agentmake/systems). `agentmake` supports the use of `fabric` patterns as `system` components for running `agentmake` function or CLI options [READ HERE](https://github.com/eliranwong/agentmake#fabric-integration).
 
-2. `instruction` - Predefined instructions that are added to users' prompts as prefixes, before they are passed to the AI models. Check out our [examples](https://github.com/eliranwong/agentmake/tree/main/agentmake/instructions).
+2. `instruction` - Predefined instructions that are added to users' prompts as prefixes, before they are passed to the AI models. Check out our [examples](https://github.com/eliranwong/agentmake/tree/main/agentmake/instructions). `agentmake` supports the use of `fabric` patterns as `instruction` components for running `agentmake` function or CLI options [READ HERE](https://github.com/eliranwong/agentmake#fabric-integration).
 
 3. `input_content_plugin` - Input content plugins process or transform user inputs before they are passed to the AI models. Check out our [examples](https://github.com/eliranwong/agentmake/tree/main/agentmake/plugins).
 
@@ -255,6 +259,19 @@ Remarks:
 
 1. Please do not edit the file `agentmake.env` directly, as it is restored to its default values upon each upgrade.  It is recommended to make a copy of it and edit the copied file.
 2. Multiple API keys are supported for running backends `cohere`, `github`, `groq` and `mistral`. You may configure API keys for these backend in the `.env` file by using commas `,` as separators, e.g. `COHERE_API_KEY=cohere_api_key_1,cohere_api_key_2,cohere_api_key_3`
+
+# Fabric Integration
+
+`fabric` is a fantastic [third-party project](https://github.com/danielmiessler/fabric/tree/main/patterns) that offers [a great collection of patterns](https://github.com/danielmiessler/fabric/tree/main/patterns).
+
+`agentmake` supports the use of `fabric` patterns as entries for the `system` or `instruction` parameters when running the `agentmake` signature function or CLI options.
+
+To use a fabric pattern in `agentmake`:
+
+1. Install [fabric](https://github.com/danielmiessler/fabric/tree/main/patterns)
+2. Specify a fabric pattern in `agentmake` parameter `system` or `instruction`, by prefixing the selected pattern with `fabric.`
+
+> ai --tool search_google --system fabric.analyze_claims The United Kingdom is a Christian country.
 
 # TODO
 
