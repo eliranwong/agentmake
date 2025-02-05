@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-import os, shutil, warnings
+import os, shutil, warnings, datetime
 
 PACKAGE_PATH = os.path.dirname(os.path.realpath(__file__))
 PACKAGE_NAME = os.path.basename(PACKAGE_PATH)
@@ -41,6 +41,8 @@ from typing import Optional, Callable, Union, Any, List, Dict
 from copy import deepcopy
 from io import StringIO
 import sys, re, json, traceback, platform
+from markitdown import MarkItDown
+from openai import OpenAI
 
 USER_OS = platform.system()
 DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
@@ -523,9 +525,12 @@ def agentmake(
         if tool_object:
             try:
                 exec(tool_object, globals())
-                tool_system = TOOL_SYSTEM
                 schema = TOOL_SCHEMA
                 func = TOOL_FUNCTION
+                try:
+                    tool_system = TOOL_SYSTEM
+                except:
+                    tool_system = getDefaultToolSystem(schema)
                 if tool_system:
                     chat_system = updateSystemMessage(messages_copy, tool_system)
             except Exception as e:
@@ -1170,13 +1175,73 @@ def addContextToMessages(messages: List[Dict[str, str]], context: str):
     messages[-1] = {"role": "user", "content": getRagPrompt(messages[-1].get("content", ""), context)}
 
 def showErrors(e=None, message=""):
-    if e is not None:
-        print(f"An error occurred: {e}")
+    if message:
+        trace = message
     else:
-        print(message if message else "An error occurred!")
+        trace = f"An error occurred: {e}" if e else "An error occurred!"
+    print(trace)
     if DEVELOPER_MODE:
-        trace = traceback.format_exc()
+        details = traceback.format_exc()
+        trace += "\n"
+        trace += details
         print("```error")
-        print(trace)
+        print(details)
         print("```")
     return trace
+
+def getOpenCommand():
+    if shutil.which("termux-share"):
+        return "termux-share"
+    elif USER_OS == "Linux":
+        return "xdg-open"
+    elif USER_OS == "Darwin":
+        return "open"
+    elif USER_OS == "Windows":
+        return "start"
+    return "open"
+
+def extractText(item: Any, image_backend: str=""):
+    def getBackendClient(image_backend):
+        if image_backend == "openai":
+            return OpenaiAI.getClient()
+        elif image_backend == "github":
+            return GithubAI.getClient()
+        elif image_backend == "azure":
+            return AzureAI.getClient()
+        elif client := AzureAI.getClient():
+            return client
+        elif client := GithubAI.getClient():
+            return client
+        else:
+            return OpenaiAI.getClient()
+    try:
+        md = MarkItDown(llm_client=getBackendClient(image_backend), llm_model="gpt-4o") if re.search(r"(\.jpg|\.jpeg|\.png)$", item.lower()) else MarkItDown()
+        text_content = md.convert(item).text_content
+    except Exception as e:
+        showErrors(e)
+        return f"An error occurred: {e}"
+    return text_content
+
+def getCurrentDateTime():
+    current_datetime = datetime.datetime.now()
+    return current_datetime.strftime("%Y-%m-%d_%H_%M_%S")
+
+def getDefaultToolSystem(schema):
+    try:
+        required = schema["parameters"].get("required", [])
+        properties = schema["parameters"]["properties"]
+        if not properties:
+            return ""
+        system = """You are a structured output expert. Your expertise lies in identifying the following parameters from user input. If any required parameters are not provided by the users, you should either:
+1. Generate content for them based on the parameter descriptions, or
+2. Return an empty string '' if explicitly instructed to do so in their descriptions when they are not provided."""
+        for key, value in properties.items():
+            system += f"""
+
+# {key} [{"required" if key in required else "optional"}]
+
+{value.get("description", "")}"""
+    except:
+        return ""
+
+    return ""

@@ -130,13 +130,13 @@ To work with parameter `tool`, e.g.:
 
 > agentmake("What is ToolMate AI?", tool="search_google")
 
-> agentmake("How many 'r's are there in the word 'strawberry'?", tool="task")
+> agentmake("How many 'r's are there in the word 'strawberry'?", tool="magic")
 
-> agentmake("What time is it right now?", tool="task")
+> agentmake("What time is it right now?", tool="magic")
 
-> agentmake("Open github.com in a web browser.", tool="task")
+> agentmake("Open github.com in a web browser.", tool="magic")
 
-> agentmake("Convert file 'music.wav' into mp3 format.", tool="task")
+> agentmake("Convert file 'music.wav' into mp3 format.", tool="magic")
 
 > agentmake("Send an email to Eliran Wong at eliran.wong@domain.com to express my gratitude for his work.", tool="send_gmail")
 

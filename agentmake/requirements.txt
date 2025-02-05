@@ -12,3 +12,5 @@ packaging
 importlib_metadata
 python-dotenv
 pyperclip
+markitdown
+beautifulsoup4

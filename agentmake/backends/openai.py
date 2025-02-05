@@ -12,6 +12,12 @@ class OpenaiAI:
     DEFAULT_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS")) if os.getenv("OPENAI_MAX_TOKENS") else 16384 # https://platform.openai.com/docs/models
 
     @staticmethod
+    def getClient():
+        if OpenaiAI.DEFAULT_API_KEY:
+            return OpenAI(api_key=OpenaiAI.DEFAULT_API_KEY)
+        return None
+
+    @staticmethod
     def getChatCompletion(
         messages: list,
         model: Optional[str]=None,

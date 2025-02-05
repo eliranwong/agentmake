@@ -1,8 +1,8 @@
-from agentmake import PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations
+from agentmake import PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand
 from agentmake.etextedit import launch
 from agentmake.utils.handle_text import readTextFile, writeTextFile
 from agentmake.utils.retrieve_text_output import wrapText
-from agentmake.utils.system import getOpenCommand, getCliOutput
+from agentmake.utils.system import getCliOutput
 import argparse, os, pprint, sys, pyperclip, shutil, pydoc
 import pygments
 from pygments.lexers.markup import MarkdownLexer

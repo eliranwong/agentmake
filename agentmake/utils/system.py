@@ -8,18 +8,6 @@ def getCliOutput(cli):
     except:
         return ""
 
-def getOpenCommand():
-    thisPlatform = platform.system()
-    if shutil.which("termux-share"):
-        return "termux-share"
-    elif thisPlatform == "Linux":
-        return "xdg-open"
-    elif thisPlatform == "Darwin":
-        return "open"
-    elif thisPlatform == "Windows":
-        return "start"
-    return "open"
-
 def getCurrentDateTime():
     current_datetime = datetime.datetime.now()
     return current_datetime.strftime("%Y-%m-%d_%H_%M_%S")

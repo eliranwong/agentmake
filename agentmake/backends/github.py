@@ -12,6 +12,18 @@ class GithubAI:
     DEFAULT_TEMPERATURE = float(os.getenv("GITHUB_TEMPERATURE")) if os.getenv("GITHUB_TEMPERATURE") else 0.3
     DEFAULT_MAX_TOKENS = int(os.getenv("GITHUB_MAX_TOKENS")) if os.getenv("GITHUB_MAX_TOKENS") else 4000 # https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits
 
+    def getApiKey():
+        if len(GithubAI.DEFAULT_API_KEY) > 1:
+            first_item = GithubAI.DEFAULT_API_KEY.pop(0)
+            GithubAI.DEFAULT_API_KEY.append(first_item)
+        return GithubAI.DEFAULT_API_KEY[0]
+
+    @staticmethod
+    def getClient():
+        if GithubAI.DEFAULT_API_KEY[0]:
+            return OpenAI(api_key=GithubAI.rotateApiKeys(), base_url="https://models.inference.ai.azure.com")
+        return None
+
     @staticmethod
     def getChatCompletion(
         messages: list,
@@ -44,10 +56,7 @@ class GithubAI:
             if api_key:
                 this_api_key = api_key
             else:
-                if len(GithubAI.DEFAULT_API_KEY) > 1:
-                    first_item = GithubAI.DEFAULT_API_KEY.pop(0)
-                    GithubAI.DEFAULT_API_KEY.append(first_item)
-                this_api_key = GithubAI.DEFAULT_API_KEY[0]
+                this_api_key = GithubAI.getApiKey()
             if this_api_key in used_api_keys:
                 break
             else:

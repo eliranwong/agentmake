@@ -1,5 +1,9 @@
-import socket, webbrowser, shutil, re, requests
+import socket, webbrowser, shutil, re, requests, os
+from agentmake import showErrors
 from agentmake.utils.system import runSystemCommand
+from bs4 import BeautifulSoup
+from urllib.parse import quote
+
 
 def get_wan_ip():
     try:
@@ -122,6 +126,6 @@ def downloadWebContent(url, timeout=60, folder="", ignoreKind=False):
             # download content as text
             # Save the content to a html file
             return ("text", downloadHTML())
-    except:
-        showErrors()
+    except Exception as e:
+        showErrors(e)
         return ("", "")

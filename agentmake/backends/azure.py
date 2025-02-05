@@ -14,6 +14,12 @@ class AzureAI:
     DEFAULT_MAX_TOKENS = int(os.getenv("AZURE_MAX_TOKENS")) if os.getenv("AZURE_MAX_TOKENS") else 16384
 
     @staticmethod
+    def getClient():
+        if AzureAI.DEFAULT_API_KEY and AzureAI.DEFAULT_API_ENDPOINT:
+            return AzureOpenAI(api_key=AzureAI.DEFAULT_API_KEY, azure_endpoint=AzureAI.DEFAULT_API_ENDPOINT, api_version=AzureAI.DEFAULT_API_VERSION)
+        return None
+
+    @staticmethod
     def getChatCompletion(
         messages: list,
         model: Optional[str]=None,
