@@ -55,16 +55,16 @@ Args:
             3. a valid plain text file path
             4. a string of a system message
 
-    context:
+    instruction:
         type: Optional[Union[List[Optional[str]], str]]=None
-        predefined context to be added to the user prompt as prefix
+        predefined instruction, being added to the user prompt as prefix
         accepts a list of strings or a single string
-        runs multi-turn inferences, to loop through multiple predefined contexts, if it is given as a list
+        runs multi-turn inferences, to loop through multiple predefined instructions, if it is given as a list
         each item must be either one of the following options:
-            1. file name, without extension, of a markdown file, placed in folder `contexts` under package directory, i.e. the value of PACKAGE_PATH
-            2. file name, without extension, of a markdown file, placed in folder `contexts` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
+            1. file name, without extension, of a markdown file, placed in folder `instructions` under package directory, i.e. the value of PACKAGE_PATH
+            2. file name, without extension, of a markdown file, placed in folder `instructions` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
             3. a valid plain text file path
-            4. a string of a predefined context
+            4. a string of a predefined instruction
 
     follow_up_prompt:
         type: Optional[Union[List[str], str]]=None
@@ -113,7 +113,7 @@ Args:
             3. a valid plain text file path
             4. a python script containing at least one variable:
                 i. AGENT_FUNCTION - the funciton object being called with the agent
-        remarks: parameters of both `system`, `context`, `prefill`, `follow_up_prompt`, `input_content_plugin`, `output_content_plugin`, `agent`, `schema` and `func` are ignored for a single turn when `agent` parameter is given
+        remarks: parameters of both `system`, `instructions`, `prefill`, `follow_up_prompt`, `input_content_plugin`, `output_content_plugin`, `agent`, `schema` and `func` are ignored for a single turn when `agent` parameter is given
 
     tool:
         type: Optional[Union[List[Optional[str]], str]]=None
@@ -124,10 +124,13 @@ Args:
             1. file name, without extension, of a python file, placed in folder `tools` under package directory, i.e. the value of PACKAGE_PATH
             2. file name, without extension, of a python file, placed in folder `tools` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
             3. a valid plain text file path
-            4. a python script containing at least three variables:
-                i. TOOL_SYSTEM - the system message for running the tool
-                ii. TOOL_SCHEMA - the json schema that describes the parameters for function calling
-                iii. TOOL_FUNCTION - the funciton object being called with the tool
+            4. a python script containing at two or three variables:
+                I. TOOL_SCHEMA - the json schema that describes the parameters for function calling
+                II. TOOL_FUNCTION - the funciton object being called with the tool
+                III. TOOL_SYSTEM - This is optional. You may either:
+                    i. specifie the system message for running the tool.
+                    ii. assign an empty string to it if you do not want to use a tool system message.
+                    iii. omit this parameter to use `agentmake` default tool system message.
         remarks: parameters of both `schema` and `func` are ignored for a single turn when `tool` parameter is given
 
     schema:

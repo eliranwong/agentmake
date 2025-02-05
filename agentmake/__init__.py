@@ -3,7 +3,7 @@ import os, shutil, warnings, datetime
 
 PACKAGE_PATH = os.path.dirname(os.path.realpath(__file__))
 PACKAGE_NAME = os.path.basename(PACKAGE_PATH)
-AGENTMAKE_USER_DIR = os.getenv("AGENTMAKE_USER_DIR") if os.getenv("AGENTMAKE_USER_DIR") else os.path.join(os.path.expanduser("~"), "agentmake") # It is where users store their custom components, i.e. `tools`, `agents`, `plugins`, `systems`, `contexts`, and `prompts`.Custom components are placed outside the package directory, to avoid overriding upon upgrades.
+AGENTMAKE_USER_DIR = os.getenv("AGENTMAKE_USER_DIR") if os.getenv("AGENTMAKE_USER_DIR") else os.path.join(os.path.expanduser("~"), "agentmake") # It is where users store their custom components, i.e. `tools`, `agents`, `plugins`, `systems`, `instructions`, and `prompts`.Custom components are placed outside the package directory, to avoid overriding upon upgrades.
 
 def load_configurations(env_file=""):
     if not env_file:
@@ -64,7 +64,7 @@ def agentmake(
     model: Optional[str]=None, # AI model name; applicable to all backends, execept for llamacpp
     model_keep_alive: Optional[str]=None, # time to keep the model loaded in memory; applicable to ollama only
     system: Optional[Union[List[Optional[str]], str]]=None, # system message; define how the model should generally behave and respond; accepts a list of strings or a single string; loop through multiple system messages for multi-turn inferences if it is a list
-    context: Optional[Union[List[Optional[str]], str]]=None, # predefined context to be added to the user prompt as prefix; accepts a list of strings or a single string; loop through multiple predefined contexts for multi-turn inferences if it is a list
+    instruction: Optional[Union[List[Optional[str]], str]]=None, # predefined instruction, being added to the user prompt as prefix; accepts a list of strings or a single string; loop through multiple predefined instructions for multi-turn inferences if it is a list
     follow_up_prompt: Optional[Union[List[str], str]]=None, # follow-up prompts after an assistant message is generated; accepts a list of strings or a single string; loop through multiple follow-up prompts for multi-turn inferences if it is a list
     input_content_plugin: Optional[Union[List[Optional[str]], str]]=None, # plugin that works on user input; accepts a list of strings or a single string; loop through multiple follow-up prompts for multi-turn inferences if it is a list
     output_content_plugin: Optional[Union[List[Optional[str]], str]]=None, # plugin that works on assistant output; accepts a list of strings or a single string; loop through multiple follow-up prompts for multi-turn inferences if it is a list
@@ -142,16 +142,16 @@ def agentmake(
                 3. a valid plain text file path
                 4. a string of a system message
 
-        context:
+        instruction:
             type: Optional[Union[List[Optional[str]], str]]=None
-            predefined context to be added to the user prompt as prefix
+            predefined instruction, being added to the user prompt as prefix
             accepts a list of strings or a single string
-            runs multi-turn inferences, to loop through multiple predefined contexts, if it is given as a list
+            runs multi-turn inferences, to loop through multiple predefined instructions, if it is given as a list
             each item must be either one of the following options:
-                1. file name, without extension, of a markdown file, placed in folder `contexts` under package directory, i.e. the value of PACKAGE_PATH
-                2. file name, without extension, of a markdown file, placed in folder `contexts` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
+                1. file name, without extension, of a markdown file, placed in folder `instructions` under package directory, i.e. the value of PACKAGE_PATH
+                2. file name, without extension, of a markdown file, placed in folder `instructions` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
                 3. a valid plain text file path
-                4. a string of a predefined context
+                4. a string of a predefined instruction
 
         follow_up_prompt:
             type: Optional[Union[List[str], str]]=None
@@ -200,7 +200,7 @@ def agentmake(
                 3. a valid plain text file path
                 4. a python script containing at least one variable:
                     i. AGENT_FUNCTION - the funciton object being called with the agent
-            remarks: parameters of both `system`, `context`, `prefill`, `follow_up_prompt`, `input_content_plugin`, `output_content_plugin`, `agent`, `schema` and `func` are ignored for a single turn when `agent` parameter is given
+            remarks: parameters of both `system`, `instructions`, `prefill`, `follow_up_prompt`, `input_content_plugin`, `output_content_plugin`, `agent`, `schema` and `func` are ignored for a single turn when `agent` parameter is given
 
         tool:
             type: Optional[Union[List[Optional[str]], str]]=None
@@ -211,10 +211,13 @@ def agentmake(
                 1. file name, without extension, of a python file, placed in folder `tools` under package directory, i.e. the value of PACKAGE_PATH
                 2. file name, without extension, of a python file, placed in folder `tools` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
                 3. a valid plain text file path
-                4. a python script containing at least three variables:
-                    i. TOOL_SYSTEM - the system message for running the tool
-                    ii. TOOL_SCHEMA - the json schema that describes the parameters for function calling
-                    iii. TOOL_FUNCTION - the funciton object being called with the tool
+                4. a python script containing at two or three variables:
+                    I. TOOL_SCHEMA - the json schema that describes the parameters for function calling
+                    II. TOOL_FUNCTION - the funciton object being called with the tool
+                    III. TOOL_SYSTEM - This is optional. You may either:
+                        i. specifie the system message for running the tool.
+                        ii. assign an empty string to it if you do not want to use a tool system message.
+                        iii. omit this parameter to use `agentmake` default tool system message.
             remarks: parameters of both `schema` and `func` are ignored for a single turn when `tool` parameter is given
 
         schema:
@@ -332,8 +335,8 @@ def agentmake(
             input_content_plugin_name = input_content_plugin_object[:20]
 
             # check if it is a predefined plugin message built-in with this SDK
-            possible_input_content_plugin_file_path_1 = os.path.join(PACKAGE_PATH, "plugins", f"{input_content_plugin_object}.py")
-            possible_input_content_plugin_file_path_2 = os.path.join(AGENTMAKE_USER_DIR, "plugins", f"{input_content_plugin_object}.py")
+            possible_input_content_plugin_file_path_2 = os.path.join(PACKAGE_PATH, "plugins", f"{input_content_plugin_object}.py")
+            possible_input_content_plugin_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "plugins", f"{input_content_plugin_object}.py")
             if input_content_plugin_object is None:
                 pass
             elif os.path.isfile(possible_input_content_plugin_file_path_1):
@@ -390,8 +393,8 @@ def agentmake(
             agent = []
         agent_name = agent_object[:20]
         # check if it is a predefined plugin message built-in with this SDK
-        possible_agent_file_path_1 = os.path.join(PACKAGE_PATH, "agents", f"{agent_object}.py")
-        possible_agent_file_path_2 = os.path.join(AGENTMAKE_USER_DIR, "agents", f"{agent_object}.py")
+        possible_agent_file_path_2 = os.path.join(PACKAGE_PATH, "agents", f"{agent_object}.py")
+        possible_agent_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "agents", f"{agent_object}.py")
         if agent_object is None:
             pass
         elif os.path.isfile(possible_agent_file_path_1):
@@ -444,8 +447,8 @@ def agentmake(
             system_instruction = system
             system = []
         # check if it is a predefined system message built-in with this SDK
-        possible_system_file_path_1 = os.path.join(PACKAGE_PATH, "systems", f"{system_instruction}.md")
-        possible_system_file_path_2 = os.path.join(AGENTMAKE_USER_DIR, "systems", f"{system_instruction}.md")
+        possible_system_file_path_2 = os.path.join(PACKAGE_PATH, "systems", f"{system_instruction}.md")
+        possible_system_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "systems", f"{system_instruction}.md")
         if system_instruction is None:
             pass
         elif os.path.isfile(possible_system_file_path_1):
@@ -462,32 +465,32 @@ def agentmake(
                 system_instruction = system_file_content
         if system_instruction:
             original_system = updateSystemMessage(messages_copy, system_instruction)
-    # handle given predefined context(s)
-    if context and not agent_response:
-        if isinstance(context, list):
-            context_content = context.pop(0)
+    # handle given predefined instruction(s)
+    if instruction and not agent_response:
+        if isinstance(instruction, list):
+            instruction_content = instruction.pop(0)
         else: # a string instead
-            context_content = context
-            context = []
-        # check if it is a predefined context built-in with this SDK
-        possible_context_file_path_1 = os.path.join(PACKAGE_PATH, "contexts", f"{context_content}.md")
-        possible_context_file_path_2 = os.path.join(AGENTMAKE_USER_DIR, "contexts", f"{context_content}.md")
-        if context_content is None:
+            instruction_content = instruction
+            instruction = []
+        # check if it is a predefined instruction built-in with this SDK
+        possible_instruction_file_path_2 = os.path.join(PACKAGE_PATH, "instructions", f"{instruction_content}.md")
+        possible_instruction_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "instructions", f"{instruction_content}.md")
+        if instruction_content is None:
             pass
-        elif os.path.isfile(possible_context_file_path_1):
-            context_file_content = readTextFile(possible_context_file_path_1)
-            if context_file_content:
-                context_content = context_file_content
-        elif os.path.isfile(possible_context_file_path_2):
-            context_file_content = readTextFile(possible_context_file_path_2)
-            if context_file_content:
-                context_content = context_file_content
-        elif os.path.isfile(context_content): # context_content itself is a valid filepath
-            context_file_content = readTextFile(context_content)
-            if context_file_content:
-                context_content = context_file_content
-        if context_content:
-            messages_copy[-1]["content"] = context_content + messages_copy[-1]["content"]
+        elif os.path.isfile(possible_instruction_file_path_1):
+            instruction_file_content = readTextFile(possible_instruction_file_path_1)
+            if instruction_file_content:
+                instruction_content = instruction_file_content
+        elif os.path.isfile(possible_instruction_file_path_2):
+            instruction_file_content = readTextFile(possible_instruction_file_path_2)
+            if instruction_file_content:
+                instruction_content = instruction_file_content
+        elif os.path.isfile(instruction_content): # instruction_content itself is a valid filepath
+            instruction_file_content = readTextFile(instruction_content)
+            if instruction_file_content:
+                instruction_content = instruction_file_content
+        if instruction_content:
+            messages_copy[-1]["content"] = instruction_content + messages_copy[-1]["content"]
     # handle given prefill(s)
     if prefill and not agent_response:
         if isinstance(prefill, list):
@@ -506,8 +509,8 @@ def agentmake(
             tool = []
         tool_name = tool_object[:20]
         # check if it is a predefined tool built-in with this SDK
-        possible_tool_file_path_1 = os.path.join(PACKAGE_PATH, "tools", f"{tool_object}.py")
-        possible_tool_file_path_2 = os.path.join(AGENTMAKE_USER_DIR, "tools", f"{tool_object}.py")
+        possible_tool_file_path_2 = os.path.join(PACKAGE_PATH, "tools", f"{tool_object}.py")
+        possible_tool_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "tools", f"{tool_object}.py")
         if tool_object is None:
             pass
         elif os.path.isfile(possible_tool_file_path_1):
@@ -539,7 +542,7 @@ def agentmake(
                     print(traceback.format_exc())
 
     # check if it is last request
-    is_last_request = True if not follow_up_prompt and not system and not context and not tool and not agent and not prefill else False
+    is_last_request = True if not follow_up_prompt and not system and not instruction and not tool and not agent and not prefill else False
 
     # deep copy schema avoid modifying the original one
     schemaCopy = None if schema is None else deepcopy(schema)
@@ -616,7 +619,7 @@ def agentmake(
             # handle function response
             if function_response is None or function_response: # fall back to regular completion if function_response is None; chat extension if function_response
                 if function_response:
-                    # added function response as context to the original prompt
+                    # added function response as provided information to the original prompt
                     addContextToMessages(messages_copy, function_response)
                 return agentmake(
                     messages_copy,
@@ -624,7 +627,7 @@ def agentmake(
                     model=model,
                     model_keep_alive=model_keep_alive,
                     system=None if function_response else system,
-                    context=None if function_response else context,
+                    instruction=None if function_response else instruction,
                     follow_up_prompt=None if function_response else follow_up_prompt,
                     input_content_plugin=None if function_response else input_content_plugin,
                     output_content_plugin=output_content_plugin,
@@ -847,8 +850,8 @@ def agentmake(
             output_content_plugin_name = output_content_plugin_object[:20]
 
             # check if it is a predefined plugin message built-in with this SDK
-            possible_output_content_plugin_file_path_1 = os.path.join(PACKAGE_PATH, "plugins", f"{output_content_plugin_object}.py")
-            possible_output_content_plugin_file_path_2 = os.path.join(AGENTMAKE_USER_DIR, "plugins", f"{output_content_plugin_object}.py")
+            possible_output_content_plugin_file_path_2 = os.path.join(PACKAGE_PATH, "plugins", f"{output_content_plugin_object}.py")
+            possible_output_content_plugin_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "plugins", f"{output_content_plugin_object}.py")
             if output_content_plugin_object is None:
                 pass
             elif os.path.isfile(possible_output_content_plugin_file_path_1):
@@ -907,8 +910,8 @@ def agentmake(
     if follow_up_prompt:
         follow_up_prompt_content = follow_up_prompt.pop(0)
         # check if it is a predefined follow_up_prompt built-in with this SDK
-        possible_follow_up_prompt_file_path_1 = os.path.join(PACKAGE_PATH, "prompts", f"{follow_up_prompt_content}.md")
-        possible_follow_up_prompt_file_path_2 = os.path.join(AGENTMAKE_USER_DIR, "prompts", f"{follow_up_prompt_content}.md")
+        possible_follow_up_prompt_file_path_2 = os.path.join(PACKAGE_PATH, "prompts", f"{follow_up_prompt_content}.md")
+        possible_follow_up_prompt_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "prompts", f"{follow_up_prompt_content}.md")
         if os.path.isfile(possible_follow_up_prompt_file_path_1):
             follow_up_prompt_file_content = readTextFile(possible_follow_up_prompt_file_path_1)
             if follow_up_prompt_file_content:
@@ -928,7 +931,7 @@ def agentmake(
             model=model,
             model_keep_alive=model_keep_alive,
             system=system,
-            context=context,
+            instruction=instruction,
             follow_up_prompt=follow_up_prompt,
             input_content_plugin=input_content_plugin,
             output_content_plugin=output_content_plugin,
@@ -1232,7 +1235,8 @@ def getDefaultToolSystem(schema):
         properties = schema["parameters"]["properties"]
         if not properties:
             return ""
-        system = """You are a structured output expert. Your expertise lies in identifying the following parameters from user input. If any required parameters are not provided by the users, you should either:
+        system = """You are a structured output expert. Your expertise lies in identifying the following parameters from user input.
+If any required parameters are not provided by the users, you should either:
 1. Generate content for them based on the parameter descriptions, or
 2. Return an empty string '' if explicitly instructed to do so in their descriptions when they are not provided."""
         for key, value in properties.items():
@@ -1241,7 +1245,6 @@ def getDefaultToolSystem(schema):
 # {key} [{"required" if key in required else "optional"}]
 
 {value.get("description", "")}"""
+        return system
     except:
         return ""
-
-    return ""

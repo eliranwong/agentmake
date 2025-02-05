@@ -23,11 +23,11 @@ def main(keep_chat_record=False):
     parser.add_argument("-b", "--backend", action="store", dest="backend", help="AI backend")
     parser.add_argument("-m", "--model", action="store", dest="model", help="AI model")
     parser.add_argument("-mka", "--model_keep_alive", action="store", dest="model_keep_alive", help="time to keep the model loaded in memory; applicable to ollama only")
-    parser.add_argument("-sys", "--system", action='append', dest="system", help="system message")
-    parser.add_argument("-con", "--context", action='append', dest="context", help="predefined context that is added as the user prompt prefix")
-    parser.add_argument("-fup", "--follow_up_prompt", action='append', dest="follow_up_prompt", help="follow-up prompts after an assistant message is generated")
-    parser.add_argument("-icp", "--input_content_plugin", action='append', dest="input_content_plugin", help="plugin(s) that works on user input")
-    parser.add_argument("-ocp", "--output_content_plugin", action='append', dest="output_content_plugin", help="plugin(s) that works on assistant response")
+    parser.add_argument("-sys", "--system", action='append', dest="system", help="system message(s)")
+    parser.add_argument("-ins", "--instruction", action='append', dest="instruction", help="predefined instruction(s) that are added as the user prompt prefix")
+    parser.add_argument("-fup", "--follow_up_prompt", action='append', dest="follow_up_prompt", help="follow-up prompt(s) after an assistant message is generated")
+    parser.add_argument("-icp", "--input_content_plugin", action='append', dest="input_content_plugin", help="plugin(s) that work on user input")
+    parser.add_argument("-ocp", "--output_content_plugin", action='append', dest="output_content_plugin", help="plugin(s) that work on assistant response")
     parser.add_argument("-a", "--agent", action='append', dest="agent", help="agentmake-compatible agent(s)")
     parser.add_argument("-t", "--tool", action='append', dest="tool", help="agentmake-compatible tool(s)")
     parser.add_argument("-sch", "--schema", action='store', dest="schema", help="json schema for structured output")
@@ -110,7 +110,7 @@ def main(keep_chat_record=False):
             model=args.model,
             model_keep_alive=args.model_keep_alive,
             system=args.system,
-            context=args.context,
+            instruction=args.instruction,
             follow_up_prompt=follow_up_prompt,
             input_content_plugin=args.input_content_plugin,
             output_content_plugin=args.output_content_plugin,

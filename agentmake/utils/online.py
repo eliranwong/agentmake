@@ -1,9 +1,23 @@
-import socket, webbrowser, shutil, re, requests, os
-from agentmake import showErrors
+import socket, webbrowser, shutil, re, requests, os, traceback
 from agentmake.utils.system import runSystemCommand
 from bs4 import BeautifulSoup
 from urllib.parse import quote
 
+
+def showErrors(e=None, message=""):
+    if message:
+        trace = message
+    else:
+        trace = f"An error occurred: {e}" if e else "An error occurred!"
+    print(trace)
+    if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE":
+        details = traceback.format_exc()
+        trace += "\n"
+        trace += details
+        print("```error")
+        print(details)
+        print("```")
+    return trace
 
 def get_wan_ip():
     try:

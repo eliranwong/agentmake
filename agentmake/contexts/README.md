@@ -1,1 +1,0 @@
-Predefined contexts are placed in this folder.

@@ -54,7 +54,7 @@ For simplicity, `agentmake` uses `ollama` as the default backend, if parameter `
 
 1. `system` - System messages are crucial for guiding how AI agents interact with users.
 
-2. `context` - Predefined instructions that are added to users' prompts as prefixes, before they are passed to the AI models.
+2. `instructions` - Predefined instructions that are added to users' prompts as prefixes, before they are passed to the AI models.
 
 3. `input_content_plugin` - Input content plugins process or transform user inputs before they are passed to the AI models.
 
@@ -74,7 +74,7 @@ For simplicity, `agentmake` uses `ollama` as the default backend, if parameter `
 
 Built-in agents components are placed into the following six folders inside the `agentmake` folders:
 
-`agents`, `contexts`, `plugins`, `prompts`, `systems`, `tools`
+`agents`, `instructions`, `plugins`, `prompts`, `systems`, `tools`
 
 To use the built-in components, you only need to specify the component filenames, without parent paths or file extensions, when you run the `agentmake` signature function or CLI options.
 
@@ -144,11 +144,11 @@ To work with parameters `input_content_plugin` and `output_content_plugin`, e.g.
 
 > agentmake("what AI model best", input_content_plugin="improve_writing", output_content_plugin="translate_into_chinese", stream=True)
 
-To work with parameter `system`, `context`, `follow_up_prompt`, e.g.:
+To work with parameter `system`, `instructions`, `follow_up_prompt`, e.g.:
 
-> agentmake("Is it better to drink wine in the morning, afternoon, or evening?", context="reflect", stream=True)
+> agentmake("Is it better to drink wine in the morning, afternoon, or evening?", instruction="reflect", stream=True)
 
-> agentmake("Is it better to drink wine in the morning, afternoon, or evening?", context="think", follow_up_prompt=["review", "refine"], stream=True)
+> agentmake("Is it better to drink wine in the morning, afternoon, or evening?", instruction="think", follow_up_prompt=["review", "refine"], stream=True)
 
 > agentmake("Provide a detailed introduction to generative AI.", system=["create_agents", "assign_agents"], follow_up_prompt="Who is the best agent to contribute next?", stream=True, model="llama3.3:70b")
 
@@ -170,7 +170,6 @@ To work collaboratively with different backends, e.g.
 As you may see, the `agentmake` function returns the `messages` list, which is passed to the next `agentmake` function in turns.
 
 Therefore, it is very simple to create a chatbot application, you can do it as few as five lines or less, e.g.:
-
 
 > messages = [{"role": "system", "content": "You are an AI assistant."}]
 
@@ -212,7 +211,7 @@ The available CLI options use the same parameter names as the `agentmake` functi
 
 > ai what AI model best --input_content_plugin improve_writing --output_content_plugin translate_into_chinese
 
-> ai Is it better to drink wine in the morning, afternoon, or evening? --context think --follow_up_prompt review --follow_up_prompt refine
+> ai Is it better to drink wine in the morning, afternoon, or evening? --instruction think --follow_up_prompt review --follow_up_prompt refine
 
 > ai Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre --agent teamgenai --model "llama3.3:70b"
 
@@ -259,5 +258,5 @@ Remarks:
 * add examples
 * convert availble ToolMate AI tools into tools that runable with this SDK
 * add built-in system messages
-* add built-in predefined contexts
+* add built-in predefined instructions
 * add built-in prompts

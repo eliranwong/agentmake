@@ -52,9 +52,9 @@ For simplicity, `agentmake` uses `ollama` as the default backend, if parameter `
 
 `agentmake` is designed to work with seven kinds of components for building agentic applications:
 
-1. `system` - System messages are crucial for guiding how AI agents interact with users.
+1. `system` - System messages are crucial for defining the roles of the AI agents and guiding how AI agents interact with users.
 
-2. `context` - Predefined instructions that are added to users' prompts as prefixes, before they are passed to the AI models.
+2. `instruction` - Predefined instructions that are added to users' prompts as prefixes, before they are passed to the AI models.
 
 3. `input_content_plugin` - Input content plugins process or transform user inputs before they are passed to the AI models.
 
@@ -74,7 +74,7 @@ For simplicity, `agentmake` uses `ollama` as the default backend, if parameter `
 
 Built-in agents components are placed into the following six folders inside the `agentmake` folders:
 
-`agents`, `contexts`, `plugins`, `prompts`, `systems`, `tools`
+`agents`, `instructions`, `plugins`, `prompts`, `systems`, `tools`
 
 To use the built-in components, you only need to specify the component filenames, without parent paths or file extensions, when you run the `agentmake` signature function or CLI options.
 
@@ -93,6 +93,10 @@ The default `agentmake` user directory is `~/agentmake`, i.e. a folder named `ag
 After creating a folder named `agentmake` under user directory, create six sub-folders in it, according to the following names and place your custom components in relevant folders, as we do with our built-in components.
 
 If you organize the custom agentic components in this way, you only need to specify the component filenames, without parent paths or file extensions, when you run the `agentmake` signature function or CLI options.
+
+## Priorities
+
+In cases where a built-in tool and a custom tool have the same name, the custom tool takes priority over the built-in one. This allows for flexibility, enabling users to copy a built-in tool, modify its content, and retain the same name, thereby effectively overriding the built-in tool.
 
 # Installation
 
@@ -144,11 +148,11 @@ To work with parameters `input_content_plugin` and `output_content_plugin`, e.g.
 
 > agentmake("what AI model best", input_content_plugin="improve_writing", output_content_plugin="translate_into_chinese", stream=True)
 
-To work with parameter `system`, `context`, `follow_up_prompt`, e.g.:
+To work with parameter `system`, `instruction`, `follow_up_prompt`, e.g.:
 
-> agentmake("Is it better to drink wine in the morning, afternoon, or evening?", context="reflect", stream=True)
+> agentmake("Is it better to drink wine in the morning, afternoon, or evening?", instruction="reflect", stream=True)
 
-> agentmake("Is it better to drink wine in the morning, afternoon, or evening?", context="think", follow_up_prompt=["review", "refine"], stream=True)
+> agentmake("Is it better to drink wine in the morning, afternoon, or evening?", instruction="think", follow_up_prompt=["review", "refine"], stream=True)
 
 > agentmake("Provide a detailed introduction to generative AI.", system=["create_agents", "assign_agents"], follow_up_prompt="Who is the best agent to contribute next?", stream=True, model="llama3.3:70b")
 
@@ -158,24 +162,28 @@ To work with parameter `agent`, e.g.:
 
 To work collaboratively with different backends, e.g.
 
-```
-messages = agentmake("What is the most effective method for training AI models?", backend="openai")
-messages = agentmake(messages, backend="googleai", follow_up_prompt="Can you give me some different options?")
-messages = agentmake(messages, backend="xai", follow_up_prompt="What are the limitations or potential biases in this information?")
-agentmake(messages, backend="mistral", follow_up_prompt="Please provide a summary of the discussion so far.")
-```
+> messages = agentmake("What is the most effective method for training AI models?", backend="openai")
+
+> messages = agentmake(messages, backend="googleai", follow_up_prompt="Can you give me some different options?")
+
+> messages = agentmake(messages, backend="xai", follow_up_prompt="What are the limitations or potential biases in this information?")
+
+> agentmake(messages, backend="mistral", follow_up_prompt="Please provide a summary of the discussion so far.")
+
 
 As you may see, the `agentmake` function returns the `messages` list, which is passed to the next `agentmake` function in turns.
 
 Therefore, it is very simple to create a chatbot application, you can do it as few as five lines or less, e.g.:
 
-```
-messages = [{"role": "system", "content": "You are an AI assistant."}]
-user_input = "Hello!"
-while user_input:
-    messages = agentmake(messages, follow_up_prompt=user_input, stream=True)
-    user_input = input("Enter your query:\n(enter a blank entry to exit)\n>>> ")
-```
+> messages = [{"role": "system", "content": "You are an AI assistant."}]
+
+> user_input = "Hello!"
+
+> while user_input:
+
+>     messages = agentmake(messages, follow_up_prompt=user_input, stream=True)
+
+>     user_input = input("Enter your query:\n(enter a blank entry to exit)\n>>> ")
 
 These are just a few simple and straightforward examples.  You may find more examples at:
 
@@ -207,7 +215,7 @@ The available CLI options use the same parameter names as the `agentmake` functi
 
 > ai what AI model best --input_content_plugin improve_writing --output_content_plugin translate_into_chinese
 
-> ai Is it better to drink wine in the morning, afternoon, or evening? --context think --follow_up_prompt review --follow_up_prompt refine
+> ai Is it better to drink wine in the morning, afternoon, or evening? --instruction think --follow_up_prompt review --follow_up_prompt refine
 
 > ai Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre --agent teamgenai --model "llama3.3:70b"
 
@@ -254,5 +262,5 @@ Remarks:
 * add examples
 * convert availble ToolMate AI tools into tools that runable with this SDK
 * add built-in system messages
-* add built-in predefined contexts
+* add built-in predefined instructions
 * add built-in prompts

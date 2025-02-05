@@ -1,6 +1,6 @@
 from agentmake import USER_OS
 import glob
-import os
+import os, re
 
 def searchFolder(folder, query, filter="*.txt"):
     # Linux/macOS: find chats/ -name "*.txt" -type f -exec grep -rin --color=auto "your_string" {} +

@@ -1,4 +1,3 @@
-
 > messages = agentmake("What is the most effective method for training AI models?", backend="openai")
 
 > messages = agentmake(messages, backend="googleai", follow_up_prompt="Can you give me some different options?")
@@ -11,7 +10,6 @@
 As you may see, the `agentmake` function returns the `messages` list, which is passed to the next `agentmake` function in turns.
 
 Therefore, it is very simple to create a chatbot application, you can do it as few as five lines or less, e.g.:
-
 
 > messages = [{"role": "system", "content": "You are an AI assistant."}]
 
