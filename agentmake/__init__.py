@@ -40,8 +40,9 @@ from .utils.handle_text import readTextFile
 from typing import Optional, Callable, Union, Any, List, Dict
 from copy import deepcopy
 from io import StringIO
-import sys, re, json, traceback
+import sys, re, json, traceback, platform
 
+USER_OS = platform.system()
 DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
 SUPPORTED_AI_BACKENDS = ["anthropic", "azure", "cohere", "custom", "deepseek", "genai", "github", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"]
 DEFAULT_AI_BACKEND = os.getenv("DEFAULT_AI_BACKEND") if os.getenv("DEFAULT_AI_BACKEND") else "ollama"
@@ -1167,3 +1168,15 @@ def addContextToMessages(messages: List[Dict[str, str]], context: str):
     assuming user prompt is placed in the last item of the given message list
     """
     messages[-1] = {"role": "user", "content": getRagPrompt(messages[-1].get("content", ""), context)}
+
+def showErrors(e=None, message=""):
+    if e is not None:
+        print(f"An error occurred: {e}")
+    else:
+        print(message if message else "An error occurred!")
+    if DEVELOPER_MODE:
+        trace = traceback.format_exc()
+        print("```error")
+        print(trace)
+        print("```")
+    return trace
