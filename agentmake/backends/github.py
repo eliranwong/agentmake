@@ -12,7 +12,9 @@ class GithubAI:
     DEFAULT_TEMPERATURE = float(os.getenv("GITHUB_TEMPERATURE")) if os.getenv("GITHUB_TEMPERATURE") else 0.3
     DEFAULT_MAX_TOKENS = int(os.getenv("GITHUB_MAX_TOKENS")) if os.getenv("GITHUB_MAX_TOKENS") else 4000 # https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits
 
+    @staticmethod
     def getApiKey():
+        # rotate multiple API keys
         if len(GithubAI.DEFAULT_API_KEY) > 1:
             first_item = GithubAI.DEFAULT_API_KEY.pop(0)
             GithubAI.DEFAULT_API_KEY.append(first_item)
@@ -52,11 +54,7 @@ class GithubAI:
         completion = None
         used_api_keys = []
         while completion is None:
-            # rotate multiple API keys
-            if api_key:
-                this_api_key = api_key
-            else:
-                this_api_key = GithubAI.getApiKey()
+            this_api_key = api_key if api_key else GithubAI.getApiKey()
             if this_api_key in used_api_keys:
                 break
             else:

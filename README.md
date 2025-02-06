@@ -136,7 +136,7 @@ To run, e.g.:
 
 To work with parameter `tool`, e.g.:
 
-> agentmake("What is ToolMate AI?", tool="search_google")
+> agentmake("What is AgentMake AI?", tool="search_google")
 
 > agentmake("How many 'r's are there in the word 'strawberry'?", tool="magic")
 
@@ -215,7 +215,7 @@ The available CLI options use the same parameter names as the `agentmake` functi
 
 > ai What is AI?
 
-> ai What is ToolMate AI --tool search_google
+> ai What is AgentMake AI --tool search_google
 
 > ai Convert file music.wav into mp3 format. --tool task
 
@@ -230,6 +230,12 @@ The available CLI options use the same parameter names as the `agentmake` functi
 > ai Is it better to drink wine in the morning, afternoon, or evening? --instruction think --follow_up_prompt review --follow_up_prompt refine
 
 > ai Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre --agent teamgenai --model "llama3.3:70b"
+
+## CLI for Testing
+
+CLI options are handy for testing, e.g. simply use a newly developed `tool` file with `-t` option and run:
+
+> ai What is AgentMake AI? -t ~/my_folder/perplexica.py
 
 # AI Backends Configurations
 

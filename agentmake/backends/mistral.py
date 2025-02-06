@@ -15,6 +15,14 @@ class MistralAI:
     DEFAULT_MAX_TOKENS = int(os.getenv("MISTRAL_MAX_TOKENS")) if os.getenv("MISTRAL_MAX_TOKENS") else 8000 # https://docs.mistral.ai/getting-started/models/models_overview/
 
     @staticmethod
+    def getApiKey():
+        # rotate multiple API keys
+        if len(MistralAI.DEFAULT_API_KEY) > 1:
+            first_item = MistralAI.DEFAULT_API_KEY.pop(0)
+            MistralAI.DEFAULT_API_KEY.append(first_item)
+        return MistralAI.DEFAULT_API_KEY[0]
+
+    @staticmethod
     def getChatCompletion(
         messages: list,
         model: Optional[str]=None,
@@ -44,14 +52,7 @@ class MistralAI:
         completion = None
         used_api_keys = []
         while completion is None:
-            # rotate multiple API keys
-            if api_key:
-                this_api_key = api_key
-            else:
-                if len(MistralAI.DEFAULT_API_KEY) > 1:
-                    first_item = MistralAI.DEFAULT_API_KEY.pop(0)
-                    MistralAI.DEFAULT_API_KEY.append(first_item)
-                this_api_key = MistralAI.DEFAULT_API_KEY[0]
+            this_api_key = api_key if api_key else MistralAI.getApiKey()
             if this_api_key in used_api_keys:
                 break
             else:

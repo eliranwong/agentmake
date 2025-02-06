@@ -7,7 +7,7 @@ PERPLEXICA_FRONTEND_PORT = int(os.getenv("PERPLEXICA_FRONTEND_PORT")) if os.gete
 PERPLEXICA_BACKEND_PORT = int(os.getenv("PERPLEXICA_BACKEND_PORT")) if os.getenv("PERPLEXICA_BACKEND_PORT") else 3001
 PERPLEXICA_LOCAL_EMBEDDING = os.getenv("PERPLEXICA_LOCAL_EMBEDDING") if os.getenv("PERPLEXICA_LOCAL_EMBEDDING") else "xenova-bge-small-en-v1.5"
 
-def perplexica_anthropic(messages, **kwargs):
+def perplexica_openai(messages, **kwargs):
     query = messages[-1].get("content", "")
     if not query:
         return None
@@ -29,12 +29,12 @@ def perplexica_anthropic(messages, **kwargs):
 
     data = {
         "chatModel": {
-            "provider": "anthropic",
-            "model": "claude-3-5-sonnet-20241022", # check Perplexica/src/lib/providers/anthropic.ts
+            "provider": "openai",
+            "model": OpenaiAI.DEFAULT_MODEL,
         },
         "embeddingModel": {
-            "provider": "local",
-            "model": PERPLEXICA_LOCAL_EMBEDDING,
+            "provider": "openai",
+            "model": "text-embedding-3-large",
         },
         "optimizationMode": "speed",
         "focusMode": "webSearch",
@@ -76,4 +76,4 @@ def perplexica_anthropic(messages, **kwargs):
 
 TOOL_SCHEMA = {}
 
-TOOL_FUNCTION = perplexica_anthropic
+TOOL_FUNCTION = perplexica_openai

@@ -13,6 +13,14 @@ class GroqAI:
     DEFAULT_MAX_TOKENS = int(os.getenv("GROQ_MAX_TOKENS")) if os.getenv("GROQ_MAX_TOKENS") else 32768 # https://console.groq.com/docs/models
 
     @staticmethod
+    def getApiKey():
+        # rotate multiple API keys
+        if len(GroqAI.DEFAULT_API_KEY) > 1:
+            first_item = GroqAI.DEFAULT_API_KEY.pop(0)
+            GroqAI.DEFAULT_API_KEY.append(first_item)
+        return GroqAI.DEFAULT_API_KEY[0]
+
+    @staticmethod
     def getChatCompletion(
         messages: list,
         model: Optional[str]=None,
@@ -38,14 +46,7 @@ class GroqAI:
         completion = None
         used_api_keys = []
         while completion is None:
-            # rotate multiple API keys
-            if api_key:
-                this_api_key = api_key
-            else:
-                if len(GroqAI.DEFAULT_API_KEY) > 1:
-                    first_item = GroqAI.DEFAULT_API_KEY.pop(0)
-                    GroqAI.DEFAULT_API_KEY.append(first_item)
-                this_api_key = GroqAI.DEFAULT_API_KEY[0]
+            this_api_key = api_key if api_key else GroqAI.getApiKey()
             if this_api_key in used_api_keys:
                 break
             else:

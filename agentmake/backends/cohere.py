@@ -14,6 +14,14 @@ class CohereAI:
     DEFAULT_MAX_TOKENS = int(os.getenv("COHERE_MAX_TOKENS")) if os.getenv("COHERE_MAX_TOKENS") else 4000 # https://docs.cohere.com/docs/rate-limits
 
     @staticmethod
+    def getApiKey():
+        # rotate multiple API keys
+        if len(CohereAI.DEFAULT_API_KEY) > 1:
+            first_item = CohereAI.DEFAULT_API_KEY.pop(0)
+            CohereAI.DEFAULT_API_KEY.append(first_item)
+        return CohereAI.DEFAULT_API_KEY[0]
+
+    @staticmethod
     def getChatCompletion(
         messages: list,
         model: Optional[str]=None,
@@ -39,14 +47,7 @@ class CohereAI:
         completion = None
         used_api_keys = []
         while completion is None:
-            # rotate multiple API keys
-            if api_key:
-                this_api_key = api_key
-            else:
-                if len(CohereAI.DEFAULT_API_KEY) > 1:
-                    first_item = CohereAI.DEFAULT_API_KEY.pop(0)
-                    CohereAI.DEFAULT_API_KEY.append(first_item)
-                this_api_key = CohereAI.DEFAULT_API_KEY[0]
+            this_api_key = api_key if api_key else CohereAI.getApiKey()
             if this_api_key in used_api_keys:
                 break
             else:
