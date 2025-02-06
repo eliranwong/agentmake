@@ -1,7 +1,5 @@
 import subprocess
 
-TOOL_SYSTEM = ""
-
 TOOL_SCHEMA = {
     "name": "add_calendar_event",
     "description": "Add a calendar event",

@@ -88,7 +88,7 @@ Args:
             2. file name, without extension, of a python file, placed in folder `plugins` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
             3. a valid plain text file path
             4. a python script containing at least one variable:
-                i. CONTENT_PLUGIN - the function object that processes user input content
+                i. CONTENT_PLUGIN - the function object that processes user input content and returns the processed content
 
     output_content_plugin:
         type: Optional[Union[List[Optional[str]], str]]=None
@@ -100,7 +100,7 @@ Args:
             2. file name, without extension, of a python file, placed in folder `plugins` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
             3. a valid plain text file path
             4. a python script containing at least one variable:
-                i. CONTENT_PLUGIN - the function object that processes assistant output content
+                i. CONTENT_PLUGIN - the function object that processes assistant output content and returns the processed content
 
     agent:
         type: Optional[Union[List[Optional[str]], str]]=None
@@ -126,7 +126,16 @@ Args:
             3. a valid plain text file path
             4. a python script containing at two or three variables:
                 I. TOOL_SCHEMA - the json schema that describes the parameters for function calling
+                    Remarks: It is allowed to provide an empty dictionary as a TOOL_SCHEMA. In this case, the `agentmake` function passes the parameter `messages` to the TOOL_FUNCTION.
                 II. TOOL_FUNCTION - the funciton object being called with the tool
+                    Args:
+                        i. The structured output, generated as a dictionary according to the TOOL_SCHEMA, is unpacked as arguments for the function.
+                        ii. Each TOOL_FUNCTION must include `**kwargs` as part of its arguments, as the `agentmake` function passes the following parameters to the TOOL_FUNCTION, offering possibility to run nested `agentmake` functions within the TOOL_FUNCTION:
+                            backend, model, model_keep_alive, temperature, max_tokens, context_window, batch_size, prefill, stop, stream, api_key, api_project_id, api_service_location, api_timeout, print_on_terminal, word_wrap
+                    Return
+                        i. Empty string - User request is resolved without the need of chat extension. Any printed content or terminal output resulting from the execution of the function is taken as the assistant's response.
+                        ii. Non-empty string - Provide context to extend chat conversation.
+                        iii. None - Fall back to regular chat completion. It is useful for handling errors encounted when the function is executed.
                 III. TOOL_SYSTEM - This is optional. You may either:
                     i. specifie the system message for running the tool.
                     ii. assign an empty string to it if you do not want to use a tool system message.

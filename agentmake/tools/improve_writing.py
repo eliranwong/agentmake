@@ -2,7 +2,7 @@ from agentmake import agentmake, DEFAULT_AI_BACKEND
 from typing import Optional, Union, List
 import os, json
 
-WRITING_STYLE = os.getenv('WRITING_STYLE') if os.getenv('WRITING_STYLE') else 'standard English'
+DEFAULT_WRITING_STYLE = os.getenv('DEFAULT_WRITING_STYLE') if os.getenv('DEFAULT_WRITING_STYLE') else 'standard English'
 
 TOOL_SYSTEM = f"""# Role
 You are an excellent writer.
@@ -14,12 +14,12 @@ Your job is to improve my writing sytle only, without extra comments or explanti
 Your expertise lies in proofreading and improving my writing.
 
 # Instruction
-You improve the writing in the user's input, according to {WRITING_STYLE}.
+You improve the writing in the user's input, according to {DEFAULT_WRITING_STYLE}.
 Remember, do NOT give me extra comments explanations.  I want only the 'improved_writing'"""
 
 TOOL_SCHEMA = {
     "name": "improve_writing",
-    "description": f"Improve user writing, according to {WRITING_STYLE}",
+    "description": f"Improve user writing, according to {DEFAULT_WRITING_STYLE}",
     "parameters": {
         "type": "object",
         "properties": {
@@ -33,16 +33,9 @@ TOOL_SCHEMA = {
 }
 
 def improve_writing(
-    content,
+    improved_writing: str,
     **kwargs,
 ):
-    messages = agentmake(
-        content,
-        system=TOOL_SYSTEM,
-        schema=TOOL_SCHEMA,
-        **kwargs,
-    )
-    improved_writing = json.loads(messages[-1]["content"])["improved_writing"]
     print(improved_writing)
     return ""
 
