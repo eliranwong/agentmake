@@ -28,7 +28,7 @@ TOOL_SCHEMA = {
     },
 }
 
-def search_google(keywords, **kwargs):
+def search_google(keywords: str, **kwargs):
     info = {}
     for index, item in enumerate(googlesearch.search(keywords, advanced=True, num_results=DEFAULT_MAXIMUM_ONLINE_SEARCHES)):
         info[f"information {index}"] = {

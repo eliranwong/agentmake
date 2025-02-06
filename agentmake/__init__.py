@@ -53,6 +53,10 @@ DEFAULT_TEXT_EDITOR = os.getenv("DEFAULT_TEXT_EDITOR") if os.getenv("DEFAULT_TEX
 DEFAULT_MARKDOWN_THEME = os.getenv("DEFAULT_MARKDOWN_THEME") if os.getenv("DEFAULT_MARKDOWN_THEME") else "github-dark"
 DEFAULT_FABRIC_PATTERNS_PATH = os.getenv("DEFAULT_FABRIC_PATTERNS_PATH") if os.getenv("DEFAULT_FABRIC_PATTERNS_PATH") else os.path.join(os.path.expanduser("~"), ".config", "fabric", "patterns")
 
+# APIs that required by some tools
+TAVILY_API_KEY = os.getenv("TAVILY_API_KEY").split(",") if os.getenv("TAVILY_API_KEY") and "," in os.getenv("TAVILY_API_KEY") else [os.getenv("TAVILY_API_KEY")]
+OPENWEATHERMAP_API_KEY = os.getenv("OPENWEATHERMAP_API_KEY").split(",") if os.getenv("OPENWEATHERMAP_API_KEY") and "," in os.getenv("OPENWEATHERMAP_API_KEY") else [os.getenv("OPENWEATHERMAP_API_KEY")]
+
 def edit_configurations(env_file=""):
     if not env_file:
         env_file = os.path.join(PACKAGE_PATH, ".env")
