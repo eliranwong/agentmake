@@ -2,7 +2,7 @@ from ..utils.online import get_local_ip
 from ..utils.schema import getParameterSchema
 from typing import Optional
 from tqdm import tqdm
-from ollama import Client, Options
+from ollama import Options
 from ollama._types import ChatResponse
 from ollama import pull
 from ollama import list as ollama_ls
@@ -41,9 +41,11 @@ class OllamaAI:
         if prefill:
             messages.append({'role': 'assistant', 'content': prefill})
         model = model if model else OllamaAI.DEFAULT_MODEL
+        # Note: custom client, like Client(host=api_endpoint if api_endpoint else OllamaAI.DEFAULT_ENDPOINT), rasies resource warning
         # download model if it is not in the model list
+        os.environ["OLLAMA_HOST"] = api_endpoint if api_endpoint else OllamaAI.DEFAULT_ENDPOINT
         OllamaAI.downloadModel(model)
-        return Client(host=api_endpoint if api_endpoint else OllamaAI.DEFAULT_ENDPOINT).chat(
+        return ollama.chat(
             keep_alive=model_keep_alive if model_keep_alive else OllamaAI.DEFAULT_KEEP_ALIVE,
             model=model,
             messages=messages,
