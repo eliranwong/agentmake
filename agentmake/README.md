@@ -136,7 +136,7 @@ To run, e.g.:
 
 To work with parameter `tool`, e.g.:
 
-> agentmake("What is ToolMate AI?", tool="search_google")
+> agentmake("What is AgentMake AI?", tool="search/google")
 
 > agentmake("How many 'r's are there in the word 'strawberry'?", tool="magic")
 
@@ -146,11 +146,11 @@ To work with parameter `tool`, e.g.:
 
 > agentmake("Convert file 'music.wav' into mp3 format.", tool="magic")
 
-> agentmake("Send an email to Eliran Wong at eliran.wong@domain.com to express my gratitude for his work.", tool="send_gmail")
+> agentmake("Send an email to Eliran Wong at eliran.wong@domain.com to express my gratitude for his work.", tool="email/gmail")
 
-To work with a `tool` that is placed in a sub-folder, e.g.:
+A cross-platform solution to work with a `tool` that is placed in a sub-folder, e.g.:
 
-> agentmake("Extract text from image file 'sample.png'.", tool=os.path.join("ocr", "openai"))
+> agentmake("Extract text from image file 'sample.png'.", tool=os.path.join("perplexica", "github"))
 
 To work with parameters `input_content_plugin` and `output_content_plugin`, e.g.:
 
@@ -218,11 +218,11 @@ The available CLI options use the same parameter names as the `agentmake` functi
 
 > ai What is AI?
 
-> ai What is ToolMate AI --tool search_google
+> ai What is AgentMake AI --tool search/google
 
 > ai Convert file music.wav into mp3 format. --tool task
 
-> ai Send an email to Eliran Wong at eliran.wong@domain.com to express my gratitude for his work --tool send_gmail
+> ai Send an email to Eliran Wong at eliran.wong@domain.com to express my gratitude for his work --tool email/gmail
 
 > ai Extract text from image file sample.png. --tool=ocr/openai
 
@@ -233,6 +233,12 @@ The available CLI options use the same parameter names as the `agentmake` functi
 > ai Is it better to drink wine in the morning, afternoon, or evening? --instruction think --follow_up_prompt review --follow_up_prompt refine
 
 > ai Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre --agent teamgenai --model "llama3.3:70b"
+
+## CLI for Testing
+
+CLI options are handy for testing, e.g. simply use a newly developed `tool` file with `-t` option and run:
+
+> ai What is AgentMake AI? -t ~/my_folder/perplexica.py
 
 # AI Backends Configurations
 
@@ -282,13 +288,13 @@ To use a fabric pattern in `agentmake`:
 1. Install [fabric](https://github.com/danielmiessler/fabric/tree/main/patterns)
 2. Specify a fabric pattern in `agentmake` parameter `system` or `instruction`, by prefixing the selected pattern with `fabric.`
 
-> agentmake("The United Kingdom is a Christian country.", tool="search_google", system="fabric.analyze_claims")
+> agentmake("The United Kingdom is a Christian country.", tool="search/searxng", system="fabric.analyze_claims")
 
 # TODO
 
-* add documentation about tool creation
 * add examples
-* convert availble ToolMate AI tools into tools that runable with this SDK
+* convert availble ToolMate AI tools into tools that runable with this SDK (... in progess ...)
+* add documentation about tool creation
 * add built-in system messages
 * add built-in predefined instructions
 * add built-in prompts

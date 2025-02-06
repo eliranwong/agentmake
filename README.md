@@ -172,6 +172,10 @@ To work with parameter `agent`, e.g.:
 
 > agentmake("Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre.", agent="teamgenai", stream=True, model="llama3.3:70b")
 
+To specify an AI backend:
+
+> agentmake("What is Microsoft stock price today?", tool=os.path.join("search", "finance"), backend="azure")
+
 To work collaboratively with different backends, e.g.
 
 ```
@@ -222,6 +226,8 @@ The available CLI options use the same parameter names as the `agentmake` functi
 > ai Send an email to Eliran Wong at eliran.wong@domain.com to express my gratitude for his work --tool email/gmail
 
 > ai Extract text from image file sample.png. --tool=ocr/openai
+
+> ai What is Microsoft stock price today? -t search/finance -b azure
 
 > ai what AI model best --input_content_plugin improve_writing --output_content_plugin translate_into_chinese
 
@@ -289,9 +295,9 @@ To use a fabric pattern in `agentmake`:
 
 # TODO
 
-* add documentation about tool creation
 * add examples
-* convert availble ToolMate AI tools into tools that runable with this SDK
+* convert availble ToolMate AI tools into tools that runable with this SDK (... in progess ...)
+* add documentation about tool creation
 * add built-in system messages
 * add built-in predefined instructions
 * add built-in prompts
