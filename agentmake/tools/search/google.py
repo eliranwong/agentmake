@@ -9,7 +9,9 @@ except:
 
 import os, json
 
-TOOL_SYSTEM = "You expertise is to identify keywords for online searches, in order to resolve user request."
+DEFAULT_MAXIMUM_ONLINE_SEARCHES = int(os.getenv("DEFAULT_MAXIMUM_ONLINE_SEARCHES")) if os.getenv("DEFAULT_MAXIMUM_ONLINE_SEARCHES") else 5
+
+TOOL_SYSTEM = "You are an online search expert. You expertise lies in identifing keywords for online searches, in order to resolve user request."
 
 TOOL_SCHEMA = {
     "name": "search_google",
@@ -28,7 +30,7 @@ TOOL_SCHEMA = {
 
 def search_google(keywords, **kwargs):
     info = {}
-    for index, item in enumerate(googlesearch.search(keywords, advanced=True, num_results=os.getenv("MAXIMUM_INTERNET_SEARCHES") if os.getenv("MAXIMUM_INTERNET_SEARCHES") else 5)):
+    for index, item in enumerate(googlesearch.search(keywords, advanced=True, num_results=DEFAULT_MAXIMUM_ONLINE_SEARCHES)):
         info[f"information {index}"] = {
             "title": item.title,
             "url": item.url,
