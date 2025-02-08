@@ -45,7 +45,7 @@ from .utils.system import getCurrentDateTime
 from typing import Optional, Callable, Union, Any, List, Dict
 from copy import deepcopy
 from io import StringIO
-import sys, re, json, traceback, platform
+import sys, re, json, traceback, platform, atexit, psutil
 from markitdown import MarkItDown
 from pathlib import Path
 
@@ -1378,3 +1378,29 @@ def getFabricPatternSystem(pattern, instruction=False):
         if not instruction:
             system = re.sub(r'# INPUT.*', '', system, flags=re.DOTALL).rstrip()
     return system
+
+# close open sockets at exit
+def close_open_sockets():
+    def terminate_connection(fd):
+        # Iterate through all network connections
+        for conn in psutil.net_connections(kind='inet'):
+            if conn.fd == fd:  # Match the file descriptor
+                try:
+                    process = psutil.Process(conn.pid)
+                    process.terminate()  # Kill the process holding the socket open
+                    process.wait()  # Wait for the process to terminate
+                except Exception as e:
+                    print(f"Error terminating process: {e}")
+    for conn in psutil.net_connections(kind='inet'):
+        fd = None
+        if found := re.search(r"sconn\(fd=([0-9]+?),.*?11434", str(conn)): # ollama
+            fd = int(found.group(1))
+        elif found := re.search(r"sconn\(fd=([0-9]+?),.*?'34.96.76.122'", str(conn)): # cohere
+            fd = int(found.group(1))
+        if fd:
+            terminate_connection(fd)
+#atexit.register(close_open_sockets)
+def ignore_warnings():
+    warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed <socket.socket.*, 11434\)") # ollama
+    warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed <ssl.SSLSocket.*'34.96.76.122'") # cohere
+atexit.register(ignore_warnings)

@@ -118,7 +118,7 @@ We support Vertex AI via [Google GenAI SDK](https://pypi.org/project/google-gena
 
 # Usage
 
-This SDK is designed to offer a single signature function `agentmake` for interacting with all AI backends, delivering a unified experience for generating AI responses. The main APIs are provided with the function `agentmake` located in this [file](https://github.com/eliranwong/agentmake/blob/main/agentmake/__init__.py#L54).
+This SDK is designed to offer a single signature function `agentmake` for interacting with all AI backends, delivering a unified experience for generating AI responses. The main APIs are provided with the function `agentmake` located in this [file](https://github.com/eliranwong/agentmake/blob/main/agentmake/__init__.py#L72).
 
 Find documentation at https://github.com/eliranwong/agentmake/blob/main/docs/README.md
 

@@ -16,3 +16,4 @@ pyperclip
 markitdown
 beautifulsoup4
 html2text
+psutil

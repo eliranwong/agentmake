@@ -7,8 +7,8 @@ import json, os
 
 class OpenaiCompatibleAI:
 
-    DEFAULT_API_KEY = os.getenv("CUSTOM_API_KEY") if os.getenv("CUSTOM_API_KEY") else ""
-    DEFAULT_API_ENDPOINT = os.getenv("CUSTOM_API_ENDPOINT") if os.getenv("CUSTOM_API_ENDPOINT") else ""
+    DEFAULT_API_KEY = os.getenv("CUSTOM_API_KEY") if os.getenv("CUSTOM_API_KEY") else "agentmake"
+    DEFAULT_API_ENDPOINT = os.getenv("CUSTOM_API_ENDPOINT") if os.getenv("CUSTOM_API_ENDPOINT") else "" # e.g. "http://localhost:11434/v1" for Ollama
     DEFAULT_MODEL = os.getenv("CUSTOM_MODEL")
     DEFAULT_TEMPERATURE = float(os.getenv("CUSTOM_TEMPERATURE")) if os.getenv("CUSTOM_TEMPERATURE") else 0.3
     DEFAULT_MAX_TOKENS = int(os.getenv("CUSTOM_MAX_TOKENS")) if os.getenv("CUSTOM_MAX_TOKENS") else 4000 # https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits
