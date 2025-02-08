@@ -1,7 +1,11 @@
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.input import create_input
-import asyncio, shutil, os, wcwidth, re
+import asyncio, shutil, os, wcwidth, re, textwrap
 
+def wrapText(content, terminal_width=None):
+    if terminal_width is None:
+        terminal_width = shutil.get_terminal_size().columns
+    return "\n".join([textwrap.fill(line, width=terminal_width) for line in content.split("\n")])
 
 class TextWrapper:
 

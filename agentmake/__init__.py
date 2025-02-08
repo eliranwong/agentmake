@@ -38,7 +38,7 @@ from .backends.openai import OpenaiAI
 from .backends.xai import XaiAI
 
 from .utils.instructions import getRagPrompt
-from .utils.retrieve_text_output import getChatCompletionText
+from .utils.read_assistant_response import getChatCompletionText
 from .utils.handle_text import readTextFile, writeTextFile
 from .utils.system import getCurrentDateTime
 
@@ -65,7 +65,8 @@ OPENWEATHERMAP_API_KEY = os.getenv("OPENWEATHERMAP_API_KEY").split(",") if os.ge
 
 def edit_configurations(env_file=""):
     if not env_file:
-        env_file = os.path.join(PACKAGE_PATH, ".env")
+        backup_env = os.path.join(AGENTMAKE_USER_DIR, "backup.env")
+        env_file = backup_env if os.path.isfile(backup_env) else os.path.join(PACKAGE_PATH, ".env")
     os.system(f'''{DEFAULT_TEXT_EDITOR} "{env_file}"''')
 
 def agentmake(

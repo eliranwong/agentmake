@@ -1,7 +1,8 @@
-from agentmake import PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand
+from agentmake import AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand
 from agentmake.etextedit import launch
 from agentmake.utils.handle_text import readTextFile, writeTextFile
-from agentmake.utils.retrieve_text_output import wrapText
+from agentmake.utils.files import searchFolder
+from agentmake.utils.text_wrapper import wrapText
 from agentmake.utils.system import getCliOutput
 import argparse, os, pprint, sys, pyperclip, shutil, pydoc, json
 import pygments
@@ -52,6 +53,13 @@ def main(keep_chat_record=False):
     # clipboard
     parser.add_argument("-pa", "--paste", action="store_true", dest="paste", help="paste the clipboard text as a suffix to the user prompt")
     parser.add_argument("-py", "--copy", action="store_true", dest="copy", help="copy assistant response to the clipboard")
+    # find
+    parser.add_argument("-fa", "--find_agents", action="store", dest="find_agents", help="find agents")
+    parser.add_argument("-fi", "--find_instructions", action="store", dest="find_instructions", help="find instructions")
+    parser.add_argument("-fpl", "--find_plugins", action="store", dest="find_plugins", help="find plugins")
+    parser.add_argument("-fpr", "--find_prompts", action="store", dest="find_prompts", help="find prompts")
+    parser.add_argument("-fs", "--find_systems", action="store", dest="find_systems", help="find systems")
+    parser.add_argument("-ft", "--find_tools", action="store", dest="find_tools", help="find tools")
     # others
     parser.add_argument("-ec", "--edit_configurations", action="store_true", dest="edit_configurations", help="edit default configurations with text editor")
     parser.add_argument("-ei", "--edit_input", action="store_true", dest="edit_input", help="edit user input with text editor")
@@ -66,6 +74,38 @@ def main(keep_chat_record=False):
     # enable chat feature
     if args.chat:
         keep_chat_record = True
+
+    # find
+    if args.find_agents:
+        user_agents = os.path.join(AGENTMAKE_USER_DIR, "agents")
+        if os.path.isdir(user_agents):
+            searchFolder(user_agents, args.find_agent, filter="*.py")
+        searchFolder(os.path.join(PACKAGE_PATH, "agents"), args.find_agent, filter="*.py")
+    if args.find_instructions:
+        user_instructions = os.path.join(AGENTMAKE_USER_DIR, "instructions")
+        if os.path.isdir(user_instructions):
+            searchFolder(user_instructions, args.find_instruction, filter="*.md")
+        searchFolder(os.path.join(PACKAGE_PATH, "instructions"), args.find_instruction, filter="*.md")
+    if args.find_plugins:
+        user_plugins = os.path.join(AGENTMAKE_USER_DIR, "plugins")
+        if os.path.isdir(user_plugins):
+            searchFolder(user_plugins, args.find_plugin, filter="*.py")
+        searchFolder(os.path.join(PACKAGE_PATH, "plugins"), args.find_plugin, filter="*.py")
+    if args.find_prompts:
+        user_prompts = os.path.join(AGENTMAKE_USER_DIR, "prompts")
+        if os.path.isdir(user_prompts):
+            searchFolder(user_prompts, args.find_prompt, filter="*.md")
+        searchFolder(os.path.join(PACKAGE_PATH, "prompts"), args.find_prompt, filter="*.md")
+    if args.find_systems:
+        user_systems = os.path.join(AGENTMAKE_USER_DIR, "systems")
+        if os.path.isdir(user_systems):
+            searchFolder(user_systems, args.find_system, filter="*.md")
+        searchFolder(os.path.join(PACKAGE_PATH, "systems"), args.find_system, filter="*.md")
+    if args.find_tools:
+        user_tools = os.path.join(AGENTMAKE_USER_DIR, "tools")
+        if os.path.isdir(user_tools):
+            searchFolder(user_tools, args.find_tool, filter="*.py")
+        searchFolder(os.path.join(PACKAGE_PATH, "tools"), args.find_tool, filter="*.py")
 
     user_prompt = " ".join(args.default) if args.default is not None else ""
     stdin_text = sys.stdin.read() if not sys.stdin.isatty() else ""

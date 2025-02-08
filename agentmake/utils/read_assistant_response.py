@@ -1,12 +1,7 @@
-from agentmake import config
-from .text_wrapper import TextWrapper
+from .. import config
+from .text_wrapper import TextWrapper, wrapText
 from typing import Optional, Any
-import threading, traceback, shutil, textwrap
-
-def wrapText(content, terminal_width=None):
-    if terminal_width is None:
-        terminal_width = shutil.get_terminal_size().columns
-    return "\n".join([textwrap.fill(line, width=terminal_width) for line in content.split("\n")])
+import threading, traceback
 
 def getChatCompletionText(
         backend: str,
