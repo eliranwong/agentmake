@@ -3,7 +3,7 @@ from agentmake.etextedit import launch
 from agentmake.utils.handle_text import readTextFile, writeTextFile
 from agentmake.utils.retrieve_text_output import wrapText
 from agentmake.utils.system import getCliOutput
-import argparse, os, pprint, sys, pyperclip, shutil, pydoc
+import argparse, os, pprint, sys, pyperclip, shutil, pydoc, json
 import pygments
 from pygments.lexers.markup import MarkdownLexer
 from prompt_toolkit.formatted_text import PygmentsTokens
@@ -116,7 +116,7 @@ def main(keep_chat_record=False):
             output_content_plugin=args.output_content_plugin,
             agent=args.agent,
             tool=args.tool,
-            schema=args.schema,
+            schema=json.loads(args.schema) if args.schema else None,
             temperature=args.temperature,
             max_tokens=args.max_tokens,
             context_window=args.context_window,

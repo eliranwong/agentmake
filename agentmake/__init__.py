@@ -35,13 +35,15 @@ from .backends.xai import XaiAI
 
 from .utils.instructions import getRagPrompt
 from .utils.retrieve_text_output import getChatCompletionText
-from .utils.handle_text import readTextFile
+from .utils.handle_text import readTextFile, writeTextFile
+from .utils.system import getCurrentDateTime
 
 from typing import Optional, Callable, Union, Any, List, Dict
 from copy import deepcopy
 from io import StringIO
 import sys, re, json, traceback, platform
 from markitdown import MarkItDown
+from pathlib import Path
 
 USER_OS = platform.system()
 DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
@@ -144,7 +146,11 @@ def agentmake(
                 1. file name, without extension, of a markdown file, placed in folder `systems` under package directory, i.e. the value of PACKAGE_PATH
                 2. file name, without extension, of a markdown file, placed in folder `systems` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
                 3. a valid plain text file path
-                4. a string of a system message
+                4. "auto" - automate generation of system message based on user request
+                    remarks: newly generated system message is saved at `~/agentmake/systems` by default
+                5. a string that starts with "role.", e.g. "role.Programmer", "role.Finance Expert", "role.Church Pastor", "role.Accountant" - automate generation of system message based on the specified role
+                    remarks: newly generated system message is saved at `~/agentmake/systems/roles` by default
+                6. a string of a system message
             Fabric integration: `agentmake` supports the use of `fabric` patterns as `system` components for running `agentmake` function or CLI options [READ HERE](https://github.com/eliranwong/agentmake#fabric-integration).
 
         instruction:
@@ -466,6 +472,76 @@ def agentmake(
         possible_system_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "systems", f"{system_instruction}.md")
         if system_instruction is None:
             pass
+        if system_instruction=="auto":
+            if print_on_terminal:
+                print(">>> Generating system instruction ...\n")
+            latest_request = messages_copy[-1].get("content", "")
+            system_instruction = agentmake(
+                latest_request,
+                instruction=os.path.join("system", "auto"),
+                backend=backend,
+                model=model,
+                model_keep_alive=model_keep_alive,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                context_window=context_window,
+                batch_size=batch_size,
+                stream=stream,
+                api_key=api_key,
+                api_endpoint=api_endpoint,
+                api_project_id=api_project_id,
+                api_service_location=api_service_location,
+                api_timeout=api_timeout,
+                print_on_terminal=print_on_terminal,
+                word_wrap=word_wrap,
+                **kwargs,
+            )[-1].get("content", "")
+            try:
+                user_systems_file = saveUserSystemMessage(system_instruction)
+                if print_on_terminal:
+                    print(f">>> System instruction saved: {user_systems_file}")
+            except:
+                pass
+            if print_on_terminal:
+                print(">>> System instruction updated!\n")
+        elif system_instruction.startswith("role."):
+            if print_on_terminal:
+                print(">>> Generating system instruction ...\n")
+            role = system_instruction[5:]
+            filename = re.sub("[^A-Za-z_]", "", role.replace(" ", "_"))
+            saved_role = os.path.join(AGENTMAKE_USER_DIR, "systems", "roles", f"{filename}.md")
+            if os.path.isfile(saved_role):
+                # reuse previously generated sytem message
+                system_instruction = readTextFile(saved_role)
+            else:
+                system_instruction = agentmake(
+                    role,
+                    instruction=os.path.join("system", "role"),
+                    backend=backend,
+                    model=model,
+                    model_keep_alive=model_keep_alive,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    context_window=context_window,
+                    batch_size=batch_size,
+                    stream=stream,
+                    api_key=api_key,
+                    api_endpoint=api_endpoint,
+                    api_project_id=api_project_id,
+                    api_service_location=api_service_location,
+                    api_timeout=api_timeout,
+                    print_on_terminal=print_on_terminal,
+                    word_wrap=word_wrap,
+                    **kwargs,
+                )[-1].get("content", "")
+            try:
+                user_systems_file = saveUserSystemMessage(system_instruction, subfolder="roles", filename=role)
+                if print_on_terminal:
+                    print(f">>> System instruction saved: {user_systems_file}")
+            except:
+                pass
+            if print_on_terminal:
+                print(">>> System instruction updated!\n")
         elif isFabricPattern(system_instruction): # fabric integration
             system_instruction = getFabricPatternSystem(system_instruction[7:])
         elif os.path.isfile(possible_system_file_path_1):
@@ -548,7 +624,11 @@ def agentmake(
             try:
                 exec(tool_object, globals())
                 schema = TOOL_SCHEMA
-                func = TOOL_FUNCTION
+                try:
+                    func = TOOL_FUNCTION
+                except:
+                    # TOOL_FUNCTION is optional
+                    pass
                 try:
                     tool_system = TOOL_SYSTEM
                 except:
@@ -1175,6 +1255,19 @@ def getDictionaryOutput(
             **kwargs
         )
     return {}
+
+def saveUserSystemMessage(system: str, subfolder="", filename=""):
+    user_systems_dir = os.path.join(AGENTMAKE_USER_DIR, "systems", subfolder) if subfolder else os.path.join(AGENTMAKE_USER_DIR, "systems")
+    Path(user_systems_dir).mkdir(parents=True, exist_ok=True)
+    if not filename:
+        filename = system[:50]
+    filename = filename.replace(" ", "_")
+    filename = re.sub("[^A-Za-z_]", "", filename)
+    if not filename:
+        filename = getCurrentDateTime()
+    user_systems_file = os.path.join(user_systems_dir, f"{filename}.md")
+    writeTextFile(user_systems_file, system)
+    return user_systems_file
 
 def updateSystemMessage(messages: List[Dict[str, str]], system: str) -> str:
     """

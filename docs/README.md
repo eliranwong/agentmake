@@ -53,7 +53,12 @@ Args:
             1. file name, without extension, of a markdown file, placed in folder `systems` under package directory, i.e. the value of PACKAGE_PATH
             2. file name, without extension, of a markdown file, placed in folder `systems` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
             3. a valid plain text file path
-            4. a string of a system message
+            4. "auto" - automate generation of system message based on user request
+                remarks: newly generated system message is saved at `~/agentmake/systems` by default
+            5. a string that starts with "role.", e.g. "role.Programmer", "role.Finance Expert", "role.Church Pastor", "role.Accountant" - automate generation of system message based on the specified role
+                remarks: newly generated system message is saved at `~/agentmake/systems/roles` by default
+            6. a string of a system message
+        Fabric integration: `agentmake` supports the use of `fabric` patterns as `system` components for running `agentmake` function or CLI options [READ HERE](https://github.com/eliranwong/agentmake#fabric-integration).
 
     instruction:
         type: Optional[Union[List[Optional[str]], str]]=None
@@ -65,6 +70,7 @@ Args:
             2. file name, without extension, of a markdown file, placed in folder `instructions` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
             3. a valid plain text file path
             4. a string of a predefined instruction
+        Fabric integration: `agentmake` supports the use of `fabric` patterns as `system` components for running `agentmake` function or CLI options [READ HERE](https://github.com/eliranwong/agentmake#fabric-integration).
 
     follow_up_prompt:
         type: Optional[Union[List[str], str]]=None

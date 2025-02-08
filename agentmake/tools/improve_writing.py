@@ -1,6 +1,4 @@
-from agentmake import agentmake, DEFAULT_AI_BACKEND
-from typing import Optional, Union, List
-import os, json
+import os
 
 DEFAULT_WRITING_STYLE = os.getenv('DEFAULT_WRITING_STYLE') if os.getenv('DEFAULT_WRITING_STYLE') else 'standard English'
 

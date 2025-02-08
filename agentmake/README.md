@@ -160,6 +160,10 @@ To work with `plugin` that is placed in a sub-folder, e.g.:
 
 > agentmake("你好吗？", output_content_plugin=os.path.join("chinese", "convert_simplified"))
 
+To automate prompt engineering:
+
+> agentmake("what best LLM training method", system="auto", input_content_plugin="improve_prompt")
+
 To work with parameter `system`, `instruction`, `follow_up_prompt`, e.g.:
 
 > agentmake("Is it better to drink wine in the morning, afternoon, or evening?", instruction="reflect", stream=True)
@@ -171,6 +175,10 @@ To work with parameter `system`, `instruction`, `follow_up_prompt`, e.g.:
 To work with parameter `agent`, e.g.:
 
 > agentmake("Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre.", agent="teamgenai", stream=True, model="llama3.3:70b")
+
+To specify an AI backend:
+
+> agentmake("What is Microsoft stock price today?", tool=os.path.join("search", "finance"), backend="azure")
 
 To work collaboratively with different backends, e.g.
 
@@ -226,7 +234,11 @@ The available CLI options use the same parameter names as the `agentmake` functi
 
 > ai Extract text from image file sample.png. --tool=ocr/openai
 
+> ai What is Microsoft stock price today? -t search/finance -b azure
+
 > ai what AI model best --input_content_plugin improve_writing --output_content_plugin translate_into_chinese
+
+> ai what best LLM training method --system auto --input_content_plugin improve_prompt
 
 > ai 你好吗？ --output_content_plugin=chinese/convert_simplified
 

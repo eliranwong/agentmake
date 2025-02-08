@@ -43,6 +43,8 @@ def improve_writing(
         **kwargs,
     )
     improved_writing = json.loads(messages[-1]["content"])["improved_writing"]
+    if kwargs.get("print_on_terminal"):
+        print(f"```improved_writing\n{improved_writing}\n```")
     return improved_writing
 
 CONTENT_PLUGIN = improve_writing

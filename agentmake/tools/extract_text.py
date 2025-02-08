@@ -1,6 +1,6 @@
 from agentmake import extractText
 
-TOOL_SYSTEM = f"""You are an good at identifying a file path or an url from user request. Return an empty string '' for parameter `filepath_or_url` if no image is given."""
+TOOL_SYSTEM = """You are an good at identifying a file path or an url from user request. Return an empty string '' for parameter `filepath_or_url` if no image is given."""
 
 TOOL_SCHEMA = {
     "name": "extract_text",

@@ -160,6 +160,10 @@ To work with `plugin` that is placed in a sub-folder, e.g.:
 
 > agentmake("你好吗？", output_content_plugin=os.path.join("chinese", "convert_simplified"))
 
+To automate prompt engineering:
+
+> agentmake("what best LLM training method", system="auto", input_content_plugin="improve_prompt")
+
 To work with parameter `system`, `instruction`, `follow_up_prompt`, e.g.:
 
 > agentmake("Is it better to drink wine in the morning, afternoon, or evening?", instruction="reflect", stream=True)
@@ -178,24 +182,27 @@ To specify an AI backend:
 
 To work collaboratively with different backends, e.g.
 
-```
-messages = agentmake("What is the most effective method for training AI models?", backend="openai")
-messages = agentmake(messages, backend="googleai", follow_up_prompt="Can you give me some different options?")
-messages = agentmake(messages, backend="xai", follow_up_prompt="What are the limitations or potential biases in this information?")
-agentmake(messages, backend="mistral", follow_up_prompt="Please provide a summary of the discussion so far.")
-```
+> messages = agentmake("What is the most effective method for training AI models?", backend="openai")
+
+> messages = agentmake(messages, backend="googleai", follow_up_prompt="Can you give me some different options?")
+
+> messages = agentmake(messages, backend="xai", follow_up_prompt="What are the limitations or potential biases in this information?")
+
+> agentmake(messages, backend="mistral", follow_up_prompt="Please provide a summary of the discussion so far.")
 
 As you may see, the `agentmake` function returns the `messages` list, which is passed to the next `agentmake` function in turns.
 
 Therefore, it is very simple to create a chatbot application, you can do it as few as five lines or less, e.g.:
 
-```
-messages = [{"role": "system", "content": "You are an AI assistant."}]
-user_input = "Hello!"
-while user_input:
-    messages = agentmake(messages, follow_up_prompt=user_input, stream=True)
-    user_input = input("Enter your query:\n(enter a blank entry to exit)\n>>> ")
-```
+> messages = [{"role": "system", "content": "You are an AI assistant."}]
+
+> user_input = "Hello!"
+
+> while user_input:
+
+>     messages = agentmake(messages, follow_up_prompt=user_input, stream=True)
+
+>     user_input = input("Enter your query:\n(enter a blank entry to exit)\n>>> ")
 
 These are just a few simple and straightforward examples.  You may find more examples at:
 
@@ -230,6 +237,8 @@ The available CLI options use the same parameter names as the `agentmake` functi
 > ai What is Microsoft stock price today? -t search/finance -b azure
 
 > ai what AI model best --input_content_plugin improve_writing --output_content_plugin translate_into_chinese
+
+> ai what best LLM training method --system auto --input_content_plugin improve_prompt
 
 > ai 你好吗？ --output_content_plugin=chinese/convert_simplified
 
