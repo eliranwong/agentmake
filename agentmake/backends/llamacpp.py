@@ -1,4 +1,4 @@
-#from ..utils.online import get_local_ip
+from agentmake import config
 from ..utils.schema import getParameterSchema
 from openai import OpenAI
 from openai.types.chat import ChatCompletion
@@ -14,6 +14,13 @@ class LlamacppAI:
     DEFAULT_API_ENDPOINT = os.getenv("LLAMACPP_API_ENDPOINT") if os.getenv("LLAMACPP_API_ENDPOINT") else "http://127.0.0.1:8080/v1"
     DEFAULT_TEMPERATURE = float(os.getenv("LLAMACPP_TEMPERATURE")) if os.getenv("LLAMACPP_TEMPERATURE") else 0.3
     DEFAULT_MAX_TOKENS = int(os.getenv("LLAMACPP_MAX_TOKENS")) if os.getenv("LLAMACPP_MAX_TOKENS") else 2048
+
+    @staticmethod
+    def getClient(api_endpoint: Optional[str]=None):
+        if api_endpoint or LlamacppAI.DEFAULT_API_ENDPOINT:
+            config.llamacpp_client = OpenAI(api_key="agentmake", base_url=api_endpoint if api_endpoint else LlamacppAI.DEFAULT_API_ENDPOINT)
+            return config.llamacpp_client
+        return None
 
     @staticmethod
     def getChatCompletion(
@@ -36,8 +43,8 @@ class LlamacppAI:
     ) -> ChatCompletion:
         #if prefill:
         #    messages.append({'role': 'assistant', 'content': prefill})
-        return OpenAI(api_key="agentmake", base_url=api_endpoint if api_endpoint else LlamacppAI.DEFAULT_API_ENDPOINT).chat.completions.create(
-            model="agentmake",
+        return LlamacppAI.getClient(api_endpoint=api_endpoint).chat.completions.create(
+            model="agentmake", # specify a model in the command line running llama.cpp
             messages=messages,
             temperature=temperature if temperature is not None else LlamacppAI.DEFAULT_TEMPERATURE,
             max_tokens=max_tokens if max_tokens else LlamacppAI.DEFAULT_MAX_TOKENS,

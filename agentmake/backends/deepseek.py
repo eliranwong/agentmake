@@ -1,3 +1,4 @@
+from agentmake import config
 from openai import OpenAI
 from openai.types.chat import ChatCompletion
 from typing import Optional
@@ -10,6 +11,13 @@ class DeepseekAI:
     DEFAULT_MODEL = os.getenv("DEEPSEEK_MODEL") if os.getenv("DEEPSEEK_MODEL") else "deepseek-chat" # 'deepseek-chat' or 'deepseek-reasoner'; check https://api-docs.deepseek.com/quick_start/pricing
     DEFAULT_TEMPERATURE = float(os.getenv("DEEPSEEK_TEMPERATURE")) if os.getenv("DEEPSEEK_TEMPERATURE") else 0.3
     DEFAULT_MAX_TOKENS = int(os.getenv("DEEPSEEK_MAX_TOKENS")) if os.getenv("DEEPSEEK_MAX_TOKENS") else 8000 # https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits
+
+    @staticmethod
+    def getClient(api_key: Optional[str]=None):
+        if api_key or DeepseekAI.DEFAULT_API_KEY:
+            config.deepseek_client = OpenAI(api_key=api_key if api_key else DeepseekAI.DEFAULT_API_KEY, base_url="https://api.deepseek.com")
+            return config.deepseek_client
+        return None
 
     @staticmethod
     def getChatCompletion(
@@ -36,7 +44,7 @@ class DeepseekAI:
         #    raise ValueError("API endpoint is required.")
         if prefill:
             messages.append({'role': 'assistant', 'content': prefill, "prefix": True})
-        return OpenAI(api_key=api_key if api_key else DeepseekAI.DEFAULT_API_KEY, base_url="https://api.deepseek.com").chat.completions.create(
+        return DeepseekAI.getClient(api_key=api_key).chat.completions.create(
             model=model if model else DeepseekAI.DEFAULT_MODEL,
             messages=messages,
             temperature=temperature if temperature is not None else DeepseekAI.DEFAULT_TEMPERATURE,

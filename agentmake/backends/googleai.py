@@ -1,3 +1,4 @@
+from agentmake import config
 from openai import OpenAI
 from openai.types.chat import ChatCompletion
 from typing import Optional
@@ -10,6 +11,13 @@ class GoogleaiAI:
     DEFAULT_MODEL = os.getenv("GOOGLEAI_MODEL") if os.getenv("GOOGLEAI_MODEL") else "gemini-1.5-pro"
     DEFAULT_TEMPERATURE = float(os.getenv("GOOGLEAI_TEMPERATURE")) if os.getenv("GOOGLEAI_TEMPERATURE") else 0.3
     DEFAULT_MAX_TOKENS = int(os.getenv("GOOGLEAI_MAX_TOKENS")) if os.getenv("GOOGLEAI_MAX_TOKENS") else 8192 # https://ai.google.dev/gemini-api/docs/models/gemini
+
+    @staticmethod
+    def getClient(api_key: Optional[str]=None):
+        if api_key or GoogleaiAI.DEFAULT_API_KEY:
+            config.googleai_client = OpenAI(api_key=api_key if api_key else GoogleaiAI.DEFAULT_API_KEY, base_url="https://generativelanguage.googleapis.com/v1beta/openai")
+            return config.googleai_client
+        return None
 
     @staticmethod
     def getChatCompletion(
@@ -36,7 +44,7 @@ class GoogleaiAI:
         #    raise ValueError("API endpoint is required.")
         #if prefill:
         #    messages.append({'role': 'assistant', 'content': prefill})
-        return OpenAI(api_key=api_key if api_key else GoogleaiAI.DEFAULT_API_KEY, base_url="https://generativelanguage.googleapis.com/v1beta/openai").chat.completions.create(
+        return GoogleaiAI.getClient(api_key=api_key).chat.completions.create(
             model=model if model else GoogleaiAI.DEFAULT_MODEL,
             messages=messages,
             temperature=temperature if temperature is not None else GoogleaiAI.DEFAULT_TEMPERATURE,

@@ -1,3 +1,4 @@
+from agentmake import config
 from openai import AzureOpenAI
 from openai.types.chat import ChatCompletion
 from typing import Optional
@@ -14,9 +15,14 @@ class AzureAI:
     DEFAULT_MAX_TOKENS = int(os.getenv("AZURE_MAX_TOKENS")) if os.getenv("AZURE_MAX_TOKENS") else 16384
 
     @staticmethod
-    def getClient():
-        if AzureAI.DEFAULT_API_KEY and AzureAI.DEFAULT_API_ENDPOINT:
-            return AzureOpenAI(api_key=AzureAI.DEFAULT_API_KEY, azure_endpoint=AzureAI.DEFAULT_API_ENDPOINT, api_version=AzureAI.DEFAULT_API_VERSION)
+    def getClient(api_key: Optional[str]=None, api_endpoint: Optional[str]=None):
+        if (api_key or AzureAI.DEFAULT_API_KEY) and (api_endpoint or AzureAI.DEFAULT_API_ENDPOINT):
+            config.azure_client = AzureOpenAI(
+                api_key=api_key if api_key else AzureAI.DEFAULT_API_KEY,
+                azure_endpoint=api_endpoint if api_endpoint else AzureAI.DEFAULT_API_ENDPOINT,
+                api_version=AzureAI.DEFAULT_API_VERSION,
+            )
+            return config.azure_client
         return None
 
     @staticmethod
@@ -44,7 +50,7 @@ class AzureAI:
             raise ValueError("Azure API endpoint is required.")
         #if prefill:
         #    messages.append({'role': 'assistant', 'content': prefill})
-        return AzureOpenAI(api_key=api_key if api_key else AzureAI.DEFAULT_API_KEY, azure_endpoint=api_endpoint if api_endpoint else AzureAI.DEFAULT_API_ENDPOINT, api_version=AzureAI.DEFAULT_API_VERSION).chat.completions.create(
+        return AzureAI.getClient(api_key=api_key, api_endpoint=api_endpoint).chat.completions.create(
             model=model if model else AzureAI.DEFAULT_MODEL,
             messages=messages,
             temperature=temperature if temperature is not None else AzureAI.DEFAULT_TEMPERATURE,

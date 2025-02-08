@@ -1,3 +1,4 @@
+from agentmake import config
 from .text_wrapper import TextWrapper
 from typing import Optional, Any
 import threading, traceback, shutil, textwrap
@@ -17,7 +18,6 @@ def getChatCompletionText(
     stream_openai_reasoning_model = True if stream and backend=="openai" and hasattr(completion, "choices") else False
     if stream and not stream_openai_reasoning_model: # openai reasoning models do not support streaming
         text_output = readStreamingChunks(backend, completion, print_on_terminal, word_wrap)
-        # TODO: ensure client connection, e.g. llama.cpp client, is closed properly
     else:
         if backend == "anthropic":
             text_output = completion.content[0].text
@@ -33,6 +33,34 @@ def getChatCompletionText(
             print(wrapText(text_output) if word_wrap else text_output)
             if stream_openai_reasoning_model:
                 print()
+    # close connection
+    if backend == "azure" and hasattr(config, "azure_client") and config.azure_client is not None:
+        config.azure_client.close()
+        config.azure_client = None
+    elif backend == "cohere" and hasattr(config, "cohere_client") and config.cohere_client is not None:
+        #config.cohere_client.close()
+        config.cohere_client = None
+    elif backend == "custom" and hasattr(config, "custom_client") and config.custom_client is not None:
+        config.custom_client.close()
+        config.custom_client = None
+    elif backend == "deepseek" and hasattr(config, "deepseek_client") and config.deepseek_client is not None:
+        config.deepseek_client.close()
+        config.deepseek_client = None
+    elif backend == "github" and hasattr(config, "github_client") and config.github_client is not None:
+        config.github_client.close()
+        config.github_client = None
+    elif backend == "googleai" and hasattr(config, "googleai_client") and config.googleai_client is not None:
+        config.googleai_client.close()
+        config.googleai_client = None
+    elif backend == "llamacpp" and hasattr(config, "llamacpp_client") and config.llamacpp_client is not None:
+        config.llamacpp_client.close()
+        config.llamacpp_client = None
+    elif backend == "openai" and hasattr(config, "openai_client") and config.openai_client is not None:
+        config.openai_client.close()
+        config.openai_client = None
+    elif backend == "xai" and hasattr(config, "xai_client") and config.xai_client is not None:
+        config.xai_client.close()
+        config.xai_client = None
     return text_output
 
 def readStreamingChunks(

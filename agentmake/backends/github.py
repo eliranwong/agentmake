@@ -1,3 +1,4 @@
+from agentmake import config
 from openai import OpenAI
 from openai.types.chat import ChatCompletion
 from typing import Optional
@@ -21,9 +22,10 @@ class GithubAI:
         return GithubAI.DEFAULT_API_KEY[0]
 
     @staticmethod
-    def getClient():
-        if GithubAI.DEFAULT_API_KEY[0]:
-            return OpenAI(api_key=GithubAI.rotateApiKeys(), base_url="https://models.inference.ai.azure.com")
+    def getClient(api_key: Optional[str]=None):
+        if api_key or GithubAI.DEFAULT_API_KEY[0]:
+            config.github_client = OpenAI(api_key=api_key if api_key else GithubAI.getApiKey(), base_url="https://models.inference.ai.azure.com")
+            return config.github_client
         return None
 
     @staticmethod
@@ -60,7 +62,7 @@ class GithubAI:
             else:
                 used_api_keys.append(this_api_key)
             try:
-                completion = OpenAI(api_key=this_api_key, base_url="https://models.inference.ai.azure.com").chat.completions.create(
+                completion = GithubAI.getClient(api_key=this_api_key).chat.completions.create(
                     model=model if model else GithubAI.DEFAULT_MODEL,
                     messages=messages,
                     temperature=temperature if temperature is not None else GithubAI.DEFAULT_TEMPERATURE,

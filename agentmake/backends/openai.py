@@ -1,3 +1,4 @@
+from agentmake import config
 from openai import OpenAI
 from openai.types.chat import ChatCompletion
 from typing import Optional
@@ -12,9 +13,10 @@ class OpenaiAI:
     DEFAULT_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS")) if os.getenv("OPENAI_MAX_TOKENS") else 16384 # https://platform.openai.com/docs/models
 
     @staticmethod
-    def getClient():
-        if OpenaiAI.DEFAULT_API_KEY:
-            return OpenAI(api_key=OpenaiAI.DEFAULT_API_KEY)
+    def getClient(api_key: Optional[str]=None):
+        if api_key or OpenaiAI.DEFAULT_API_KEY:
+            config.openai_client = OpenAI(api_key=api_key if api_key else OpenaiAI.DEFAULT_API_KEY)
+            return config.openai_client
         return None
 
     @staticmethod
@@ -47,7 +49,7 @@ class OpenaiAI:
             "max_tokens": max_tokens if max_tokens else OpenaiAI.DEFAULT_MAX_TOKENS,
             "stream": stream,
         }
-        return OpenAI(api_key=api_key if api_key else OpenaiAI.DEFAULT_API_KEY).chat.completions.create(
+        return OpenaiAI.getClient(api_key=api_key).chat.completions.create(
             model=model if model else OpenaiAI.DEFAULT_MODEL,
             messages=messages,
             #temperature=temperature if temperature is not None else OpenaiAI.DEFAULT_TEMPERATURE,

@@ -1,3 +1,4 @@
+from agentmake import config
 import cohere
 from cohere import ChatResponse
 from cohere.core.request_options import RequestOptions
@@ -20,6 +21,13 @@ class CohereAI:
             first_item = CohereAI.DEFAULT_API_KEY.pop(0)
             CohereAI.DEFAULT_API_KEY.append(first_item)
         return CohereAI.DEFAULT_API_KEY[0]
+
+    @staticmethod
+    def getClient(api_key: Optional[str]=None):
+        if api_key or CohereAI.DEFAULT_API_KEY[0]:
+            config.cohere_client = cohere.ClientV2(api_key=api_key if api_key else CohereAI.getApiKey())
+            return config.cohere_client
+        return None
 
     @staticmethod
     def getChatCompletion(
@@ -52,7 +60,7 @@ class CohereAI:
                 break
             else:
                 used_api_keys.append(this_api_key)
-            client = cohere.ClientV2(api_key=this_api_key)
+            client = CohereAI.getClient(api_key=this_api_key)
             func = client.chat_stream if stream else client.chat
             try:
                 completion = func(
