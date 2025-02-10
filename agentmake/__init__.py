@@ -37,7 +37,7 @@ from .backends.ollama import OllamaAI
 from .backends.openai import OpenaiAI
 from .backends.xai import XaiAI
 
-from .utils.instructions import getRagPrompt
+from .utils.rag import getRagPrompt
 from .utils.read_assistant_response import getChatCompletionText
 from .utils.handle_text import readTextFile, writeTextFile
 from .utils.system import getCurrentDateTime
@@ -510,15 +510,20 @@ def agentmake(
             if print_on_terminal:
                 print(">>> System instruction updated!\n")
         elif system_instruction.startswith("role."):
-            if print_on_terminal:
-                print(">>> Generating system instruction ...\n")
             role = system_instruction[5:]
             filename = re.sub("[^A-Za-z_]", "", role.replace(" ", "_"))
-            saved_role = os.path.join(AGENTMAKE_USER_DIR, "systems", "roles", f"{filename}.md")
-            if os.path.isfile(saved_role):
+            custom_role = os.path.join(AGENTMAKE_USER_DIR, "systems", "roles", f"{filename}.md")
+            builtin_role = os.path.join(PACKAGE_PATH, "systems", "roles", f"{filename}.md")
+            if os.path.isfile(custom_role):
                 # reuse previously generated sytem message
-                system_instruction = readTextFile(saved_role)
+                system_instruction = readTextFile(custom_role)
+            elif os.path.isfile(builtin_role):
+                # use built-in role system message
+                system_instruction = readTextFile(builtin_role)
             else:
+                # generate new role
+                if print_on_terminal:
+                    print(">>> Generating system instruction ...\n")
                 system_instruction = agentmake(
                     role,
                     instruction=os.path.join("system", "role"),
