@@ -1,6 +1,7 @@
 """
 Documents RAG
-documents are stored in vector database
+search for information in given files
+using in-memory vector database
 """
 
 from agentmake import extractText

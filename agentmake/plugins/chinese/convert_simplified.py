@@ -7,7 +7,10 @@ except:
 
 def convert_simplified_chinese(content, **kwargs):
     try:
-        return OpenCC('s2t').convert(content)
+        converted = OpenCC('s2t').convert(content)
+        if kwargs.get("print_on_terminal"):
+            print(f"```\n{converted}\n```")
+        return converted
     except:
         return content
 

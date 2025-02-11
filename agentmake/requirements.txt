@@ -18,3 +18,9 @@ beautifulsoup4
 html2text
 psutil
 apsw
+lightrag-hku
+networkx
+pipmaster
+setuptools
+tenacity
+nano-vectordb

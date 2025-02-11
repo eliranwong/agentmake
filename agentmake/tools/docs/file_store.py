@@ -1,6 +1,8 @@
 """
 Documents RAG
-documents are searched in memory only, without saving vectors in locally
+* add given files, if any, to file store
+* search for information in file store
+* using local sqlite for vector database
 """
 
 from agentmake import AGENTMAKE_USER_DIR, extractText
@@ -31,7 +33,7 @@ def examine_file_store(question: str, list_of_files_or_folders: str, **kwargs):
     embedding_model = os.getenv("RAG_EMBEDDING_MODEL") if os.getenv("RAG_EMBEDDING_MODEL") else "paraphrase-multilingual"
     OllamaAI.downloadModel(embedding_model)
 
-    db_dir = os.path.join(AGENTMAKE_USER_DIR, "db")
+    db_dir = os.path.join(AGENTMAKE_USER_DIR, "file_store")
     Path(db_dir).mkdir(parents=True, exist_ok=True)
     db_path = os.path.join(db_dir, "file_store.sqlite")
     db = ApswVectorDatabase(db_path=db_path)

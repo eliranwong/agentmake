@@ -7,7 +7,10 @@ except:
 
 def convert_traditional_chinese(content, **kwargs):
     try:
-        return OpenCC('t2s').convert(content)
+        converted = OpenCC('t2s').convert(content)
+        if kwargs.get("print_on_terminal"):
+            print(f"```\n{converted}\n```")
+        return converted
     except:
         return content
 
