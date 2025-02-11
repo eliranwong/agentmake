@@ -24,8 +24,9 @@ Return an empty string '' or and empty list '[]' only when there is no file or f
 
 def examine_file_store(question: str, list_of_files_or_folders: str, **kwargs):
     list_of_files_or_folders = getValidFileList(list_of_files_or_folders)
-    if not list_of_files_or_folders:
-        return None
+    # comment the following two lines to allow searching current file store
+    #if not list_of_files_or_folders:
+    #    return None
 
     embedding_model = os.getenv("RAG_EMBEDDING_MODEL") if os.getenv("RAG_EMBEDDING_MODEL") else "paraphrase-multilingual"
     OllamaAI.downloadModel(embedding_model)
@@ -35,8 +36,9 @@ def examine_file_store(question: str, list_of_files_or_folders: str, **kwargs):
     db_path = os.path.join(db_dir, "file_store.sqlite")
     db = ApswVectorDatabase(db_path=db_path)
 
-    documents = [extractText(i) for i in list_of_files_or_folders]
-    build_rag_pipeline(db, documents, embedding_model=embedding_model)
+    if list_of_files_or_folders:
+        documents = [extractText(i) for i in list_of_files_or_folders]
+        build_rag_pipeline(db, documents, embedding_model=embedding_model)
     retrieved_context = rag_query(db, question, embedding_model=embedding_model)
     retrieved_context = {f"retrieved_information_{(index+1)}": item for index, item in enumerate(retrieved_context)}
     return json.dumps(retrieved_context)

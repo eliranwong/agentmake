@@ -1,7 +1,7 @@
 from .. import config
 from .text_wrapper import TextWrapper, wrapText
 from typing import Optional, Any
-import threading, traceback
+import threading, traceback, os
 
 def getChatCompletionText(
         backend: str,
@@ -28,6 +28,11 @@ def getChatCompletionText(
             print(wrapText(text_output) if word_wrap else text_output)
             if stream_openai_reasoning_model:
                 print()
+    return text_output
+
+def closeConnections(backend: str):
+    if backend is None:
+        backend = os.getenv("DEFAULT_AI_BACKEND") if os.getenv("DEFAULT_AI_BACKEND") else "ollama"
     # close connection
     if backend == "azure" and hasattr(config, "azure_client") and config.azure_client is not None:
         config.azure_client.close()
@@ -47,6 +52,9 @@ def getChatCompletionText(
     elif backend == "googleai" and hasattr(config, "googleai_client") and config.googleai_client is not None:
         config.googleai_client.close()
         config.googleai_client = None
+    elif backend == "groq" and hasattr(config, "groq_client") and config.groq_client is not None:
+        config.groq_client.close()
+        config.groq_client = None
     elif backend == "llamacpp" and hasattr(config, "llamacpp_client") and config.llamacpp_client is not None:
         config.llamacpp_client.close()
         config.llamacpp_client = None
@@ -56,7 +64,6 @@ def getChatCompletionText(
     elif backend == "xai" and hasattr(config, "xai_client") and config.xai_client is not None:
         config.xai_client.close()
         config.xai_client = None
-    return text_output
 
 def readStreamingChunks(
         backend: str,

@@ -38,7 +38,7 @@ from .backends.openai import OpenaiAI
 from .backends.xai import XaiAI
 
 from .utils.rag import getRagPrompt
-from .utils.read_assistant_response import getChatCompletionText
+from .utils.read_assistant_response import getChatCompletionText, closeConnections
 from .utils.handle_text import readTextFile, writeTextFile
 from .utils.system import getCurrentDateTime
 
@@ -949,6 +949,9 @@ def agentmake(
         if stream and stream_events_only and is_last_request:
             return completion
         output = getChatCompletionText(backend, completion, stream=stream, print_on_terminal=print_on_terminal, word_wrap=word_wrap)
+
+    # close connection
+    closeConnections(backend)
 
     # handle user output content plugin(s)
     if output_content_plugin:

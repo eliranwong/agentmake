@@ -1,3 +1,4 @@
+from agentmake import config
 from groq import Groq
 from groq.types.chat.chat_completion import ChatCompletion
 from typing import Optional
@@ -19,6 +20,13 @@ class GroqAI:
             first_item = GroqAI.DEFAULT_API_KEY.pop(0)
             GroqAI.DEFAULT_API_KEY.append(first_item)
         return GroqAI.DEFAULT_API_KEY[0]
+
+    @staticmethod
+    def getClient(api_key: Optional[str]=None):
+        if api_key or GroqAI.DEFAULT_API_KEY[0]:
+            config.groq_client = Groq(api_key=api_key if api_key else GroqAI.getApiKey())
+            return config.groq_client
+        return None
 
     @staticmethod
     def getChatCompletion(
@@ -52,7 +60,7 @@ class GroqAI:
             else:
                 used_api_keys.append(this_api_key)
             try:
-                completion = Groq(api_key=this_api_key).chat.completions.create(
+                completion = GroqAI.getClient(api_key=this_api_key).chat.completions.create(
                     model=model if model else GroqAI.DEFAULT_MODEL,
                     messages=messages,
                     temperature=temperature if temperature is not None else GroqAI.DEFAULT_TEMPERATURE,

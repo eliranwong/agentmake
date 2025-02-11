@@ -2,6 +2,11 @@ import numpy as np
 import sqlite3, apsw
 import json, re, ollama, os
 from typing import Union
+from openai import OpenAI
+from openai import AzureOpenAI
+from google import genai
+from mistralai import Mistral
+import cohere
 
 RAG_EMBEDDING_MODEL = os.getenv("RAG_EMBEDDING_MODEL") if os.getenv("RAG_EMBEDDING_MODEL") else "paraphrase-multilingual"
 RAG_CHUNK_SIZE = int(os.getenv("RAG_CHUNK_SIZE")) if os.getenv("RAG_CHUNK_SIZE") else 1200
@@ -79,7 +84,20 @@ def cosine_similarity_matrix(query_vector, document_matrix):
     similarities = np.dot(document_matrix, query_vector) / (query_norm * document_norms.flatten())
     return similarities
 
-def embed_texts_with_ollama(texts, model=RAG_EMBEDDING_MODEL):
+def get_embeddings(texts: list, model: str=RAG_EMBEDDING_MODEL, backend: str=""):
+    if backend == "openai" or model in ("text-embedding-3-small", "text-embedding-3-large", "text-embedding-ada-002"):
+        return embed_texts_with_openai(texts=texts, model=model)
+    if backend == "azure" or model in ("azure-text-embedding-3-small", "azure-text-embedding-3-large", "azure-text-embedding-ada-002"):
+        return embed_texts_with_azure(texts=texts, model=model)
+    elif backend == "cohere" or model in ("embed-english-v3.0", "embed-english-light-v3.0", "embed-multilingual-v3.0", "embed-multilingual-light-v3.0"):
+        return embed_texts_with_cohere(texts=texts, model=model)
+    elif backend == "mistral" or model in ("mistral-embed",):
+        return embed_texts_with_mistral(texts=texts, model=model)
+    elif backend in ("genai", "googleai", "vertexai") or model in ("text-embedding-004",):
+        return embed_texts_with_genai(texts=texts, model=model)
+    return embed_texts_with_ollama(texts=texts, model=model)
+
+def embed_texts_with_ollama(texts: list, model: str=RAG_EMBEDDING_MODEL):
     try:
         response = ollama.embed(model=model, input=texts)
         embeddings = response.embeddings
@@ -90,10 +108,90 @@ def embed_texts_with_ollama(texts, model=RAG_EMBEDDING_MODEL):
         print(f"Error embedding with Ollama: {e}")
         return None
 
-def build_rag_pipeline(db, documents, embedding_model=RAG_EMBEDDING_MODEL, chunk_size=RAG_CHUNK_SIZE, chunk_overlap=RAG_CHUNK_OVERLAP_SIZE, separators=None):
+def embed_texts_with_openai(texts: list, model: str=RAG_EMBEDDING_MODEL):
+    if not os.getenv("OPENAI_API_KEY"):
+        return None
+    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    if not model in ("text-embedding-3-small", "text-embedding-3-large", "text-embedding-ada-002"):
+        model = "text-embedding-3-large"
+    #embeddings = []
+    #for i in texts:
+    #    embeddings.append(client.embeddings.create(input=i, model=model).data[0].embedding)
+    embeddings = [i.embedding for i in client.embeddings.create(input=texts, model=model).data]
+    return np.array(embeddings)
+
+def embed_texts_with_azure(texts: list, model: str=RAG_EMBEDDING_MODEL):
+    api_key = os.getenv("AZURE_OPENAI_API_KEY") if os.getenv("AZURE_OPENAI_API_KEY") else os.getenv("AZURE_API_KEY")
+    azure_endpoint = os.getenv("AZURE_OPENAI_API_ENDPOINT") if os.getenv("AZURE_OPENAI_API_ENDPOINT") else os.getenv("AZURE_API_ENDPOINT")
+    if not (api_key and azure_endpoint):
+        return None
+    client = AzureOpenAI(
+        api_key=api_key,
+        azure_endpoint=azure_endpoint,
+        api_version="2024-10-21",
+    )
+    if not model in ("azure-text-embedding-3-small", "azure-text-embedding-3-large", "azure-text-embedding-ada-002"):
+        model = "azure-text-embedding-3-large"
+    #embeddings = []
+    #for i in texts:
+    #    embeddings.append(client.embeddings.create(input=i, model=model).data[0].embedding)
+    embeddings = [i.embedding for i in client.embeddings.create(input=texts, model=model).data]
+    return np.array(embeddings)
+
+def embed_texts_with_genai(texts: list, model: str=RAG_EMBEDDING_MODEL):
+    if not (os.getenv("GOOGLE_APPLICATION_CREDENTIALS") and os.getenv("VERTEXAI_PROJECT_ID") and os.getenv("VERTEXAI_SERVICE_LOCATION")) and not os.getenv("GOOGLEAI_API_KEY") and not os.getenv("GEMINI_API_KEY"):
+        return None
+    if os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
+        client = genai.Client(vertexai=True, project=os.getenv("VERTEXAI_PROJECT_ID"), location=os.getenv("VERTEXAI_SERVICE_LOCATION"))
+    elif os.getenv("GOOGLEAI_API_KEY"):
+        client = genai.Client(api_key=os.getenv("GOOGLEAI_API_KEY"))
+    elif os.getenv("GEMINI_API_KEY"):
+        client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+    #if not model in ("text-embedding-004", "text-embedding-005", "text-multilingual-embedding-002"):
+    # "text-embedding-005", "text-multilingual-embedding-002" are current not supported in genai sdk
+        # reference: https://cloud.google.com/vertex-ai/generative-ai/docs/embeddings/get-text-embeddings#supported-models
+    if not model in ("text-embedding-004",):
+        model = "text-embedding-004"
+    #embeddings = []
+    #for i in texts:
+    #    embeddings.append(client.models.embed_content(model=model, contents=i).embeddings[0].values)
+    embeddings = [i.values for i in client.models.embed_content(model=model, contents=texts).embeddings] # batch
+    return np.array(embeddings)
+
+def embed_texts_with_mistral(texts: list, model: str=RAG_EMBEDDING_MODEL):
+    if not os.getenv("MISTRAL_API_KEY"):
+        return None
+    mistral_api_key = os.getenv("MISTRAL_API_KEY").split(",") if os.getenv("MISTRAL_API_KEY") and "," in os.getenv("MISTRAL_API_KEY") else [os.getenv("MISTRAL_API_KEY")]
+    client = Mistral(api_key=mistral_api_key[0])
+    if not model in ("mistral-embed",):
+        model = "mistral-embed"
+    embeddings_batch_response = client.embeddings.create(
+        model=model,
+        inputs=texts,
+    )
+    embeddings = [i.embedding for i in embeddings_batch_response.data]
+    return np.array(embeddings)
+
+def embed_texts_with_cohere(texts: list, model: str=RAG_EMBEDDING_MODEL):
+    if not os.getenv("COHERE_API_KEY"):
+        return None
+    cohere_api_key = os.getenv("COHERE_API_KEY").split(",") if os.getenv("COHERE_API_KEY") and "," in os.getenv("COHERE_API_KEY") else [os.getenv("COHERE_API_KEY")]
+    client = cohere.Client(api_key=cohere_api_key[0])
+    if not model in ("embed-english-v3.0", "embed-english-light-v3.0", "embed-multilingual-v3.0", "embed-multilingual-light-v3.0"):
+        model = "embed-multilingual-v3.0"
+    response = client.embed(
+        model="embed-multilingual-v3.0",
+        texts=texts,
+        input_type="classification",
+        embedding_types=["float"],
+    )
+    embeddings = response.embeddings.float
+    return np.array(embeddings)
+
+def build_rag_pipeline(db, documents, embedding_model=RAG_EMBEDDING_MODEL, chunk_size=RAG_CHUNK_SIZE, chunk_overlap=RAG_CHUNK_OVERLAP_SIZE, separators=None, backend: str=""):
     for doc in documents:
         chunks = recursive_character_text_splitter(doc, chunk_size=chunk_size, chunk_overlap=chunk_overlap, separators=separators)
-        embeddings = embed_texts_with_ollama(chunks, embedding_model)
+        embeddings = get_embeddings(chunks, model=embedding_model, backend=backend)
         
         if embeddings is None:
             print(f"Skipping document {doc[30:]} dueto embedding failure.")
@@ -102,8 +200,8 @@ def build_rag_pipeline(db, documents, embedding_model=RAG_EMBEDDING_MODEL, chunk
         for chunk, embedding in zip(chunks, embeddings):
             db.add(chunk, embedding)
 
-def rag_query(db, query, top_k=RAG_QUERY_TOP_K, embedding_model=RAG_EMBEDDING_MODEL):
-    query_embedding = embed_texts_with_ollama([query], embedding_model)
+def rag_query(db, query, top_k=RAG_QUERY_TOP_K, embedding_model=RAG_EMBEDDING_MODEL, backend: str=""):
+    query_embedding = get_embeddings([query], model=embedding_model, backend=backend)
     if query_embedding is None:
         print("Query embedding failed.")
         return []
