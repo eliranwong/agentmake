@@ -3,10 +3,10 @@ from base64 import b64decode
 import shutil
 from agentmake import config, getOpenCommand
 from agentmake.utils.system import getCurrentDateTime
-from agentmake.backends.openai import OpenaiAI
+from agentmake.backends.azure import AzureAI
 
 
-def create_image_openai(messages, **kwargs):
+def create_image_azure_landscape(messages, **kwargs):
     image_prompt = messages[-1].get("content", "")
     def openImageFile(imageFile):
         openCmd = getOpenCommand()
@@ -21,12 +21,14 @@ def create_image_openai(messages, **kwargs):
         
     imageFile = os.path.join(os.getcwd(), f"image_{getCurrentDateTime()}.png")
 
+    azure_dalle_model = os.getenv("AZURE_DALLE_MODEL") if os.getenv("AZURE_DALLE_MODEL") else "dall-e-3"
+
     # get responses
     #https://platform.openai.com/docs/guides/images/introduction
-    response = OpenaiAI.getClient().images.generate(
-        model="dall-e-3",
+    response = AzureAI.getDalleClient().images.generate(
+        model=azure_dalle_model,
         prompt=image_prompt,
-        size="1024x1024", # "1024x1024", "1024x1792", "1792x1024"
+        size="1792x1024", # "1024x1024", "1024x1792", "1792x1024"
         quality="hd", # "hd" or "standard"
         response_format="b64_json",
         n=1,
@@ -41,10 +43,10 @@ def create_image_openai(messages, **kwargs):
         pngObj.write(image_data)
     openImageFile(imageFile)
     # close connection
-    config.openai_client.close()
-    config.openai_client = None
+    config.azure_client.close()
+    config.azure_client = None
     return ""
 
 TOOL_SCHEMA = {}
 
-TOOL_FUNCTION = create_image_openai
+TOOL_FUNCTION = create_image_azure_landscape

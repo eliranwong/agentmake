@@ -60,6 +60,10 @@ def main(keep_chat_record=False):
     parser.add_argument("-fpr", "--find_prompts", action="store", dest="find_prompts", help="find prompts")
     parser.add_argument("-fs", "--find_systems", action="store", dest="find_systems", help="find systems")
     parser.add_argument("-ft", "--find_tools", action="store", dest="find_tools", help="find tools")
+    # image creation
+    parser.add_argument("-iw", "--image_width", action='store', dest="image_width", type=int, help="image width for image creation")
+    parser.add_argument("-ih", "--image_height", action='store', dest="image_height", type=int, help="image height for image creation")
+    parser.add_argument("-iss", "--image_sample_steps", action='store', dest="image_sample_steps", type=int, help="sample steps for image creation")
     # others
     parser.add_argument("-ec", "--edit_configurations", action="store_true", dest="edit_configurations", help="edit default configurations with text editor")
     parser.add_argument("-ei", "--edit_input", action="store_true", dest="edit_input", help="edit user input with text editor")
@@ -75,37 +79,45 @@ def main(keep_chat_record=False):
     if args.chat:
         keep_chat_record = True
 
+    # image creation
+    if args.image_width:
+        config.image_width = args.image_width
+    if args.image_height:
+        config.image_height = args.image_height
+    if args.image_sample_steps:
+        config.image_sample_steps = args.image_sample_steps
+
     # find
     if args.find_agents:
         user_agents = os.path.join(AGENTMAKE_USER_DIR, "agents")
         if os.path.isdir(user_agents):
-            searchFolder(user_agents, args.find_agent, filter="*.py")
-        searchFolder(os.path.join(PACKAGE_PATH, "agents"), args.find_agent, filter="*.py")
+            searchFolder(user_agents, args.find_agents, filter="*.py")
+        searchFolder(os.path.join(PACKAGE_PATH, "agents"), args.find_agents, filter="*.py")
     if args.find_instructions:
         user_instructions = os.path.join(AGENTMAKE_USER_DIR, "instructions")
         if os.path.isdir(user_instructions):
-            searchFolder(user_instructions, args.find_instruction, filter="*.md")
-        searchFolder(os.path.join(PACKAGE_PATH, "instructions"), args.find_instruction, filter="*.md")
+            searchFolder(user_instructions, args.find_instructions, filter="*.md")
+        searchFolder(os.path.join(PACKAGE_PATH, "instructions"), args.find_instructions, filter="*.md")
     if args.find_plugins:
         user_plugins = os.path.join(AGENTMAKE_USER_DIR, "plugins")
         if os.path.isdir(user_plugins):
-            searchFolder(user_plugins, args.find_plugin, filter="*.py")
-        searchFolder(os.path.join(PACKAGE_PATH, "plugins"), args.find_plugin, filter="*.py")
+            searchFolder(user_plugins, args.find_plugins, filter="*.py")
+        searchFolder(os.path.join(PACKAGE_PATH, "plugins"), args.find_plugins, filter="*.py")
     if args.find_prompts:
         user_prompts = os.path.join(AGENTMAKE_USER_DIR, "prompts")
         if os.path.isdir(user_prompts):
-            searchFolder(user_prompts, args.find_prompt, filter="*.md")
-        searchFolder(os.path.join(PACKAGE_PATH, "prompts"), args.find_prompt, filter="*.md")
+            searchFolder(user_prompts, args.find_prompts, filter="*.md")
+        searchFolder(os.path.join(PACKAGE_PATH, "prompts"), args.find_prompts, filter="*.md")
     if args.find_systems:
         user_systems = os.path.join(AGENTMAKE_USER_DIR, "systems")
         if os.path.isdir(user_systems):
-            searchFolder(user_systems, args.find_system, filter="*.md")
-        searchFolder(os.path.join(PACKAGE_PATH, "systems"), args.find_system, filter="*.md")
+            searchFolder(user_systems, args.find_systems, filter="*.md")
+        searchFolder(os.path.join(PACKAGE_PATH, "systems"), args.find_systems, filter="*.md")
     if args.find_tools:
         user_tools = os.path.join(AGENTMAKE_USER_DIR, "tools")
         if os.path.isdir(user_tools):
-            searchFolder(user_tools, args.find_tool, filter="*.py")
-        searchFolder(os.path.join(PACKAGE_PATH, "tools"), args.find_tool, filter="*.py")
+            searchFolder(user_tools, args.find_tools, filter="*.py")
+        searchFolder(os.path.join(PACKAGE_PATH, "tools"), args.find_tools, filter="*.py")
 
     user_prompt = " ".join(args.default) if args.default is not None else ""
     stdin_text = sys.stdin.read() if not sys.stdin.isatty() else ""

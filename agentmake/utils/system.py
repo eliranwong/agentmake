@@ -1,4 +1,4 @@
-import os, re, subprocess, datetime, platform, shutil
+import os, re, subprocess, datetime, psutil
 
 def getCliOutput(cli):
     try:
@@ -7,6 +7,10 @@ def getCliOutput(cli):
         return stdout.decode("utf-8")
     except:
         return ""
+
+def getCpuThreads():
+    physical_cpu_core = psutil.cpu_count(logical=False)
+    return physical_cpu_core if physical_cpu_core and physical_cpu_core > 1 else 1
 
 def getCurrentDateTime():
     current_datetime = datetime.datetime.now()

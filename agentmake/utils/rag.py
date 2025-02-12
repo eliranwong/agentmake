@@ -4,9 +4,12 @@ import json, re, ollama, os
 from typing import Union
 from openai import OpenAI
 from openai import AzureOpenAI
-from google import genai
 from mistralai import Mistral
 import cohere
+try:
+    from google import genai
+except:
+    pass
 
 RAG_EMBEDDING_MODEL = os.getenv("RAG_EMBEDDING_MODEL") if os.getenv("RAG_EMBEDDING_MODEL") else "paraphrase-multilingual"
 RAG_CHUNK_SIZE = int(os.getenv("RAG_CHUNK_SIZE")) if os.getenv("RAG_CHUNK_SIZE") else 1200

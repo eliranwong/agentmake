@@ -6,7 +6,7 @@ from agentmake.utils.system import getCurrentDateTime
 from agentmake.backends.openai import OpenaiAI
 
 
-def create_image_openai(messages, **kwargs):
+def create_image_openai_portrait(messages, **kwargs):
     image_prompt = messages[-1].get("content", "")
     def openImageFile(imageFile):
         openCmd = getOpenCommand()
@@ -26,7 +26,7 @@ def create_image_openai(messages, **kwargs):
     response = OpenaiAI.getClient().images.generate(
         model="dall-e-3",
         prompt=image_prompt,
-        size="1024x1024", # "1024x1024", "1024x1792", "1792x1024"
+        size="1024x1792", # "1024x1024", "1024x1792", "1792x1024"
         quality="hd", # "hd" or "standard"
         response_format="b64_json",
         n=1,
@@ -47,4 +47,4 @@ def create_image_openai(messages, **kwargs):
 
 TOOL_SCHEMA = {}
 
-TOOL_FUNCTION = create_image_openai
+TOOL_FUNCTION = create_image_openai_portrait
