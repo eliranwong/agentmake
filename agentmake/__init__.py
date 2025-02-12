@@ -7,7 +7,7 @@ AGENTMAKE_USER_DIR = os.getenv("AGENTMAKE_USER_DIR") if os.getenv("AGENTMAKE_USE
 
 def load_configurations(env_file=""):
     if not env_file:
-        backup_env = os.path.join(AGENTMAKE_USER_DIR, "backup.env")
+        backup_env = os.path.join(AGENTMAKE_USER_DIR, "agentmake.env")
         if os.path.isfile(backup_env):
             env_file = backup_env
         else:
@@ -65,8 +65,8 @@ OPENWEATHERMAP_API_KEY = os.getenv("OPENWEATHERMAP_API_KEY").split(",") if os.ge
 
 def edit_configurations(env_file=""):
     if not env_file:
-        backup_env = os.path.join(AGENTMAKE_USER_DIR, "backup.env")
-        env_file = backup_env if os.path.isfile(backup_env) else os.path.join(PACKAGE_PATH, ".env")
+        user_env = os.path.join(AGENTMAKE_USER_DIR, "agentmake.env")
+        env_file = user_env if os.path.isfile(user_env) else os.path.join(PACKAGE_PATH, ".env")
     os.system(f'''{DEFAULT_TEXT_EDITOR} "{env_file}"''')
 
 def agentmake(

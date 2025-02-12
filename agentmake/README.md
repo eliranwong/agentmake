@@ -268,25 +268,46 @@ You may manually export individual environment variables listed in https://githu
 
 ## Option 3 - Export default environment variables once for all
 
-You may edit a copy of `agentmake.env`, e.g.
+1.  Make a copy of the [file](https://github.com/eliranwong/agentmake/blob/main/agentmake/agentmake.env) `agentmake.env`, located in the package directory, as:
+
+either `~/agentmake/agentmake.env`
 
 ```
-cd agentmake
-cp agentmake.env .env
-etextedit .env
+cd agentmake # where you installed agentmake
+cp agentmake.env ~/agentmake/agentmake.env
 ```
+
+or `<package_directory>/.env`:
+
+```
+cd agentmake # where you installed agentmake
+cp agentmake.env .env
+```
+
+2. Edit the file manually with a text editor, e.g.
+
+> etextedit ~/agentmake/agentmake.env
+
+3. Save the changes
 
 The changes apply next time when you run `agentmake` function or cli.
 
-Alternately, use built-in `agentmake` cli option to edit the variables:
+## Option 4 - Run built-in CLI option
+
+Use built-in `agentmake` cli option to edit the variables:
 
 > agentmake -ec
 
-This command automatically make a copy of `agentmake.env` and save it as `.env` if it does not exist. Remember to save your changes before exiting the text editor to make the changes effective.
+What does this command do?
 
-Remarks:
+* It automatically makes a copy of [file](https://github.com/eliranwong/agentmake/blob/main/agentmake/agentmake.env) `agentmake.env` and save it as `<package_directory>/.env` if both `<package_directory>/.env` and `~/agentmake/agentmake.env` do not exist.
+* It uses the text editor, specified in `DEFAULT_TEXT_EDITOR`, to open the configuration file `~/agentmake/agentmake.env` if it exists or `<package_directory>/.env` if `~/agentmake/agentmake.env` does not exist.
 
-1. Please do not edit the file `agentmake.env` directly, as it is restored to its default values upon each upgrade.  It is recommended to make a copy of it and edit the copied file.
+Remember to save your changes to make them effective.
+
+## Remarks
+
+1. Please do not edit the file `agentmake.env`, that is located in the package directory, directly, as it is restored to its default values upon each upgrade.  It is recommended to make a copy of it and edit the copied file.
 2. Multiple API keys are supported for running backends `cohere`, `github`, `groq` and `mistral`. You may configure API keys for these backend in the `.env` file by using commas `,` as separators, e.g. `COHERE_API_KEY=cohere_api_key_1,cohere_api_key_2,cohere_api_key_3`
 
 # Fabric Integration
