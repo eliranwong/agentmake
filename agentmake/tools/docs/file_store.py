@@ -24,7 +24,7 @@ Identify all filenames or file paths or file folder paths specified in the user'
 Return all of them in a formatted list like ['file1.ext', 'folder2', 'path/file.ext', 'another_path/another_folder']
 Return an empty string '' or and empty list '[]' only when there is no file or folder specified"""
 
-def examine_file_store(question: str, list_of_files_or_folders: str, **kwargs):
+def search_file_store(question: str, list_of_files_or_folders: str, **kwargs):
     list_of_files_or_folders = getValidFileList(list_of_files_or_folders)
     # comment the following two lines to allow searching current file store
     #if not list_of_files_or_folders:
@@ -46,7 +46,7 @@ def examine_file_store(question: str, list_of_files_or_folders: str, **kwargs):
     return json.dumps(retrieved_context)
 
 TOOL_SCHEMA = {
-    "name": "examine_file_store",
+    "name": "search_file_store",
     "description": "Retrieve information from files",
     "parameters": {
         "type": "object",
@@ -64,7 +64,7 @@ TOOL_SCHEMA = {
     },
 }
 
-TOOL_FUNCTION = examine_file_store
+TOOL_FUNCTION = search_file_store
 
 if __name__ == "__main__":
 

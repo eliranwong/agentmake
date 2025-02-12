@@ -5,10 +5,12 @@ from lightrag import LightRAG, QueryParam
 from lightrag.llm.openai import gpt_4o_mini_complete, gpt_4o_complete, openai_embed
 import os, warnings
 
-def search_files_lightrag(question: str, list_of_files_or_folders: str, **kwargs):
+# modified from lightrag example: https://github.com/HKUDS/LightRAG/blob/main/examples/lightrag_openai_demo.py
+
+def search_graph_store_openai(question: str, list_of_files_or_folders: str, **kwargs):
     # reference: https://github.com/HKUDS/LightRAG
 
-    working_dir = os.path.join(AGENTMAKE_USER_DIR, "graph_store")
+    working_dir = os.path.join(AGENTMAKE_USER_DIR, "graph_store", "openai")
     Path(working_dir).mkdir(parents=True, exist_ok=True)
 
     rag = LightRAG(
@@ -45,7 +47,7 @@ Return all of them in a formatted list like ['file1.ext', 'folder2', 'path/file.
 Return an empty string '' or and empty list '[]' only when there is no file or folder specified"""
 
 TOOL_SCHEMA = {
-    "name": "examine_files",
+    "name": "search_graph_store_openai",
     "description": "Retrieve information from files",
     "parameters": {
         "type": "object",
@@ -63,4 +65,4 @@ TOOL_SCHEMA = {
     },
 }
 
-TOOL_FUNCTION = search_files_lightrag
+TOOL_FUNCTION = search_graph_store_openai

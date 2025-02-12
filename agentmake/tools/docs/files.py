@@ -22,7 +22,7 @@ Identify all filenames or file paths or file folder paths specified in the user'
 Return all of them in a formatted list like ['file1.ext', 'folder2', 'path/file.ext', 'another_path/another_folder']
 Return an empty string '' or and empty list '[]' only when there is no file or folder specified"""
 
-def examine_files(question: str, list_of_files_or_folders: str, **kwargs):
+def search_files(question: str, list_of_files_or_folders: str, **kwargs):
     list_of_files_or_folders = getValidFileList(list_of_files_or_folders)
     if not list_of_files_or_folders:
         return None
@@ -39,7 +39,7 @@ def examine_files(question: str, list_of_files_or_folders: str, **kwargs):
     return json.dumps(retrieved_context)
 
 TOOL_SCHEMA = {
-    "name": "examine_files",
+    "name": "search_files",
     "description": "Retrieve information from files",
     "parameters": {
         "type": "object",
@@ -57,4 +57,4 @@ TOOL_SCHEMA = {
     },
 }
 
-TOOL_FUNCTION = examine_files
+TOOL_FUNCTION = search_files

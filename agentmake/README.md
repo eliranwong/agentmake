@@ -116,6 +116,10 @@ We support Vertex AI via [Google GenAI SDK](https://pypi.org/project/google-gena
 
 > pip install --upgrade agentmake[genai]
 
+## Remarks
+
+It is recommended not to install `agentmake` inside the directory `~/agentmake`, as `~/agentmake` is used by default for placing user custom content.
+
 # Usage
 
 This SDK is designed to offer a single signature function `agentmake` for interacting with all AI backends, delivering a unified experience for generating AI responses. The main APIs are provided with the function `agentmake` located in this [file](https://github.com/eliranwong/agentmake/blob/main/agentmake/__init__.py#L72).

@@ -7,7 +7,7 @@ import json, os
 
 class AzureAI:
     
-    DEFAULT_API_VERSION = "2024-10-21" # check the latest api version at https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#data-plane-inference
+    DEFAULT_API_VERSION = os.getenv("AZURE_API_VERSION") if os.getenv("AZURE_API_VERSION") else "2024-10-21" # check the latest api version at https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#data-plane-inference
     DEFAULT_API_KEY = os.getenv("AZURE_OPENAI_API_KEY") if os.getenv("AZURE_OPENAI_API_KEY") else os.getenv("AZURE_API_KEY")
     DEFAULT_API_ENDPOINT = os.getenv("AZURE_OPENAI_API_ENDPOINT") if os.getenv("AZURE_OPENAI_API_ENDPOINT") else os.getenv("AZURE_API_ENDPOINT")
     DEFAULT_MODEL = os.getenv("AZURE_MODEL") if os.getenv("AZURE_MODEL") else "gpt-4o"
