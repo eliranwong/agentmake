@@ -24,7 +24,7 @@ with open(os.path.join(package, "requirements.txt"), "r") as fileObj:
 # https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/
 setup(
     name="agentmake",
-    version="0.0.62",
+    version="0.0.63",
     python_requires=">=3.8, <3.13",
     description="AgentMake AI: a software developement kit for developing agentic AI applications that support 14 AI backends and work with 7 agentic components, such as tools and agents. (Developer: Eliran Wong)",
     long_description=long_description,
@@ -46,7 +46,7 @@ setup(
         f"{package}.tools.android",
         f"{package}.tools.docs",
         f"{package}.tools.email",
-        f"{package}.tools.ocr",
+        f"{package}.tools.images",
         f"{package}.tools.perplexica",
         f"{package}.tools.qna",
         f"{package}.tools.search",
@@ -71,7 +71,7 @@ setup(
         f"{package}.tools.android": ["*.*"],
         f"{package}.tools.docs": ["*.*"],
         f"{package}.tools.email": ["*.*"],
-        f"{package}.tools.ocr": ["*.*"],
+        f"{package}.tools.images": ["*.*"],
         f"{package}.tools.perplexica": ["*.*"],
         f"{package}.tools.qna": ["*.*"],
         f"{package}.tools.search": ["*.*"],
