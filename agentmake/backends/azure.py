@@ -18,6 +18,10 @@ class AzureAI:
     DEFAULT_DALLE_API_ENDPOINT = os.getenv("AZURE_OPENAI_DALLE_API_ENDPOINT") if os.getenv("AZURE_OPENAI_DALLE_API_ENDPOINT") else os.getenv("AZURE_DALLE_API_ENDPOINT")
     DEFAULT_DALLE_MODEL = os.getenv("AZURE_DALLE_MODEL") if os.getenv("AZURE_DALLE_MODEL") else "dall-e-3"
 
+    DEFAULT_WHISPER_API_KEY = os.getenv("AZURE_OPENAI_WHISPER_API_KEY") if os.getenv("AZURE_OPENAI_WHISPER_API_KEY") else os.getenv("AZURE_WHISPER_API_KEY")
+    DEFAULT_WHISPER_API_ENDPOINT = os.getenv("AZURE_OPENAI_WHISPER_API_ENDPOINT") if os.getenv("AZURE_OPENAI_WHISPER_API_ENDPOINT") else os.getenv("AZURE_WHISPER_API_ENDPOINT")
+    DEFAULT_WHISPER_MODEL = os.getenv("AZURE_WHISPER_MODEL") if os.getenv("AZURE_WHISPER_MODEL") else "whisper"
+
     @staticmethod
     def getClient(api_key: Optional[str]=None, api_endpoint: Optional[str]=None):
         if (api_key or AzureAI.DEFAULT_API_KEY) and (api_endpoint or AzureAI.DEFAULT_API_ENDPOINT):
@@ -35,6 +39,17 @@ class AzureAI:
             config.azure_client = AzureOpenAI(
                 api_key=api_key if api_key else AzureAI.DEFAULT_DALLE_API_KEY,
                 azure_endpoint=api_endpoint if api_endpoint else AzureAI.DEFAULT_DALLE_API_ENDPOINT,
+                api_version=AzureAI.DEFAULT_API_VERSION,
+            )
+            return config.azure_client
+        return None
+
+    @staticmethod
+    def getWhisperClient(api_key: Optional[str]=None, api_endpoint: Optional[str]=None):
+        if (api_key or AzureAI.DEFAULT_WHISPER_API_KEY) and (api_endpoint or AzureAI.DEFAULT_WHISPER_API_ENDPOINT):
+            config.azure_client = AzureOpenAI(
+                api_key=api_key if api_key else AzureAI.DEFAULT_WHISPER_API_KEY,
+                azure_endpoint=api_endpoint if api_endpoint else AzureAI.DEFAULT_WHISPER_API_ENDPOINT,
                 api_version=AzureAI.DEFAULT_API_VERSION,
             )
             return config.azure_client

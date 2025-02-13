@@ -10,6 +10,8 @@ def getChatCompletionText(
         print_on_terminal: Optional[bool]=True,
         word_wrap: Optional[bool]=True,
     ) -> str:
+    if not completion:
+        return ""
     stream_openai_reasoning_model = True if stream and backend=="openai" and hasattr(completion, "choices") else False
     if stream and not stream_openai_reasoning_model: # openai reasoning models do not support streaming
         text_output = readStreamingChunks(backend, completion, print_on_terminal, word_wrap)

@@ -114,7 +114,7 @@ Extras:
 
 We support Vertex AI via [Google GenAI SDK](https://pypi.org/project/google-genai/).  As this package supports most platforms, except for Android Termux, we separate this package `google-genai` as an extra.  To support Vertex AI with `agentmake`, install with running:
 
-> pip install --upgrade agentmake[genai]
+> pip install --upgrade "agentmake[genai]"
 
 ## Remarks
 

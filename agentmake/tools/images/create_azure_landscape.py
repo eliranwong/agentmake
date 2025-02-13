@@ -1,9 +1,8 @@
 import os, shutil
 from base64 import b64decode
 import shutil
-from agentmake import config, getOpenCommand
-from agentmake.utils.system import getCurrentDateTime
-from agentmake.backends.azure import AzureAI
+from agentmake import config, getOpenCommand, getCurrentDateTime
+from agentmake import AzureAI
 
 
 def create_image_azure_landscape(messages, **kwargs):
@@ -21,12 +20,10 @@ def create_image_azure_landscape(messages, **kwargs):
         
     imageFile = os.path.join(os.getcwd(), f"image_{getCurrentDateTime()}.png")
 
-    azure_dalle_model = os.getenv("AZURE_DALLE_MODEL") if os.getenv("AZURE_DALLE_MODEL") else "dall-e-3"
-
     # get responses
     #https://platform.openai.com/docs/guides/images/introduction
     response = AzureAI.getDalleClient().images.generate(
-        model=azure_dalle_model,
+        model=AzureAI.DEFAULT_DALLE_MODEL,
         prompt=image_prompt,
         size="1792x1024", # "1024x1024", "1024x1792", "1792x1024"
         quality="hd", # "hd" or "standard"

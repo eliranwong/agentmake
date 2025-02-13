@@ -6,7 +6,7 @@ using in-memory vector database
 
 from agentmake import extractText
 from agentmake.utils.rag import InMemoryVectorDatabase, build_rag_pipeline, rag_query, getValidFileList
-from agentmake.backends.ollama import OllamaAI
+from agentmake import OllamaAI
 import json, os
 
 TOOL_SYSTEM = """You carefully examine the user's request to look for files and the question about the files.

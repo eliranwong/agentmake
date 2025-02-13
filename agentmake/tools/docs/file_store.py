@@ -7,7 +7,7 @@ Documents RAG
 
 from agentmake import AGENTMAKE_USER_DIR, extractText
 from agentmake.utils.rag import ApswVectorDatabase, build_rag_pipeline, rag_query, getValidFileList
-from agentmake.backends.ollama import OllamaAI
+from agentmake import OllamaAI
 from pathlib import Path
 import os, json
 

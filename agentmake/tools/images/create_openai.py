@@ -1,9 +1,8 @@
 import os, shutil
 from base64 import b64decode
 import shutil
-from agentmake import config, getOpenCommand
-from agentmake.utils.system import getCurrentDateTime
-from agentmake.backends.openai import OpenaiAI
+from agentmake import config, getOpenCommand, getCurrentDateTime
+from agentmake import OpenaiAI
 
 
 def create_image_openai(messages, **kwargs):

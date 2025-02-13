@@ -135,13 +135,14 @@ def main(keep_chat_record=False):
             writeTextFile(tempTextFile, user_prompt)
             os.system(f'''{DEFAULT_TEXT_EDITOR} "{tempTextFile}"''')
             user_prompt = readTextFile(tempTextFile)
-    # run inference
+    # new
+    if args.new_conversation:
+        config.messages = []
+    # run
     if user_prompt:
         follow_up_prompt = args.follow_up_prompt if args.follow_up_prompt else []
         if keep_chat_record:
-            if args.new_conversation:
-                config.messages = []
-            elif args.chat_file:
+            if args.chat_file:
                 if os.path.isfile(args.chat_file):
                     try:
                         content = "config.messages = " + readTextFile(args.chat_file)
