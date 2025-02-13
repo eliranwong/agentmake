@@ -1,24 +1,24 @@
-from agentmake import AGENTMAKE_USER_DIR, extractText
-from agentmake.utils.rag import getValidFileList
-from pathlib import Path
-from lightrag import LightRAG, QueryParam
-from lightrag.utils import EmbeddingFunc
-import os, warnings
-import numpy as np
-from openai import AzureOpenAI
-
 # modified from lightrag example: https://github.com/HKUDS/LightRAG/blob/main/examples/lightrag_azure_openai_demo.py
 
-AZURE_OPENAI_API_VERSION = os.getenv("AZURE_API_VERSION") if os.getenv("AZURE_API_VERSION") else "2024-10-21"
-AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_MODEL") if os.getenv("AZURE_MODEL") else "gpt-4o"
-AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY") if os.getenv("AZURE_OPENAI_API_KEY") else os.getenv("AZURE_API_KEY")
-AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_API_ENDPOINT") if os.getenv("AZURE_OPENAI_API_ENDPOINT") else os.getenv("AZURE_API_ENDPOINT")
-
-AZURE_EMBEDDING_DEPLOYMENT = os.getenv("AZURE_EMBEDDING_MODEL") if os.getenv("AZURE_EMBEDDING_MODEL") else "azure-text-embedding-3-large"
-AZURE_EMBEDDING_API_VERSION = os.getenv("AZURE_API_VERSION") if os.getenv("AZURE_API_VERSION") else "2024-10-21"
-
-
 def search_graph_store_azure(question: str, list_of_files_or_folders: str, **kwargs):
+
+    from agentmake import AGENTMAKE_USER_DIR, extractText
+    from agentmake.utils.rag import getValidFileList
+    from pathlib import Path
+    from lightrag import LightRAG, QueryParam
+    from lightrag.utils import EmbeddingFunc
+    import os, warnings
+    import numpy as np
+    from openai import AzureOpenAI
+
+    AZURE_OPENAI_API_VERSION = os.getenv("AZURE_API_VERSION") if os.getenv("AZURE_API_VERSION") else "2024-10-21"
+    AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_MODEL") if os.getenv("AZURE_MODEL") else "gpt-4o"
+    AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY") if os.getenv("AZURE_OPENAI_API_KEY") else os.getenv("AZURE_API_KEY")
+    AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_API_ENDPOINT") if os.getenv("AZURE_OPENAI_API_ENDPOINT") else os.getenv("AZURE_API_ENDPOINT")
+
+    AZURE_EMBEDDING_DEPLOYMENT = os.getenv("AZURE_EMBEDDING_MODEL") if os.getenv("AZURE_EMBEDDING_MODEL") else "azure-text-embedding-3-large"
+    AZURE_EMBEDDING_API_VERSION = os.getenv("AZURE_API_VERSION") if os.getenv("AZURE_API_VERSION") else "2024-10-21"
+
     # reference: https://github.com/HKUDS/LightRAG
 
     async def llm_model_func(

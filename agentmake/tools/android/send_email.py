@@ -1,7 +1,6 @@
-import urllib.parse
-import subprocess
-
 def send_email(email_address: str, subject: str, body: str, **kwargs):
+    import urllib.parse
+    import subprocess
     subject = urllib.parse.quote(subject.replace('"', '\\"'))
     body = urllib.parse.quote(body.replace('"', '\\"'))
 

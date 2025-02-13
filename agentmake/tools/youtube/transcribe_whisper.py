@@ -1,4 +1,21 @@
 from agentmake.utils.manage_package import installPipPackage
+from agentmake import PACKAGE_PATH, getCurrentDateTime
+import shutil, re, os
+
+# install binary ffmpeg and python package yt-dlp to work with this plugin
+if not shutil.which("yt-dlp"):
+    installPipPackage("yt-dlp")
+if not shutil.which("ffmpeg"):
+    raise ValueError("Tool 'ffmpeg' is not found on your system! Read https://github.com/eliranwong/letmedoit/wiki/Install-ffmpeg for installation.")
+
+# update once a date
+currentDate = re.sub("_.*?$", "", getCurrentDateTime())
+ytdlp_updated = os.path.join(PACKAGE_PATH, "temp", f"yt_dlp_updated_on_{currentDate}")
+if not os.path.isfile(ytdlp_updated):
+    installPipPackage("--upgrade yt-dlp")
+    open(ytdlp_updated, "a", encoding="utf-8").close()
+
+from agentmake.utils.manage_package import installPipPackage
 REQUIREMENTS = ["openai-whisper"]
 try:
     import whisper
@@ -6,23 +23,6 @@ except:
     for i in REQUIREMENTS:
         installPipPackage(i)
     import whisper
-
-from agentmake import AGENTMAKE_USER_DIR, PACKAGE_PATH, agentmake, showErrors, extractText, getCurrentDateTime, writeTextFile
-from agentmake.utils.online import is_valid_url
-from agentmake.utils.manage_package import installPipPackage
-from pathlib import Path
-import re, os, shutil
-
-# install binary ffmpeg and python package yt-dlp to work with this plugin
-if not shutil.which("yt-dlp"):
-    installPipPackage("yt-dlp")
-if not shutil.which("ffmpeg"):
-    raise ValueError("Tool 'ffmpeg' is not found on your system! Read https://github.com/eliranwong/letmedoit/wiki/Install-ffmpeg for installation.")
-currentDate = re.sub("_.*?$", "", getCurrentDateTime())
-ytdlp_updated = os.path.join(PACKAGE_PATH, "temp", f"yt_dlp_updated_on_{currentDate}")
-if not os.path.isfile(ytdlp_updated):
-    installPipPackage("--upgrade yt-dlp")
-    open(ytdlp_updated, "a", encoding="utf-8").close()
 
 TOOL_SYSTEM = f"""You are an good at identifying a YouTube url from user request. Return an empty string '' for parameter `url` if no YouTube url is given."""
 
@@ -42,6 +42,12 @@ TOOL_SCHEMA = {
 }
 
 def transcribe_youtube_audio_whisper(url: str="", **kwargs):
+
+    from agentmake import AGENTMAKE_USER_DIR, PACKAGE_PATH, agentmake, showErrors, extractText, getCurrentDateTime, writeTextFile
+    from agentmake.utils.online import is_valid_url
+    from pathlib import Path
+    import re, os, shutil
+
     def is_youtube_url(url_string):
         pattern = r'(?:https?:\/\/)?(?:www\.)?youtu(?:\.be|be\.com)\/(?:watch\?v=|embed\/|v\/)?([a-zA-Z0-9_-]+)'
         match = re.match(pattern, url_string)

@@ -1,6 +1,3 @@
-from agentmake import agentmake
-import os
-
 TOOL_SCHEMA = {
     "name": "youtube_audio_qna_whisper",
     "description": "Search for information in a YouTube video content",
@@ -17,6 +14,10 @@ TOOL_SCHEMA = {
 }
 
 def youtube_audio_qna_whisper(url: str, **kwargs):
+
+    from agentmake import agentmake
+    import os
+
     transcription = agentmake(
         url,
         tool=os.path.join("youtube", "transcribe_whisper"),

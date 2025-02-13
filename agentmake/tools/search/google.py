@@ -7,7 +7,7 @@ except:
         installPipPackage(i)
     import googlesearch
 
-import os, json
+import os
 
 DEFAULT_MAXIMUM_ONLINE_SEARCHES = int(os.getenv("DEFAULT_MAXIMUM_ONLINE_SEARCHES")) if os.getenv("DEFAULT_MAXIMUM_ONLINE_SEARCHES") else 5
 
@@ -29,6 +29,10 @@ TOOL_SCHEMA = {
 }
 
 def search_google(keywords: str, **kwargs):
+
+    import googlesearch
+    import json
+
     info = {}
     for index, item in enumerate(googlesearch.search(keywords, advanced=True, num_results=DEFAULT_MAXIMUM_ONLINE_SEARCHES)):
         info[f"information {index}"] = {

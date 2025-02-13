@@ -1,11 +1,11 @@
-import os, shutil
-from base64 import b64decode
-import shutil
-from agentmake import config, getOpenCommand, getCurrentDateTime
-from agentmake import OpenaiAI
-
-
 def create_image_openai_landscape(messages, **kwargs):
+
+    import os, shutil
+    from base64 import b64decode
+    import shutil
+    from agentmake import config, getOpenCommand, getCurrentDateTime
+    from agentmake import OpenaiAI
+
     image_prompt = messages[-1].get("content", "")
     def openImageFile(imageFile):
         openCmd = getOpenCommand()

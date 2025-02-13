@@ -1,5 +1,3 @@
-import subprocess
-
 TOOL_SCHEMA = {
     "name": "add_calendar_event",
     "description": "Add a calendar event",
@@ -36,6 +34,8 @@ TOOL_SCHEMA = {
 }
 
 def add_calendar_event(title: str, description: str, url: str="", start_time_converted_in_milliseconds: str="", end_time_converted_in_milliseconds: str="", location: str="", **kwargs):
+    import subprocess
+
     start_time = start_time_converted_in_milliseconds
     end_time = end_time_converted_in_milliseconds
 

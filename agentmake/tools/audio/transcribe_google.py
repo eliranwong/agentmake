@@ -10,11 +10,14 @@ except:
     from pydub import AudioSegment
 
 from agentmake.utils.tts_languages import googleSpeeckToTextLanguages
-from agentmake import PACKAGE_PATH
-import os, io
 
-# Function method
 def transcribe_audio_google(audio_filepath: str, language: str, **kwargs):
+
+    import speech_recognition as sr
+    from pydub import AudioSegment
+
+    from agentmake import PACKAGE_PATH
+    import os, io
 
     llmInterface = "google_alternative"
 

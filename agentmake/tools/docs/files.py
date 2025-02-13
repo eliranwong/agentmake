@@ -4,11 +4,6 @@ search for information in given files
 using in-memory vector database
 """
 
-from agentmake import extractText
-from agentmake.utils.rag import InMemoryVectorDatabase, build_rag_pipeline, rag_query, getValidFileList
-from agentmake import OllamaAI
-import json, os
-
 TOOL_SYSTEM = """You carefully examine the user's request to look for files and the question about the files.
 Your expertise lies in identifying the following parameters from user's request and returning them in a structured output.
 
@@ -23,6 +18,12 @@ Return all of them in a formatted list like ['file1.ext', 'folder2', 'path/file.
 Return an empty string '' or and empty list '[]' only when there is no file or folder specified"""
 
 def search_files(question: str, list_of_files_or_folders: str, **kwargs):
+
+    from agentmake import extractText
+    from agentmake.utils.rag import InMemoryVectorDatabase, build_rag_pipeline, rag_query, getValidFileList
+    from agentmake import OllamaAI
+    import json, os
+
     list_of_files_or_folders = getValidFileList(list_of_files_or_folders)
     if not list_of_files_or_folders:
         return None

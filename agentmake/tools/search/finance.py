@@ -6,7 +6,6 @@ except:
     for i in REQUIREMENTS:
         installPipPackage(i)
     import yfinance
-from agentmake.utils.handle_python_code import fineTunePythonCode
 
 TOOL_SYSTEM = f"""# Your role
 You are a finance expert who is skilled in writing python code in resolving user query.
@@ -21,9 +20,12 @@ Remember, you should format the requested finance information into a string that
 Use the 'print' function in the last line of your generated code to display the finance information."""
 
 def search_finance(code: str, **kwargs):
+
+    from agentmake.utils.handle_python_code import fineTunePythonCode
+
     refined_python_code = fineTunePythonCode(code)
     print("```output")
-    exec(refined_python_code, globals())
+    exec(refined_python_code)
     print("```")
     return ""
 

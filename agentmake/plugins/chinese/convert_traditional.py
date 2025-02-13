@@ -6,6 +6,7 @@ except:
     from opencc import OpenCC
 
 def convert_traditional_chinese(content, **kwargs):
+    from opencc import OpenCC
     try:
         converted = OpenCC('t2s').convert(content)
         if kwargs.get("print_on_terminal"):

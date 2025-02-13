@@ -1,6 +1,5 @@
-import subprocess
-
 def share_file(file_path: str, **kwargs):
+    import subprocess
     file_path = file_path.replace('"', '\\"') # required
     cli = f'''termux-share -a send "{file_path}"'''
     subprocess.Popen(cli, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

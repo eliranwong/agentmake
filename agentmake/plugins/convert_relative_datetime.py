@@ -1,5 +1,4 @@
-from agentmake import agentmake
-import json, datetime, re
+import datetime, re
 
 CURRENT_DATETIME = re.sub(r"\..*?$", "", str(datetime.datetime.now()))
 CURRENT_DAY = datetime.date.today().strftime("%A")
@@ -38,6 +37,8 @@ def convert_relative_datetime(
     content,
     **kwargs,
 ):
+    from agentmake import agentmake
+    import json
     print_on_terminal = kwargs.get("print_on_terminal")
     del kwargs["print_on_terminal"] # avoid printing dictionary output
     messages = agentmake(

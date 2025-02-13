@@ -8,6 +8,12 @@ except:
     from tavily import TavilyClient
 
 def ask_tavily(messages: list, **kwargs):
+    from tavily import TavilyClient
+
+    import os
+
+    TAVILY_API_KEY = os.getenv("TAVILY_API_KEY").split(",") if os.getenv("TAVILY_API_KEY") and "," in os.getenv("TAVILY_API_KEY") else [os.getenv("TAVILY_API_KEY")]
+
     if not TAVILY_API_KEY[0]:
         return None
     query = messages[-1].get("content", "")

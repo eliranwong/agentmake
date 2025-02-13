@@ -1,4 +1,3 @@
-from agentmake.utils.handle_python_code import fineTunePythonCode
 from agentmake.utils.system import get_linux_distro
 from agentmake import USER_OS
 
@@ -34,13 +33,15 @@ TOOL_SCHEMA = {
 }
 
 def magic(code: str, title: str, risk: str, **kwargs):
+    from agentmake.utils.handle_python_code import fineTunePythonCode
+
     print(f"Running task: {title}")
     #print(f"Risk: {risk}") # implement risk management later
     print()
 
     refined_python_code = fineTunePythonCode(code)
     print("```output")
-    exec(refined_python_code, globals())
+    exec(refined_python_code)
     print("```")
 
     return ""

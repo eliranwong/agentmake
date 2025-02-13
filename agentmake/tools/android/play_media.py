@@ -1,6 +1,5 @@
-import subprocess
-
 def play_media(media_file_path: str, **kwargs):
+    import subprocess
     media_file_path = media_file_path.replace('"', '\\"') # required
     cli = f'''termux-media-player play "{media_file_path}"'''
     subprocess.Popen(cli, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

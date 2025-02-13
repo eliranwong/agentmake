@@ -1,9 +1,7 @@
-from agentmake import AGENTMAKE_USER_DIR, showErrors, writeTextFile, getCurrentDateTime, GroqAI
-from pathlib import Path
-import os, shutil, subprocess
-
-# Function method
 def transcribe_audio_groq(audio_filepath: str, **kwargs):
+    from agentmake import AGENTMAKE_USER_DIR, showErrors, writeTextFile, getCurrentDateTime, GroqAI
+    from pathlib import Path
+    import os, shutil, subprocess
     def check_file_format(file_path):
         # List of allowed file extensions
         allowed_extensions = ('.mp3', '.mp4', '.mpeg', '.mpga', '.m4a', '.wav', '.webm')

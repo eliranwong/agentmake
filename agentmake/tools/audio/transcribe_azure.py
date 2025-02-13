@@ -1,9 +1,7 @@
-from agentmake import AzureAI, showErrors, writeTextFile, getCurrentDateTime, AGENTMAKE_USER_DIR
-from pathlib import Path
-import os
-
-
 def transcribe_audio_azure(audio_filepath: str, **kwargs):
+    from agentmake import AzureAI, showErrors, writeTextFile, getCurrentDateTime, AGENTMAKE_USER_DIR
+    from pathlib import Path
+    import os
     def check_file_format(file_path):
         # List of allowed file extensions
         allowed_extensions = ('.mp3', '.mp4', '.mpeg', '.mpga', '.m4a', '.wav', '.webm')

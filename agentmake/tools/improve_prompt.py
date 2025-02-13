@@ -1,10 +1,10 @@
-from agentmake import agentmake
-
 TOOL_SYSTEM = ""
 
 TOOL_SCHEMA = {}
 
 def improve_prompt(messages, **kwargs):
+    from agentmake import agentmake
+
     messages = agentmake(
         messages,
         system="improve_prompt",

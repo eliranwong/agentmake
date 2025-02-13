@@ -1,6 +1,3 @@
-from agentmake import agentmake
-import os
-
 TOOL_SCHEMA = {
     "name": "audio_qna_google",
     "description": '''Search for information in audio content''',
@@ -17,6 +14,8 @@ TOOL_SCHEMA = {
 }
 
 def audio_qna_google(audio_filepath: str, **kwargs):
+    from agentmake import agentmake
+    import os
     transcription = agentmake(
         audio_filepath,
         tool=os.path.join("audio", "transcribe_google"),

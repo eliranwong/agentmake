@@ -7,77 +7,80 @@ except:
         installPipPackage(i)
     from stable_diffusion_cpp import StableDiffusion
 
-from agentmake import AGENTMAKE_USER_DIR
-from agentmake import config, getOpenCommand
-from agentmake.utils.system import getCurrentDateTime, getCpuThreads
-
-import os, shutil, subprocess
-from pathlib import Path
-from huggingface_hub import hf_hub_download
-
-FLUX_IMAGE_MODEL = os.getenv("FLUX_IMAGE_MODEL") if os.getenv("FLUX_IMAGE_MODEL") else "flux1-dev-q4_k.gguf"
-FLUX_IMAGE_WIDTH = int(os.getenv("FLUX_IMAGE_WIDTH")) if os.getenv("FLUX_IMAGE_WIDTH") else 1920
-FLUX_IMAGE_HEIGHT = int(os.getenv("FLUX_IMAGE_HEIGHT")) if os.getenv("FLUX_IMAGE_HEIGHT") else 1088
-FLUX_IMAGE_SAMPLE_STEPS = int(os.getenv("FLUX_IMAGE_SAMPLE_STEPS")) if os.getenv("FLUX_IMAGE_SAMPLE_STEPS") else 20
-
-
-def downloadFluxModels():
-    # reference: https://github.com/william-murray1204/stable-diffusion-cpp-python#flux-image-generation
-    # llm directory
-    llm_directory = os.path.join(AGENTMAKE_USER_DIR, "models", "flux")
-    Path(llm_directory).mkdir(parents=True, exist_ok=True)
-    lora_model_dir = os.path.join(llm_directory, "lora")
-    Path(lora_model_dir).mkdir(parents=True, exist_ok=True)
-    filename = FLUX_IMAGE_MODEL
-    flux_model_path = os.path.join(llm_directory, filename)
-
-    if not os.path.isfile(flux_model_path):
-        print("Downloading Flux.1-dev model ...")
-        hf_hub_download(
-            repo_id="leejet/FLUX.1-dev-gguf",
-            filename=filename,
-            local_dir=llm_directory,
-            #local_dir_use_symlinks=False,
-        )
-
-    filename = "ae.safetensors"
-    lora_file = os.path.join(llm_directory, filename)
-    if not os.path.isfile(lora_file):
-        #print("Downloading Flux.1 vae ...")
-        #hf_hub_download(
-        #    repo_id="black-forest-labs/FLUX.1-dev",
-        #    filename=filename,
-        #    local_dir=llm_directory,
-        #    #local_dir_use_symlinks=False,
-        #)
-        print(f"You need to manually download the file `ae.safetensors` from https://huggingface.co/black-forest-labs/FLUX.1-dev and place it in `{llm_directory}`.")
-        return ""
-
-    filename = "clip_l.safetensors"
-    lora_file = os.path.join(llm_directory, filename)
-    if not os.path.isfile(lora_file):
-        print("Downloading Flux.1 clip_l ...")
-        hf_hub_download(
-            repo_id="comfyanonymous/flux_text_encoders",
-            filename=filename,
-            local_dir=llm_directory,
-            #local_dir_use_symlinks=False,
-        )
-
-    filename = "t5xxl_fp16.safetensors"
-    lora_file = os.path.join(llm_directory, filename)
-    if not os.path.isfile(lora_file):
-        print("Downloading Flux.1 t5xxl ...")
-        hf_hub_download(
-            repo_id="comfyanonymous/flux_text_encoders",
-            filename=filename,
-            local_dir=llm_directory,
-            #local_dir_use_symlinks=False,
-        )
-    
-    return flux_model_path
-
 def create_image_flux_landscape(messages, **kwargs):
+
+    from stable_diffusion_cpp import StableDiffusion
+
+    from agentmake import AGENTMAKE_USER_DIR
+    from agentmake import config, getOpenCommand
+    from agentmake.utils.system import getCurrentDateTime, getCpuThreads
+
+    import os, shutil, subprocess
+    from pathlib import Path
+    from huggingface_hub import hf_hub_download
+
+    FLUX_IMAGE_MODEL = os.getenv("FLUX_IMAGE_MODEL") if os.getenv("FLUX_IMAGE_MODEL") else "flux1-dev-q4_k.gguf"
+    FLUX_IMAGE_WIDTH = int(os.getenv("FLUX_IMAGE_WIDTH")) if os.getenv("FLUX_IMAGE_WIDTH") else 1920
+    FLUX_IMAGE_HEIGHT = int(os.getenv("FLUX_IMAGE_HEIGHT")) if os.getenv("FLUX_IMAGE_HEIGHT") else 1088
+    FLUX_IMAGE_SAMPLE_STEPS = int(os.getenv("FLUX_IMAGE_SAMPLE_STEPS")) if os.getenv("FLUX_IMAGE_SAMPLE_STEPS") else 20
+
+    def downloadFluxModels():
+
+        # reference: https://github.com/william-murray1204/stable-diffusion-cpp-python#flux-image-generation
+        # llm directory
+        llm_directory = os.path.join(AGENTMAKE_USER_DIR, "models", "flux")
+        Path(llm_directory).mkdir(parents=True, exist_ok=True)
+        lora_model_dir = os.path.join(llm_directory, "lora")
+        Path(lora_model_dir).mkdir(parents=True, exist_ok=True)
+        filename = FLUX_IMAGE_MODEL
+        flux_model_path = os.path.join(llm_directory, filename)
+
+        if not os.path.isfile(flux_model_path):
+            print("Downloading Flux.1-dev model ...")
+            hf_hub_download(
+                repo_id="leejet/FLUX.1-dev-gguf",
+                filename=filename,
+                local_dir=llm_directory,
+                #local_dir_use_symlinks=False,
+            )
+
+        filename = "ae.safetensors"
+        lora_file = os.path.join(llm_directory, filename)
+        if not os.path.isfile(lora_file):
+            #print("Downloading Flux.1 vae ...")
+            #hf_hub_download(
+            #    repo_id="black-forest-labs/FLUX.1-dev",
+            #    filename=filename,
+            #    local_dir=llm_directory,
+            #    #local_dir_use_symlinks=False,
+            #)
+            print(f"You need to manually download the file `ae.safetensors` from https://huggingface.co/black-forest-labs/FLUX.1-dev and place it in `{llm_directory}`.")
+            return ""
+
+        filename = "clip_l.safetensors"
+        lora_file = os.path.join(llm_directory, filename)
+        if not os.path.isfile(lora_file):
+            print("Downloading Flux.1 clip_l ...")
+            hf_hub_download(
+                repo_id="comfyanonymous/flux_text_encoders",
+                filename=filename,
+                local_dir=llm_directory,
+                #local_dir_use_symlinks=False,
+            )
+
+        filename = "t5xxl_fp16.safetensors"
+        lora_file = os.path.join(llm_directory, filename)
+        if not os.path.isfile(lora_file):
+            print("Downloading Flux.1 t5xxl ...")
+            hf_hub_download(
+                repo_id="comfyanonymous/flux_text_encoders",
+                filename=filename,
+                local_dir=llm_directory,
+                #local_dir_use_symlinks=False,
+            )
+        
+        return flux_model_path
+
     image_prompt = messages[-1].get("content", "")
     def callback(step: int, steps: int, time: float):
         print("Completed step: {} of {}".format(step, steps))

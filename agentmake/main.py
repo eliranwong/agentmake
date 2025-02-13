@@ -121,10 +121,14 @@ def main(keep_chat_record=False):
 
     user_prompt = " ".join(args.default) if args.default is not None else ""
     stdin_text = sys.stdin.read() if not sys.stdin.isatty() else ""
+    if stdin_text:
+        stdin_text = f"\n\n{stdin_text.strip()}"
     if args.paste:
         clipboardText = getCliOutput("termux-clipboard-get") if shutil.which("termux-clipboard-get") else pyperclip.paste()
     else:
         clipboardText = ""
+    if clipboardText:
+        clipboardText = f"\n\n{clipboardText.strip()}"
     user_prompt = user_prompt + stdin_text + clipboardText
     # edit with text editor
     if args.edit_input and DEFAULT_TEXT_EDITOR:
@@ -144,9 +148,20 @@ def main(keep_chat_record=False):
         if keep_chat_record:
             if args.chat_file:
                 if os.path.isfile(args.chat_file):
+                    glob = {}
+                    loc = {}
                     try:
-                        content = "config.messages = " + readTextFile(args.chat_file)
-                        exec(content, globals())
+                        content = "chat_file_messages = " + readTextFile(args.chat_file)
+                        exec(content, glob, loc)
+                        chat_file_messages = loc.get("chat_file_messages")
+                        if not isinstance(chat_file_messages, dict):
+                            raise ValueError("Error! Chat file format is invalid!")
+                        config.messages = []
+                        for i in chat_file_messages:
+                            try:
+                                config.messages({"role", i.get("role"), "content", i.get("content")})
+                            except:
+                                pass
                     except:
                         raise ValueError("Error! Chat file format is invalid!")
                 else:

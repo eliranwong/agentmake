@@ -1,9 +1,8 @@
-from agentmake import agentmake
-
 def improve_prompt(
     content: str,
     **kwargs,
 ):
+    from agentmake import agentmake
     if not content:
         return ""
     if kwargs.get("print_on_terminal"):

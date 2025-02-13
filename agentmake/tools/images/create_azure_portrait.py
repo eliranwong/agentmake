@@ -1,11 +1,11 @@
-import os, shutil
-from base64 import b64decode
-import shutil
-from agentmake import config, getOpenCommand, getCurrentDateTime
-from agentmake import AzureAI
-
-
 def create_image_azure_portrait(messages, **kwargs):
+
+    import os, shutil
+    from base64 import b64decode
+    import shutil
+    from agentmake import config, getOpenCommand, getCurrentDateTime
+    from agentmake import AzureAI
+
     image_prompt = messages[-1].get("content", "")
     def openImageFile(imageFile):
         openCmd = getOpenCommand()

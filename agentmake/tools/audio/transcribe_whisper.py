@@ -7,14 +7,17 @@ except:
         installPipPackage(i)
     import whisper
 
-from agentmake import AGENTMAKE_USER_DIR, getCurrentDateTime, writeTextFile
-from pathlib import Path
-import os, shutil
+import os
 
 WHISPER_MODEL = os.getenv("WHISPER_MODEL") if os.getenv("WHISPER_MODEL") else "base"
 
 # Function method
 def transcribe_audio_whisper(audio_filepath: str, language: str, **kwargs):
+    import whisper
+    
+    from agentmake import AGENTMAKE_USER_DIR, getCurrentDateTime, writeTextFile
+    from pathlib import Path
+    import os, shutil
     def check_file_format(file_path):
         # List of allowed file extensions
         allowed_extensions = ('.mp3', '.mp4', '.mpeg', '.mpga', '.m4a', '.wav', '.webm')

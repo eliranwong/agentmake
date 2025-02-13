@@ -1,6 +1,5 @@
-import subprocess
-
 def take_photo(jpeg_file_path, **kwargs):
+    import subprocess
     if not jpeg_file_path:
         jpeg_file_path = "photo.jpg"
     cli = f'''termux-camera-photo "{jpeg_file_path}"'''

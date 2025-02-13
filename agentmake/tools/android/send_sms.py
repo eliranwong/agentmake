@@ -1,6 +1,5 @@
-import subprocess
-
 def send_sms(phone_number: str, message: str, **kwargs):
+    import subprocess
     message = message.replace('"', '\\"') # required
     cli = f'''termux-sms-send -n {phone_number} "{message}"'''
     subprocess.Popen(cli, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)

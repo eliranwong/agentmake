@@ -1,6 +1,5 @@
-import subprocess
-
 def phone_call(phone_number: str, **kwargs):
+    import subprocess
     cli = f'''termux-telephony-call {phone_number}'''
     subprocess.Popen(cli, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return ""

@@ -1,5 +1,4 @@
-from agentmake import agentmake
-import os, json
+import os
 
 DEFAULT_WRITING_STYLE = os.getenv('DEFAULT_WRITING_STYLE') if os.getenv('DEFAULT_WRITING_STYLE') else 'standard English'
 
@@ -35,6 +34,8 @@ def improve_writing(
     content,
     **kwargs,
 ):
+    from agentmake import agentmake
+    import json
     print_on_terminal = kwargs.get("print_on_terminal")
     del kwargs["print_on_terminal"] # avoid printing dictionary output
     messages = agentmake(

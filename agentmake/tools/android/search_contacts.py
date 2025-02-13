@@ -1,7 +1,5 @@
-
-import subprocess, json
-
 def search_contacts(search_item: str, **kwargs):
+    import subprocess, json
     found = []
     contacts = subprocess.run("termux-contact-list", shell=True, capture_output=True, text=True).stdout
     contacts = json.loads(contacts)

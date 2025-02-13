@@ -59,9 +59,6 @@ DEFAULT_TEXT_EDITOR = os.getenv("DEFAULT_TEXT_EDITOR") if os.getenv("DEFAULT_TEX
 DEFAULT_MARKDOWN_THEME = os.getenv("DEFAULT_MARKDOWN_THEME") if os.getenv("DEFAULT_MARKDOWN_THEME") else "github-dark"
 DEFAULT_FABRIC_PATTERNS_PATH = os.getenv("DEFAULT_FABRIC_PATTERNS_PATH") if os.getenv("DEFAULT_FABRIC_PATTERNS_PATH") else os.path.join(os.path.expanduser("~"), ".config", "fabric", "patterns")
 
-# APIs that required by some tools
-TAVILY_API_KEY = os.getenv("TAVILY_API_KEY").split(",") if os.getenv("TAVILY_API_KEY") and "," in os.getenv("TAVILY_API_KEY") else [os.getenv("TAVILY_API_KEY")]
-OPENWEATHERMAP_API_KEY = os.getenv("OPENWEATHERMAP_API_KEY").split(",") if os.getenv("OPENWEATHERMAP_API_KEY") and "," in os.getenv("OPENWEATHERMAP_API_KEY") else [os.getenv("OPENWEATHERMAP_API_KEY")]
 
 def edit_configurations(env_file=""):
     if not env_file:
@@ -378,9 +375,11 @@ def agentmake(
                 if input_content_plugin_file_content:
                     input_content_plugin_object = input_content_plugin_file_content
             if input_content_plugin_object:
+                glob = {}
+                loc = {}
                 try:
-                    exec(input_content_plugin_object, globals())
-                    input_content_plugin_func = CONTENT_PLUGIN
+                    exec(input_content_plugin_object, glob, loc)
+                    input_content_plugin_func = loc.get("CONTENT_PLUGIN")
                 except Exception as e:
                     print(f"Failed to execute input content plugin `{input_content_plugin_name}`! An error occurred: {e}")
                     if DEVELOPER_MODE:
@@ -436,9 +435,11 @@ def agentmake(
             if agent_file_content:
                 agent_object = agent_file_content
         if agent_object:
+            glob = {}
+            loc = {}
             try:
-                exec(agent_object, globals())
-                agent_func = AGENT_FUNCTION
+                exec(agent_object, glob, loc)
+                agent_func = loc.get("AGENT_FUNCTION")
             except Exception as e:
                 print(f"Failed to run agent `{agent_name}`! An error occurred: {e}")
                 if DEVELOPER_MODE:
@@ -631,16 +632,18 @@ def agentmake(
             if tool_file_content:
                 tool_object = tool_file_content
         if tool_object:
+            glob = {}
+            loc = {}
             try:
-                exec(tool_object, globals())
-                schema = TOOL_SCHEMA
+                exec(tool_object, glob, loc)
+                schema = loc.get("TOOL_SCHEMA")
                 try:
-                    func = TOOL_FUNCTION
+                    func = loc.get("TOOL_FUNCTION")
                 except:
                     # TOOL_FUNCTION is optional
                     pass
                 try:
-                    tool_system = TOOL_SYSTEM
+                    tool_system = loc.get("TOOL_SYSTEM")
                 except:
                     tool_system = getDefaultToolSystem(schema)
                 if tool_system:
@@ -979,9 +982,11 @@ def agentmake(
                 if output_content_plugin_file_content:
                     output_content_plugin_object = output_content_plugin_file_content
             if output_content_plugin_object:
+                glob = {}
+                loc = {}
                 try:
-                    exec(output_content_plugin_object, globals())
-                    output_content_plugin_func = CONTENT_PLUGIN
+                    exec(output_content_plugin_object, glob, loc)
+                    output_content_plugin_func = loc.get("CONTENT_PLUGIN")
                 except Exception as e:
                     print(f"Failed to execute output content plugin `{output_content_plugin_name}`! An error occurred: {e}")
                     if DEVELOPER_MODE:

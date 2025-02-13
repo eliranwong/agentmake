@@ -1,7 +1,8 @@
-from agentmake.utils.online import openURL
-import urllib.parse
-
 def send_tweet(message: str, **kwargs):
+
+    from agentmake.utils.online import openURL
+    import urllib.parse
+
     if message:
         openURL(f"""https://twitter.com/intent/tweet?text={urllib.parse.quote(message)}""")
     return ""

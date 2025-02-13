@@ -1,5 +1,3 @@
-from agentmake import extractText
-
 TOOL_SYSTEM = f"""You are an good at identifying an image path or an image url from user request. Return an empty string '' for parameter `image_path_or_url` if no image is given."""
 
 TOOL_SCHEMA = {
@@ -18,6 +16,8 @@ TOOL_SCHEMA = {
 }
 
 def ocr_openai(image_path_or_url: str="", **kwargs):
+    from agentmake import extractText
+    
     if not image_path_or_url:
         return None
     print(extractText(image_path_or_url, image_backend="openai"))

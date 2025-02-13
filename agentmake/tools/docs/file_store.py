@@ -5,12 +5,6 @@ Documents RAG
 * using local sqlite for vector database
 """
 
-from agentmake import AGENTMAKE_USER_DIR, extractText
-from agentmake.utils.rag import ApswVectorDatabase, build_rag_pipeline, rag_query, getValidFileList
-from agentmake import OllamaAI
-from pathlib import Path
-import os, json
-
 TOOL_SYSTEM = """You carefully examine the user's request to look for files and the question about the files.
 Your expertise lies in identifying the following parameters from user's request and returning them in a structured output.
 
@@ -25,6 +19,13 @@ Return all of them in a formatted list like ['file1.ext', 'folder2', 'path/file.
 Return an empty string '' or and empty list '[]' only when there is no file or folder specified"""
 
 def search_file_store(question: str, list_of_files_or_folders: str, **kwargs):
+
+    from agentmake import AGENTMAKE_USER_DIR, extractText
+    from agentmake.utils.rag import ApswVectorDatabase, build_rag_pipeline, rag_query, getValidFileList
+    from agentmake import OllamaAI
+    from pathlib import Path
+    import os, json
+
     list_of_files_or_folders = getValidFileList(list_of_files_or_folders)
     # comment the following two lines to allow searching current file store
     #if not list_of_files_or_folders:
@@ -65,32 +66,3 @@ TOOL_SCHEMA = {
 }
 
 TOOL_FUNCTION = search_file_store
-
-if __name__ == "__main__":
-
-    OllamaAI.downloadModel(os.getenv("RAG_EMBEDDING_MODEL") if os.getenv("RAG_EMBEDDING_MODEL") else "paraphrase-multilingual")
-
-    def generate_answer(query, context):
-        return f"Based on the context:\n{context}\nAnswer to: {query}"
-
-    # Example usage
-    documents = [
-        """AgentMake AI: a software development kit for developing agentic AI applications that support 14 AI backends and work with 7 agentic components, such as tools and agents. (Developer: Eliran Wong)""",
-        """Artificial intelligence is transforming many industries with its applications in automation, healthcare, and finance.""",
-        """Machine learning, a subset of AI, allows systems to learn from data and improve over time. Deep learning is a specialized branch of ML.""",
-        """Natural language processing (NLP) enables computers to understand and generate human language. It powers chatbots, translation, and sentiment analysis.""",
-    ]
-
-    db = ApswVectorDatabase()
-    build_rag_pipeline(db, documents)
-
-    query = "What are some applications of AI?"
-    retrieved_context = rag_query(db, query)
-
-    print("Retrieved Context:")
-    for i, chunk in enumerate(retrieved_context):
-        print(f"Chunk {i+1}:\n{chunk}\n---")
-
-    answer = generate_answer(query, "\n".join(retrieved_context))
-    print("\nGenerated Answer:")
-    print(answer)

@@ -1,14 +1,14 @@
-from agentmake import AGENTMAKE_USER_DIR, extractText
-from agentmake.utils.rag import getValidFileList
-from pathlib import Path
-from lightrag import LightRAG, QueryParam
-from lightrag.llm.openai import gpt_4o_mini_complete, gpt_4o_complete, openai_embed
-import os, warnings
-
 # modified from lightrag example: https://github.com/HKUDS/LightRAG/blob/main/examples/lightrag_openai_demo.py
 
 def search_graph_store_openai(question: str, list_of_files_or_folders: str, **kwargs):
     # reference: https://github.com/HKUDS/LightRAG
+
+    from agentmake import AGENTMAKE_USER_DIR, extractText
+    from agentmake.utils.rag import getValidFileList
+    from pathlib import Path
+    from lightrag import LightRAG, QueryParam
+    from lightrag.llm.openai import gpt_4o_mini_complete, gpt_4o_complete, openai_embed
+    import os, warnings
 
     working_dir = os.path.join(AGENTMAKE_USER_DIR, "graph_store", "openai")
     Path(working_dir).mkdir(parents=True, exist_ok=True)

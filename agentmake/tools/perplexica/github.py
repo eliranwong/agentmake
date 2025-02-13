@@ -1,15 +1,16 @@
-
-import requests, json, os
-
-from agentmake.utils.online import get_local_ip
-PERPLEXICA_HOST = os.getenv("PERPLEXICA_HOST") if os.getenv("PERPLEXICA_HOST") else f"http://{get_local_ip()}"
-PERPLEXICA_FRONTEND_PORT = int(os.getenv("PERPLEXICA_FRONTEND_PORT")) if os.getenv("PERPLEXICA_FRONTEND_PORT") else 3000
-PERPLEXICA_BACKEND_PORT = int(os.getenv("PERPLEXICA_BACKEND_PORT")) if os.getenv("PERPLEXICA_BACKEND_PORT") else 3001
-PERPLEXICA_LOCAL_EMBEDDING = os.getenv("PERPLEXICA_LOCAL_EMBEDDING") if os.getenv("PERPLEXICA_LOCAL_EMBEDDING") else "xenova-bge-small-en-v1.5"
-PERPLEXICA_OPTIMIZATION_MODE = os.getenv("PERPLEXICA_OPTIMIZATION_MODE") if os.getenv("PERPLEXICA_OPTIMIZATION_MODE") else "speed"
-PERPLEXICA_FOCUS_MODE = os.getenv("PERPLEXICA_FOCUS_MODE") if os.getenv("PERPLEXICA_FOCUS_MODE") else "webSearch"
-
 def perplexica_github(messages, **kwargs):
+
+    import requests, json, os
+
+    from agentmake import GithubAI
+    from agentmake.utils.online import get_local_ip
+    PERPLEXICA_HOST = os.getenv("PERPLEXICA_HOST") if os.getenv("PERPLEXICA_HOST") else f"http://{get_local_ip()}"
+    #PERPLEXICA_FRONTEND_PORT = int(os.getenv("PERPLEXICA_FRONTEND_PORT")) if os.getenv("PERPLEXICA_FRONTEND_PORT") else 3000
+    PERPLEXICA_BACKEND_PORT = int(os.getenv("PERPLEXICA_BACKEND_PORT")) if os.getenv("PERPLEXICA_BACKEND_PORT") else 3001
+    PERPLEXICA_LOCAL_EMBEDDING = os.getenv("PERPLEXICA_LOCAL_EMBEDDING") if os.getenv("PERPLEXICA_LOCAL_EMBEDDING") else "xenova-bge-small-en-v1.5"
+    PERPLEXICA_OPTIMIZATION_MODE = os.getenv("PERPLEXICA_OPTIMIZATION_MODE") if os.getenv("PERPLEXICA_OPTIMIZATION_MODE") else "speed"
+    PERPLEXICA_FOCUS_MODE = os.getenv("PERPLEXICA_FOCUS_MODE") if os.getenv("PERPLEXICA_FOCUS_MODE") else "webSearch"
+
     query = messages[-1].get("content", "")
     if not query:
         return None

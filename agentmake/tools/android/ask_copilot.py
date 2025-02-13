@@ -1,6 +1,5 @@
-import subprocess
-
 def ask_copilot(message: str, **kwargs):
+    import subprocess
     message = message.replace('"', '\\"') # required
     # e.g. am start -a android.intent.action.VIEW -d "https://api.whatsapp.com/send?phone=+441234567&text=Hello"
     # Microsoft Copilot Business Account: +18772241042

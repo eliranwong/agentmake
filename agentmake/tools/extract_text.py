@@ -1,5 +1,3 @@
-from agentmake import extractText
-
 TOOL_SYSTEM = """You are an good at identifying a file path or an url from user request. Return an empty string '' for parameter `filepath_or_url` if no image is given."""
 
 TOOL_SCHEMA = {
@@ -18,6 +16,7 @@ TOOL_SCHEMA = {
 }
 
 def extract_text(filepath_or_url: str="", **kwargs):
+    from agentmake import extractText
     if not filepath_or_url:
         return None
     print(extractText(filepath_or_url))
