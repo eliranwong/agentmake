@@ -1,3 +1,4 @@
+from agentmake import config
 from ..utils.text_wrapper import TextWrapper
 from mistralai import Mistral, ChatCompletionResponse, UNSET, CompletionEvent
 from mistralai.utils.eventstreaming import EventStream
@@ -21,6 +22,13 @@ class MistralAI:
             first_item = MistralAI.DEFAULT_API_KEY.pop(0)
             MistralAI.DEFAULT_API_KEY.append(first_item)
         return MistralAI.DEFAULT_API_KEY[0]
+
+    @staticmethod
+    def getClient(api_key: Optional[str]=None):
+        if api_key or MistralAI.DEFAULT_API_KEY[0]:
+            config.mistral_client = Mistral(api_key=api_key if api_key else MistralAI.getApiKey())
+            return config.mistral_client
+        return None
 
     @staticmethod
     def getChatCompletion(
@@ -58,7 +66,7 @@ class MistralAI:
             else:
                 used_api_keys.append(this_api_key)
             try:
-                client = Mistral(api_key=this_api_key)
+                client = MistralAI.getClient(api_key=this_api_key)
                 completion = client.chat.stream(
                     model=model if model else MistralAI.DEFAULT_MODEL,
                     messages=messages,
@@ -78,12 +86,6 @@ class MistralAI:
                     timeout_ms=api_timeout,
                     **kwargs
                 )
-                if stream:
-                    if stream_events_only:
-                        return completion
-                    text_wrapper = TextWrapper(word_wrap)
-                    text_wrapper.streamOutputs(None, completion, openai_style=True, print_on_terminal=print_on_terminal)
-                    return text_wrapper.text_output
             except Exception as e:
                 print(f"An error occurred: {e}")
                 if DEVELOPER_MODE:

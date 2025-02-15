@@ -60,6 +60,9 @@ def closeConnections(backend: str):
     elif backend == "llamacpp" and hasattr(config, "llamacpp_client") and config.llamacpp_client is not None:
         config.llamacpp_client.close()
         config.llamacpp_client = None
+    elif backend == "mistral" and hasattr(config, "mistral_client") and config.mistral_client is not None:
+        #config.mistral_client.close()
+        config.mistral_client = None
     elif backend == "openai" and hasattr(config, "openai_client") and config.openai_client is not None:
         config.openai_client.close()
         config.openai_client = None

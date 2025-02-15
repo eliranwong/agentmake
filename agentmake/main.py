@@ -5,12 +5,6 @@ from agentmake.utils.files import searchFolder
 from agentmake.utils.text_wrapper import wrapText
 from agentmake.utils.system import getCliOutput
 import argparse, os, pprint, sys, pyperclip, shutil, pydoc, json
-import pygments
-from pygments.lexers.markup import MarkdownLexer
-from prompt_toolkit.formatted_text import PygmentsTokens
-from prompt_toolkit import print_formatted_text
-from pygments.styles import get_style_by_name
-from prompt_toolkit.styles.pygments import style_from_pygments_cls
 
 
 def chat():
@@ -247,9 +241,15 @@ def getPygmentsStyle():
     print(styles)
     ['abap', 'algol', 'algol_nu', 'arduino', 'autumn', 'bw', 'borland', 'coffee', 'colorful', 'default', 'dracula', 'emacs', 'friendly_grayscale', 'friendly', 'fruity', 'github-dark', 'gruvbox-dark', 'gruvbox-light', 'igor', 'inkpot', 'lightbulb', 'lilypond', 'lovelace', 'manni', 'material', 'monokai', 'murphy', 'native', 'nord-darker', 'nord', 'one-dark', 'paraiso-dark', 'paraiso-light', 'pastie', 'perldoc', 'rainbow_dash', 'rrt', 'sas', 'solarized-dark', 'solarized-light', 'staroffice', 'stata-dark', 'stata-light', 'tango', 'trac', 'vim', 'vs', 'xcode', 'zenburn']
     """
+    from pygments.styles import get_style_by_name
+    from prompt_toolkit.styles.pygments import style_from_pygments_cls
     return style_from_pygments_cls(get_style_by_name(DEFAULT_MARKDOWN_THEME))
 
 def highlightMarkdownSyntax(content):
+    import pygments
+    from pygments.lexers.markup import MarkdownLexer
+    from prompt_toolkit.formatted_text import PygmentsTokens
+    from prompt_toolkit import print_formatted_text
     try:
         tokens = list(pygments.lex(content, lexer=MarkdownLexer()))
         print_formatted_text(PygmentsTokens(tokens), style=getPygmentsStyle())

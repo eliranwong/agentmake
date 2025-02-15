@@ -178,7 +178,7 @@ To work with parameter `system`, `instruction`, `follow_up_prompt`, e.g.:
 
 To work with parameter `agent`, e.g.:
 
-> agentmake("Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre.", agent="teamgenai", stream=True, model="llama3.3:70b")
+> agentmake("Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre.", agent="teamwork", stream=True, model="llama3.3:70b")
 
 To specify an AI backend:
 
@@ -245,7 +245,7 @@ The available CLI options use the same parameter names as the `agentmake` functi
 
 > ai Is it better to drink wine in the morning, afternoon, or evening? --instruction think --follow_up_prompt review --follow_up_prompt refine
 
-> ai Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre --agent teamgenai --model "llama3.3:70b"
+> ai Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre --agent teamwork --model "llama3.3:70b"
 
 ## CLI for Testing
 
