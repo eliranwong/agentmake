@@ -7,6 +7,9 @@ def examine_images_ollama(query: str, image_filepath: Union[str, list], **kwargs
     from agentmake import OllamaAI
     from ollama import Options
     import os, ollama
+    import http.client
+    import urllib.request
+    from typing import cast
 
     OLLAMA_VISUAL_MODEL = os.getenv("OLLAMA_VISUAL_MODEL") if os.getenv("OLLAMA_VISUAL_MODEL") else "llava-phi3"
     OllamaAI.downloadModel(OLLAMA_VISUAL_MODEL)
@@ -26,28 +29,31 @@ def examine_images_ollama(query: str, image_filepath: Union[str, list], **kwargs
             image_filepath.remove(item)
 
     content = []
-    from pathlib import Path
     # valid image paths
     for i in image_filepath:
         if is_valid_url(i) and is_valid_image_url(i):
-            #content.append({"type": "image_url", "image_url": {"url": i,},})
-            content.append(i)
+            with urllib.request.urlopen(i) as response:
+                response = cast(http.client.HTTPResponse, response)
+                image_bytes = response.read()
+            content.append(image_bytes)
         elif os.path.isfile(i) and is_valid_image_file(i):
-            #content.append({"type": "image_url", "image_url": {"url": encode_image(i)},})
-            content.append(i)
+            #content.append(i) # a path of raw bytes
+            with open(i, 'rb') as f:
+                image_bytes = f.read()
+            content.append(image_bytes)
         #else:
             #image_filepath.remove(i)
 
     if content:
         client = ollama._client
 
-        #content.insert(0, {"type": "text", "text": query,})
-
         response = client.chat(
             model=OLLAMA_VISUAL_MODEL,
             messages=[{'role': 'user', 'content': query, 'images': content}],
             options=Options(
                 num_predict=2048,
+                temperature=float(os.getenv("OLLAMA_VISUAL_TEMPERATURE")) if os.getenv("OLLAMA_VISUAL_TEMPERATURE") else 0.3,
+                num_predict=int(os.getenv("OLLAMA_VISUAL_MAX_TOKENS")) if os.getenv("OLLAMA_VISUAL_MAX_TOKENS") else -1,
             ),
         )
         answer = response.message.content

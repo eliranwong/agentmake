@@ -44,7 +44,8 @@ def examine_images_groq(query: str, image_filepath: Union[str, list], **kwargs):
                 "content": content,
                 }
             ],
-            max_tokens=8192,
+            temperature=float(os.getenv("GROQ_VISUAL_TEMPERATURE")) if os.getenv("GROQ_VISUAL_TEMPERATURE") else 0.3,
+            max_tokens=int(os.getenv("GROQ_VISUAL_MAX_TOKENS")) if os.getenv("GROQ_VISUAL_MAX_TOKENS") else 8192,
         )
         answer = response.choices[0].message.content
 

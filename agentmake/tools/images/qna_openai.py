@@ -44,7 +44,8 @@ def examine_images_openai(query: str, image_filepath: Union[str, list], **kwargs
                 "content": content,
                 }
             ],
-            max_tokens=4096,
+            temperature=float(os.getenv("OPENAI_VISUAL_TEMPERATURE")) if os.getenv("OPENAI_VISUAL_TEMPERATURE") else 0.3,
+            max_tokens=int(os.getenv("OPENAI_VISUAL_MAX_TOKENS")) if os.getenv("OPENAI_VISUAL_MAX_TOKENS") else 4096,
         )
         answer = response.choices[0].message.content
 

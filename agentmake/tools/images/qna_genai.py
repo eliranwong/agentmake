@@ -2,10 +2,13 @@ from typing import Union
 
 def examine_images_genai(query: str, image_filepath: Union[str, list], **kwargs):
     
-    from agentmake.utils.images import is_valid_image_file, is_valid_image_url, encode_image
+    from agentmake.utils.images import is_valid_image_file, is_valid_image_url
     from agentmake.utils.online import is_valid_url
     from agentmake import GenaiAI
-    from google.genai.types import Content, GenerateContentConfig, SafetySetting, Tool, Part, HttpOptions
+    from google.genai.types import Content, Part
+    import http.client
+    import urllib.request
+    from typing import cast
     import os, re
 
     if isinstance(image_filepath, str):
@@ -22,36 +25,37 @@ def examine_images_genai(query: str, image_filepath: Union[str, list], **kwargs)
                     image_filepath.append(file_path)
             image_filepath.remove(item)
 
-    content = [Part.from_text(text=query)]
+    content = []
     # valid image paths
     for i in image_filepath:
         if is_valid_url(i) and is_valid_image_url(i):
-            content.append({"type": "image_url", "image_url": {"url": i,},})
+            #content.append({"type": "image_url", "image_url": {"url": i,},})
+            with urllib.request.urlopen(i) as response:
+                response = cast(http.client.HTTPResponse, response)
+                image_bytes = response.read()
+            ext = re.sub(r"^.*?\.([A-Za-z]+?)$", r"\1", i)
+            content.append(Part.from_bytes(data=image_bytes, mime_type=f"image/{ext.lower() if ext else 'png'}"))
         elif os.path.isfile(i) and is_valid_image_file(i):
             #content.append({"type": "image_url", "image_url": {"url": encode_image(i)},})
             with open(i, 'rb') as f:
                 image_bytes = f.read()
             ext = re.sub(r"^.*?\.([A-Za-z]+?)$", r"\1", i)
             content.append(Part.from_bytes(data=image_bytes, mime_type=f"image/{ext.lower() if ext else 'png'}"))
-        else:
-            image_filepath.remove(i)
 
     if content:
-        #client = OpenaiAI.getClient()
-
-        #content.insert(0, {"type": "text", "text": query,})
-
-        response = client.chat.completions.create(
-            model=os.getenv("VERTEXAI_VISUAL_MODEL") if os.getenv("VERTEXAI_VISUAL_MODEL") else "gemini-1.5-pro",
-            messages=[
-                {
-                "role": "user",
-                "content": content,
-                }
-            ],
-            max_tokens=4096,
+        client = GenaiAI.getClient()
+        genai_config = GenaiAI.getConfig(
+            temperature=float(os.getenv("VERTEXAI_VISUAL_TEMPERATURE")) if os.getenv("VERTEXAI_VISUAL_TEMPERATURE") else 0.3,
+            max_tokens=int(os.getenv("VERTEXAI_VISUAL_MAX_TOKENS")) if os.getenv("VERTEXAI_VISUAL_MAX_TOKENS") else 8192,
         )
-        answer = response.choices[0].message.content
+        history = [Content(role="user", parts=content)]
+        genai_chat = client.chats.create(
+            model=os.getenv("VERTEXAI_MODEL") if os.getenv("VERTEXAI_MODEL") else "gemini-1.5-pro",
+            config=genai_config,
+            history=history,
+        )
+        response = genai_chat.send_message(query)
+        answer = response.candidates[0].content.parts[0].text
 
         # display answer
         print("```assistant")

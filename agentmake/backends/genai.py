@@ -10,9 +10,10 @@ import os
 
 class GenaiAI:
 
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("VERTEXAI_API_KEY") if not os.getenv("GOOGLE_APPLICATION_CREDENTIALS") and os.getenv("VERTEXAI_API_KEY") and os.path.isfile(os.getenv("VERTEXAI_API_KEY")) else os.getenv("GOOGLE_APPLICATION_CREDENTIALS") or ""
     DEFAULT_API_KEY = os.getenv("GOOGLE_APPLICATION_CREDENTIALS") if os.getenv("GOOGLE_APPLICATION_CREDENTIALS") else os.getenv("GOOGLEAI_API_KEY")
-    DEFAULT_API_PROJECT_ID = os.getenv("VERTEXAI_PROJECT_ID")
-    DEFAULT_API_SERVICE_LOCATION = os.getenv("VERTEXAI_SERVICE_LOCATION") if os.getenv("VERTEXAI_SERVICE_LOCATION") else "us-central1"
+    DEFAULT_API_PROJECT_ID = os.getenv("VERTEXAI_API_PROJECT_ID")
+    DEFAULT_API_SERVICE_LOCATION = os.getenv("VERTEXAI_API_SERVICE_LOCATION") if os.getenv("VERTEXAI_API_SERVICE_LOCATION") else "us-central1"
     DEFAULT_MODEL = os.getenv("VERTEXAI_MODEL") if os.getenv("VERTEXAI_MODEL") else "gemini-1.5-pro"
     DEFAULT_TEMPERATURE = float(os.getenv("VERTEXAI_TEMPERATURE")) if os.getenv("VERTEXAI_TEMPERATURE") else 0.3
     DEFAULT_MAX_TOKENS = int(os.getenv("VERTEXAI_MAX_TOKENS")) if os.getenv("VERTEXAI_MAX_TOKENS") else 8192 # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models
@@ -44,57 +45,27 @@ class GenaiAI:
         return history, system_message, last_user_message
 
     @staticmethod
-    def getChatCompletion(
-        messages: list,
-        model: Optional[str]=None,
-        schema: Optional[dict]=None,
-        temperature: Optional[float]=None,
-        max_tokens: Optional[int]=None,
-        #context_window: Optional[int]=None, # applicable to ollama only
-        #batch_size: Optional[int]=None, # applicable to ollama only
-        #prefill: Optional[str]=None,
-        stop: Optional[list]=None,
-        stream: Optional[bool]=False,
-        api_key: Optional[str]=None, # enter credentials json file path if using Vertex AI; or enter Google AI API key for accessing Google AI services
-        #api_endpoint: Optional[str]=None,
-        api_project_id: Optional[str]=None, # applicable to Vertex AI only
-        api_service_location: Optional[str]=None, # applicable to Vertex AI only
-        api_timeout: Optional[int]=None,
-        **kwargs,
-    ) -> Any:
-        if not api_key and not GenaiAI.DEFAULT_API_KEY:
-            raise ValueError("VertexAI credential json file path or GoogleAI API key is required.")
-        #if prefill:
-        #    messages.append({'role': 'assistant', 'content': prefill})
-        # convert messages to GenAI format
-        history, system_message, last_user_message = GenaiAI.toGenAIMessages(messages=messages)
+    def getClient(api_key: Optional[str]=None, api_project_id: Optional[str]=None, api_service_location: Optional[str]=None):
         # create GenAI client
         api_project_id = api_project_id if api_project_id else GenaiAI.DEFAULT_API_PROJECT_ID
         api_service_location = api_service_location if api_service_location else GenaiAI.DEFAULT_API_SERVICE_LOCATION
         api_key = api_key if api_key else GenaiAI.DEFAULT_API_KEY
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = api_key if os.path.isfile(api_key) else ""
         genai_client = Client(vertexai=True, project=api_project_id, location=api_service_location) if os.path.isfile(api_key) and api_project_id and api_service_location else Client(api_key=api_key)
-        # format GenAI tool
-        if schema:
-            name, description, parameters = schema["name"], schema["description"], schema["parameters"]
-            if "type" in parameters:
-                parameters["type"] = parameters["type"].upper() # Input should be 'TYPE_UNSPECIFIED', 'STRING', 'NUMBER', 'INTEGER', 'BOOLEAN', 'ARRAY' or 'OBJECT' [type=literal_error, input_value='object', input_type=str]
-            for key, value in parameters["properties"].items():
-                if "type" in value:
-                    parameters["properties"][key]["type"] = parameters["properties"][key]["type"].upper() # Input should be 'TYPE_UNSPECIFIED', 'STRING', 'NUMBER', 'INTEGER', 'BOOLEAN', 'ARRAY' or 'OBJECT' [type=literal_error, input_value='object', input_type=str]
-            # declare a function
-            function_declaration = dict(
-                name=name,
-                description=description,
-                parameters=parameters,
-            )
-            tool = Tool(
-                function_declarations=[function_declaration],
-            )
-            tools = [tool]
-        else:
-            tools = None
-        # generate content
+        return genai_client
+
+    @staticmethod
+    def getConfig(
+        system_message: Optional[str]=None,
+        schema: Optional[dict]=None,
+        temperature: Optional[float]=None,
+        max_tokens: Optional[int]=None,
+        stop: Optional[list]=None,
+        api_timeout: Optional[int]=None,
+        tools: Optional[list]=None,
+    ):
+        if not system_message:
+            system_message = os.getenv("DEFAULT_SYSTEM_MESSAGE") if os.getenv("DEFAULT_SYSTEM_MESSAGE") else "You are an AI assistant."
         genai_config = GenerateContentConfig(
             http_options=HttpOptions(timeout=api_timeout),
             system_instruction=system_message+"""\n\n# Output Format\nOutputs in JSON.""" if schema else system_message,
@@ -129,6 +100,65 @@ class GenaiAI:
                     threshold='BLOCK_ONLY_HIGH',
                 ),
             ],
+            tools=tools,
+        )
+        return genai_config
+
+    @staticmethod
+    def getChatCompletion(
+        messages: list,
+        model: Optional[str]=None,
+        schema: Optional[dict]=None,
+        temperature: Optional[float]=None,
+        max_tokens: Optional[int]=None,
+        #context_window: Optional[int]=None, # applicable to ollama only
+        #batch_size: Optional[int]=None, # applicable to ollama only
+        #prefill: Optional[str]=None,
+        stop: Optional[list]=None,
+        stream: Optional[bool]=False,
+        api_key: Optional[str]=None, # enter credentials json file path if using Vertex AI; or enter Google AI API key for accessing Google AI services
+        #api_endpoint: Optional[str]=None,
+        api_project_id: Optional[str]=None, # applicable to Vertex AI only
+        api_service_location: Optional[str]=None, # applicable to Vertex AI only
+        api_timeout: Optional[int]=None,
+        **kwargs,
+    ) -> Any:
+        if not api_key and not GenaiAI.DEFAULT_API_KEY:
+            raise ValueError("VertexAI credential json file path or GoogleAI API key is required.")
+        #if prefill:
+        #    messages.append({'role': 'assistant', 'content': prefill})
+        # convert messages to GenAI format
+        history, system_message, last_user_message = GenaiAI.toGenAIMessages(messages=messages)
+        # create GenAI client
+        genai_client = GenaiAI.getClient(api_key=api_key, api_project_id=api_project_id, api_service_location=api_service_location)
+        # format GenAI tool
+        if schema:
+            name, description, parameters = schema["name"], schema["description"], schema["parameters"]
+            if "type" in parameters:
+                parameters["type"] = parameters["type"].upper() # Input should be 'TYPE_UNSPECIFIED', 'STRING', 'NUMBER', 'INTEGER', 'BOOLEAN', 'ARRAY' or 'OBJECT' [type=literal_error, input_value='object', input_type=str]
+            for key, value in parameters["properties"].items():
+                if "type" in value:
+                    parameters["properties"][key]["type"] = parameters["properties"][key]["type"].upper() # Input should be 'TYPE_UNSPECIFIED', 'STRING', 'NUMBER', 'INTEGER', 'BOOLEAN', 'ARRAY' or 'OBJECT' [type=literal_error, input_value='object', input_type=str]
+            # declare a function
+            function_declaration = dict(
+                name=name,
+                description=description,
+                parameters=parameters,
+            )
+            tool = Tool(
+                function_declarations=[function_declaration],
+            )
+            tools = [tool]
+        else:
+            tools = None
+        # generate content
+        genai_config = GenaiAI.getConfig(
+            system_message=system_message,
+            schema=schema,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            stop=stop,
+            api_timeout=api_timeout,
             tools=tools,
         )
         genai_chat = genai_client.chats.create(

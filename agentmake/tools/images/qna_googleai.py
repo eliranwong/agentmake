@@ -44,7 +44,8 @@ def examine_images_googleai(query: str, image_filepath: Union[str, list], **kwar
                 "content": content,
                 }
             ],
-            max_tokens=4096,
+            temperature=float(os.getenv("GOOGLEAI_VISUAL_TEMPERATURE")) if os.getenv("GOOGLEAI_VISUAL_TEMPERATURE") else 0.3,
+            max_tokens=int(os.getenv("GOOGLEAI_VISUAL_MAX_TOKENS")) if os.getenv("GOOGLEAI_VISUAL_MAX_TOKENS") else 4096,
         )
         answer = response.choices[0].message.content
 

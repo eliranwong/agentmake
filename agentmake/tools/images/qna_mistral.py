@@ -37,14 +37,15 @@ def examine_images_mistral(query: str, image_filepath: Union[str, list], **kwarg
         content.insert(0, {"type": "text", "text": query,})
 
         response = client.chat.complete(
-            model=os.getenv("MISTRAL_VISUAL_MODEL") if os.getenv("MISTRAL_VISUAL_MODEL") else "pixtral-12b-2409",
+            model=os.getenv("MISTRAL_VISUAL_MODEL") if os.getenv("MISTRAL_VISUAL_MODEL") else "pixtral-large-latest",
             messages=[
                 {
                 "role": "user",
                 "content": content,
                 }
             ],
-            max_tokens=8192,
+            temperature=float(os.getenv("MISTRAL_VISUAL_TEMPERATURE")) if os.getenv("MISTRAL_VISUAL_TEMPERATURE") else 0.3,
+            max_tokens=int(os.getenv("MISTRAL_VISUAL_MAX_TOKENS")) if os.getenv("MISTRAL_VISUAL_MAX_TOKENS") else 8000,
         )
         answer = response.choices[0].message.content
 
