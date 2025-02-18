@@ -234,26 +234,32 @@ def main(keep_chat_record=False):
             except:
                 raise ValueError(f"Error! Failed to export conversation to '{args.export_conversation}'!")
 
-def getPygmentsStyle():
+def highlightMarkdownSyntax(content, theme=""):
+
+    from pygments import highlight
+    from pygments.lexers.markup import MarkdownLexer
+    from pygments.formatters import Terminal256Formatter
+    from pygments.styles import get_style_by_name
+
     """
+    Highlight Markdown content using Pygments and print it to the terminal.
+    ```
     from pygments.styles import get_all_styles
     styles = list(get_all_styles())
     print(styles)
-    ['abap', 'algol', 'algol_nu', 'arduino', 'autumn', 'bw', 'borland', 'coffee', 'colorful', 'default', 'dracula', 'emacs', 'friendly_grayscale', 'friendly', 'fruity', 'github-dark', 'gruvbox-dark', 'gruvbox-light', 'igor', 'inkpot', 'lightbulb', 'lilypond', 'lovelace', 'manni', 'material', 'monokai', 'murphy', 'native', 'nord-darker', 'nord', 'one-dark', 'paraiso-dark', 'paraiso-light', 'pastie', 'perldoc', 'rainbow_dash', 'rrt', 'sas', 'solarized-dark', 'solarized-light', 'staroffice', 'stata-dark', 'stata-light', 'tango', 'trac', 'vim', 'vs', 'xcode', 'zenburn']
+    ['abap', 'algol', 'algol_nu', 'arduino', 'autumn', 'bw', 'borland', 'coffee', 'colorful', 'default', 'dracula', 'emacs', 'friendly_grayscale', 'friendly', 'fruity', 'github-dark', 'gruvbox-dark', 'gruvbox-light', 'igor', 'inkpot', 'lightbulb', 'lilypond', 'lovelace', 'manni', 'material', 'monokai', 'murphy', 'native', 'nord-darker', 'nord', 'one-dark', 'paraiso-dark', 'paraiso-light', 'pastie', 'perldoc', 'rainbow_dash', 'rrt', 'sas', 'solarized-dark', 'solarized-light', 'staroffice', 'stata-dark', 'stata-light', 'tango', 'trac', 'vim', 'vs', 'xcode', 'zenburn']    
+    ```
     """
-    from pygments.styles import get_style_by_name
-    from prompt_toolkit.styles.pygments import style_from_pygments_cls
-    return style_from_pygments_cls(get_style_by_name(DEFAULT_MARKDOWN_THEME))
-
-def highlightMarkdownSyntax(content):
-    import pygments
-    from pygments.lexers.markup import MarkdownLexer
-    from prompt_toolkit.formatted_text import PygmentsTokens
-    from prompt_toolkit import print_formatted_text
     try:
-        tokens = list(pygments.lex(content, lexer=MarkdownLexer()))
-        print_formatted_text(PygmentsTokens(tokens), style=getPygmentsStyle())
-    except:
+        # Get the Pygments style by name.
+        style = get_style_by_name(theme if theme else DEFAULT_MARKDOWN_THEME)
+        # Create a terminal formatter that uses the specified style.
+        formatter = Terminal256Formatter(style=style)
+        # Highlight the content.
+        highlighted_content = highlight(content, MarkdownLexer(), formatter)
+        print(highlighted_content)
+    except Exception as e:
+        # Fallback: simply print the content if something goes wrong.
         print(content)
 
 if __name__ == "__main__":
