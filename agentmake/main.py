@@ -277,7 +277,7 @@ def listComponent(folder, ext="md", info=False):
                             pass
                     else:
                         print(re.sub(r"^.*?[/\\]", "", component)[:-(len(ext)+1)])
-                elif os.path.isdir(fullPath):
+                elif os.path.isdir(fullPath) and not os.path.basename(fullPath) == "lib":
                     listComponent(os.path.join(folder, ii), ext=ext, info=info)
 
 def highlightMarkdownSyntax(content, theme=""):

@@ -19,6 +19,13 @@ def showErrors(e=None, message=""):
         print("```")
     return trace
 
+def openURL(url):
+    if shutil.which("termux-open-url"):
+        command = f'''termux-open-url "{url}"'''
+        runSystemCommand(command)
+    else:
+        webbrowser.open(url)
+
 def get_wan_ip():
     try:
         response = requests.get('https://api.ipify.org?format=json', timeout=5)
