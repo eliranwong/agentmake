@@ -2,7 +2,7 @@ from typing import Union
 
 def examine_images_ollama(query: str, image_filepath: Union[str, list], **kwargs):
     
-    from agentmake.utils.images import is_valid_image_file, is_valid_image_url, encode_image
+    from agentmake.utils.images import is_valid_image_file, is_valid_image_url
     from agentmake.utils.online import is_valid_url
     from agentmake import OllamaAI
     from ollama import Options

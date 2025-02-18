@@ -1,6 +1,6 @@
 import numpy as np
 import sqlite3, apsw
-import json, re, ollama, os
+import json, re, ollama, os, datetime
 from typing import Union
 from openai import OpenAI
 from openai import AzureOpenAI
@@ -319,6 +319,68 @@ class ApswVectorDatabase:
                 #self.conn.commit()
             except sqlite3.IntegrityError:
                 pass  # Ignore duplicate entries
+
+    def search(self, query_vector, top_k=3):
+        self.cursor.execute("SELECT text, vector FROM vectors")
+        rows = self.cursor.fetchall()
+        
+        if not rows:
+            return []
+        
+        texts, vectors = zip(*[(row[0], np.array(json.loads(row[1]))) for row in rows])
+        document_matrix = np.vstack(vectors)
+        
+        similarities = cosine_similarity_matrix(query_vector, document_matrix)
+        top_indices = np.argsort(similarities)[::-1][:top_k]
+        
+        return [texts[i] for i in top_indices]
+
+class MemoryVectorDatabase:
+    """
+    Sqlite Vector Database via `apsw`; designed for memory store
+    """
+
+    def __init__(self, db_path="vectors.db"):
+        self.conn = apsw.Connection(db_path)
+        self.cursor = self.conn.cursor()
+        self._create_table()
+
+    def __del__(self):
+        if not self.conn is None:
+            self.conn.close()
+
+    def _create_table(self):
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS vectors (
+                id TEXT,
+                year INTEGER,
+                month INTEGER,
+                day INTEGER,
+                hour INTEGER,
+                minute INTEGER,
+                microsecond INTEGER,
+                today TEXT,
+                title TEXT,
+                category TEXT,
+                text TEXT,
+                vector TEXT
+            )
+        """
+        )
+        #self.conn.commit()
+
+    def add(self, title, text, vector, category=""):
+        now = datetime.datetime.now()
+        id = now.strftime("%Y%m%d%H%M%S%f")
+        year, month, day, hour, minute, microsecond = now.year, now.month, now.day, now.hour, now.minute, now.microsecond
+        today = datetime.date.today().strftime("%A")
+
+        vector_str = json.dumps(vector.tolist())
+        try:
+            self.cursor.execute("INSERT INTO vectors (id, year, month, day, hour, minute, microsecond, today, title, category, text, vector) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (id, year, month, day, hour, minute, microsecond, today, title, category, text, vector_str))
+            #self.conn.commit()
+        except sqlite3.IntegrityError:
+            pass  # Ignore duplicate entries
 
     def search(self, query_vector, top_k=3):
         self.cursor.execute("SELECT text, vector FROM vectors")

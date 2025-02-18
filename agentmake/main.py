@@ -199,7 +199,7 @@ def main(keep_chat_record=False):
             if args.markdown_highlights and last_response:
                 highlightMarkdownSyntax(last_response)
     elif keep_chat_record and config.messages:
-        # display the last assistant response when there is no new user prompt
+        # display the last assistant response when chat feature is enabled and there is no new user prompt
         last_response = config.messages[-1].get("content", "")
         if last_response:
             if args.markdown_highlights:

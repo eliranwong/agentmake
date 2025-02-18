@@ -1,8 +1,9 @@
 from dotenv import load_dotenv
-import os, shutil, warnings, datetime
+import os, shutil, warnings, getpass
 
 PACKAGE_PATH = os.path.dirname(os.path.realpath(__file__))
 PACKAGE_NAME = os.path.basename(PACKAGE_PATH)
+AGENTMAKE_USERNAME = os.getenv("AGENTMAKE_USERNAME") if os.getenv("AGENTMAKE_USERNAME") else getpass.getuser().capitalize()
 AGENTMAKE_USER_DIR = os.getenv("AGENTMAKE_USER_DIR") if os.getenv("AGENTMAKE_USER_DIR") else os.path.join(os.path.expanduser("~"), "agentmake") # It is where users store their custom components, i.e. `tools`, `agents`, `plugins`, `systems`, `instructions`, and `prompts`.Custom components are placed outside the package directory, to avoid overriding upon upgrades.
 
 def load_configurations(env_file=""):
@@ -24,10 +25,7 @@ from .backends.azure import AzureAI
 from .backends.cohere import CohereAI
 from .backends.custom import OpenaiCompatibleAI
 from .backends.deepseek import DeepseekAI
-with warnings.catch_warnings():
-    # skip a warning that is raised with the google-genai library itself
-    warnings.filterwarnings("ignore", message="<built-in function any> is not a Python type.*", category=UserWarning, module="pydantic._internal._generate_schema")
-    from .backends.genai import GenaiAI
+from .backends.genai import GenaiAI
 from .backends.github import GithubAI
 from .backends.googleai import GoogleaiAI
 from .backends.groq import GroqAI
@@ -53,7 +51,7 @@ USER_OS = platform.system()
 DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
 SUPPORTED_AI_BACKENDS = ["anthropic", "azure", "cohere", "custom", "deepseek", "genai", "github", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"]
 DEFAULT_AI_BACKEND = os.getenv("DEFAULT_AI_BACKEND") if os.getenv("DEFAULT_AI_BACKEND") else "ollama"
-DEFAULT_SYSTEM_MESSAGE = os.getenv("DEFAULT_SYSTEM_MESSAGE") if os.getenv("DEFAULT_SYSTEM_MESSAGE") else "You are an AI assistant."
+DEFAULT_SYSTEM_MESSAGE = os.getenv("DEFAULT_SYSTEM_MESSAGE") if os.getenv("DEFAULT_SYSTEM_MESSAGE") else f"You are my personal AI assistant. I am your user, {AGENTMAKE_USERNAME}. I will give you both text-based and non-text-based tasks, and the necessary tools to resolve my requests. Therefore, do not tell me that you are only a text-based language model. Try your best to resolve my requests. Do not address my name more than once in a single conversation unless I request it."
 DEFAULT_FOLLOW_UP_PROMPT = os.getenv("DEFAULT_FOLLOW_UP_PROMPT") if os.getenv("DEFAULT_FOLLOW_UP_PROMPT") else "Please tell me more."
 DEFAULT_TEXT_EDITOR = os.getenv("DEFAULT_TEXT_EDITOR") if os.getenv("DEFAULT_TEXT_EDITOR") else "etextedit"
 DEFAULT_MARKDOWN_THEME = os.getenv("DEFAULT_MARKDOWN_THEME") if os.getenv("DEFAULT_MARKDOWN_THEME") else "github-dark"
@@ -349,6 +347,9 @@ def agentmake(
     else:
         user_input = follow_up_prompt.pop(0) if follow_up_prompt else DEFAULT_FOLLOW_UP_PROMPT
         messages_copy.append({"role": "user", "content": user_input})
+    # echo the last assistant response if no user input is given
+    if not user_input and len(messages_copy) > 1 and messages_copy[-2].get("role", "") == "assistant":
+        messages_copy[-1]["content"] = messages_copy[-2].get("content", "")
     # handle user input content plugin(s)
     if input_content_plugin:
         if isinstance(input_content_plugin, str):
@@ -1354,10 +1355,6 @@ def extractText(item: Any, image_backend: str=""):
         showErrors(e)
         return f"An error occurred: {e}"
     return text_content
-
-def getCurrentDateTime():
-    current_datetime = datetime.datetime.now()
-    return current_datetime.strftime("%Y-%m-%d_%H_%M_%S")
 
 def getDefaultToolSystem(schema):
     try:

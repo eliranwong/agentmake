@@ -2,7 +2,7 @@ from typing import Union
 
 def upscale_images_genai(image_filepath: Union[str, list], **kwargs):
     
-    from agentmake import config, getOpenCommand, getCurrentDateTime
+    from agentmake import getOpenCommand, getCurrentDateTime
     from agentmake.utils.images import is_valid_image_file, is_valid_image_url
     from agentmake.utils.online import is_valid_url
     from agentmake import GenaiAI
@@ -55,9 +55,9 @@ def upscale_images_genai(image_filepath: Union[str, list], **kwargs):
             ext_len = len(ext) + 1
             new_imageFile = i[:(0-ext_len)] + f"_x2.{ext}"
         response = client.models.upscale_image(
-            model='imagen-3.0-generate-002',
+            model=os.getenv("VERTEXAI_IMAGEN_MODEL") if os.getenv("VERTEXAI_IMAGEN_MODEL") else "imagen-3.0-generate-002",
             image=image,
-            upscale_factor='x2',
+            upscale_factor="x4",
             config=UpscaleImageConfig(
                 include_rai_reason=True,
                 output_mime_type=f"image/{ext}",

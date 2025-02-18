@@ -1,4 +1,4 @@
-def create_image_genai(messages, **kwargs):
+def create_image_genai_4x3(messages, **kwargs):
 
     import os, shutil
     import shutil
@@ -29,7 +29,7 @@ def create_image_genai(messages, **kwargs):
             number_of_images=1,
             include_rai_reason=True,
             output_mime_type='image/png',
-            aspect_ratio="1:1", # "1:1", "9:16", "16:9", "4:3", "3:4"
+            aspect_ratio="4:3", # "1:1", "9:16", "16:9", "4:3", "3:4"
         ),
     )
     """
@@ -48,4 +48,4 @@ def create_image_genai(messages, **kwargs):
 
 TOOL_SCHEMA = {}
 
-TOOL_FUNCTION = create_image_genai
+TOOL_FUNCTION = create_image_genai_4x3
