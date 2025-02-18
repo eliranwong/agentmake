@@ -1382,7 +1382,7 @@ def getToolInfo(tool_path):
     loc = {}
     exec(content, glob, loc)
     schema = loc.get("TOOL_SCHEMA")
-    tool = re.sub(r"^.*?tools[/\\]", "", tool_path)
+    tool = re.sub(r"^.*?tools[/\\](.*?)\.[^.]+?$", r"\1", tool_path)
     if not schema:
         return f"`{tool}`"
     description = schema["description"]

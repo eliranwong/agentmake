@@ -269,12 +269,14 @@ def listComponent(folder, ext="md", info=False):
                     component = os.path.join(folder, ii)
                     if info:
                         try:
-                            print(getToolInfo(fullPath))
+                            #print(getToolInfo(fullPath))
+                            info = getToolInfo(fullPath)
+                            highlightMarkdownSyntax(info)
                         except:
                             # skipped unsupported tools
                             pass
                     else:
-                        print(re.sub(r"^.*?[/\\]", "", component))
+                        print(re.sub(r"^.*?[/\\]", "", component)[:-(len(ext)+1)])
                 elif os.path.isdir(fullPath):
                     listComponent(os.path.join(folder, ii), ext=ext, info=info)
 
