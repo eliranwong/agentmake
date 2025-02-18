@@ -44,7 +44,7 @@ class OpenaiAI:
         #    messages.append({'role': 'assistant', 'content': prefill})
         # tweaks for reasoning models
         model = model if model else OpenaiAI.DEFAULT_MODEL
-        extras = {} if re.search("^o[0-9]", model) else {
+        extras = {"stream": stream,} if re.search("^o[0-9]", model) else {
             "temperature": temperature if temperature is not None else OpenaiAI.DEFAULT_TEMPERATURE,
             "max_tokens": max_tokens if max_tokens else OpenaiAI.DEFAULT_MAX_TOKENS,
             "stream": stream,

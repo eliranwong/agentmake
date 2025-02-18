@@ -186,28 +186,41 @@ To specify an AI backend:
 
 To work collaboratively with different backends, e.g.
 
-```
-messages = agentmake("What is the most effective method for training AI models?", backend="openai")
-messages = agentmake(messages, backend="googleai", follow_up_prompt="Can you give me some different options?")
-messages = agentmake(messages, backend="xai", follow_up_prompt="What are the limitations or potential biases in this information?")
-agentmake(messages, backend="mistral", follow_up_prompt="Please provide a summary of the discussion so far.")
-```
+> messages = agentmake("What is the most effective method for training AI models?", backend="openai")
+
+> messages = agentmake(messages, backend="googleai", follow_up_prompt="Can you give me some different options?")
+
+> messages = agentmake(messages, backend="xai", follow_up_prompt="What are the limitations or potential biases in this information?")
+
+> agentmake(messages, backend="mistral", follow_up_prompt="Please provide a summary of the discussion so far.")
 
 As you may see, the `agentmake` function returns the `messages` list, which is passed to the next `agentmake` function in turns.
 
 Therefore, it is very simple to create a chatbot application, you can do it as few as five lines or less, e.g.:
 
-```
-messages = [{"role": "system", "content": "You are an AI assistant."}]
-user_input = "Hello!"
-while user_input:
-    messages = agentmake(messages, follow_up_prompt=user_input, stream=True)
-    user_input = input("Enter your query:\n(enter a blank entry to exit)\n>>> ")
-```
+> messages = [{"role": "system", "content": "You are an AI assistant."}]
 
-These are just a few simple and straightforward examples.  You may find more examples at:
+> user_input = "Hello!"
 
-https://github.com/eliranwong/agentmake/tree/main/agentmake/examples
+> while user_input:
+
+>     messages = agentmake(messages, follow_up_prompt=user_input, stream=True)
+
+>     user_input = input("Enter your query:\n(enter a blank entry to exit)\n>>> ")
+
+You may take a look at out our built-in components for more ideas:
+
+[systems](https://github.com/eliranwong/agentmake/tree/main/agentmake/systems)
+
+[instructions](https://github.com/eliranwong/agentmake/tree/main/agentmake/instructions)
+
+[plugins](https://github.com/eliranwong/agentmake/tree/main/agentmake/plugins)
+
+[tools](https://github.com/eliranwong/agentmake/tree/main/agentmake/tools).
+
+[agents](https://github.com/eliranwong/agentmake/tree/main/agentmake/agents).
+
+[prompts](https://github.com/eliranwong/agentmake/tree/main/agentmake/prompts).
 
 # CLI Options
 
@@ -254,6 +267,12 @@ CLI options are handy for testing, e.g. simply use a newly developed `tool` file
 > ai What is AgentMake AI? -t ~/my_folder/perplexica.py
 
 # AI Backends Configurations
+
+For quick start, run:
+
+> agentmake -ec
+
+For more options:
 
 To use `ollama` as the default backend, you need to [download and install](https://ollama.com/download) Ollama. To use backends other than Ollama, you need to use your own API keys.  There are a few options you may configure the AI backends to work with `agentmake`.
 
@@ -326,9 +345,6 @@ To use a fabric pattern in `agentmake`:
 
 # TODO
 
-* add examples
+* add more examples
 * convert availble ToolMate AI tools into tools that runable with this SDK (... in progess ...)
 * add documentation about tool creation
-* add built-in system messages
-* add built-in predefined instructions
-* add built-in prompts

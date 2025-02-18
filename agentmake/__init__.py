@@ -597,7 +597,7 @@ def agentmake(
             if instruction_file_content:
                 instruction_content = instruction_file_content
         if instruction_content:
-            messages_copy[-1]["content"] = instruction_content + messages_copy[-1]["content"]
+            messages_copy[-1]["content"] = instruction_content + "\n" + messages_copy[-1]["content"]
     # handle given prefill(s)
     if prefill and not agent_response:
         if isinstance(prefill, list):
