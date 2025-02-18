@@ -48,13 +48,13 @@ def main(keep_chat_record=False):
     parser.add_argument("-pa", "--paste", action="store_true", dest="paste", help="paste the clipboard text as a suffix to the user prompt")
     parser.add_argument("-py", "--copy", action="store_true", dest="copy", help="copy assistant response to the clipboard")
     # list
-    parser.add_argument("-la", "--list_agents", action="store", dest="list_agents", help="list agents")
-    parser.add_argument("-li", "--list_instructions", action="store", dest="list_instructions", help="list instructions")
-    parser.add_argument("-lpl", "--list_plugins", action="store", dest="list_plugins", help="list plugins")
-    parser.add_argument("-lpr", "--list_prompts", action="store", dest="list_prompts", help="list prompts")
-    parser.add_argument("-ls", "--list_systems", action="store", dest="list_systems", help="list systems")
-    parser.add_argument("-lt", "--list_tools", action="store", dest="list_tools", help="list tools")
-    parser.add_argument("-lti", "--list_tools_info", action="store", dest="list_tools_info", help="list tools information")
+    parser.add_argument("-la", "--list_agents", action="store_true", dest="list_agents", help="list agents")
+    parser.add_argument("-li", "--list_instructions", action="store_true", dest="list_instructions", help="list instructions")
+    parser.add_argument("-lpl", "--list_plugins", action="store_true", dest="list_plugins", help="list plugins")
+    parser.add_argument("-lpr", "--list_prompts", action="store_true", dest="list_prompts", help="list prompts")
+    parser.add_argument("-ls", "--list_systems", action="store_true", dest="list_systems", help="list systems")
+    parser.add_argument("-lt", "--list_tools", action="store_true", dest="list_tools", help="list tools")
+    parser.add_argument("-lti", "--list_tools_info", action="store_true", dest="list_tools_info", help="list tools information")
     # find
     parser.add_argument("-fa", "--find_agents", action="store", dest="find_agents", help="find agents")
     parser.add_argument("-fi", "--find_instructions", action="store", dest="find_instructions", help="find instructions")
@@ -91,7 +91,7 @@ def main(keep_chat_record=False):
 
     # list
     if args.list_agents:
-        listComponent("agents")
+        listComponent("agents", ext="py")
     if args.list_instructions:
         listComponent("instructions")
     if args.list_plugins:
