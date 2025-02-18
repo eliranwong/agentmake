@@ -1,10 +1,10 @@
-from agentmake import AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand
+from agentmake import AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand, getToolInfo
 from agentmake.etextedit import launch
 from agentmake.utils.handle_text import readTextFile, writeTextFile
 from agentmake.utils.files import searchFolder
 from agentmake.utils.text_wrapper import wrapText
 from agentmake.utils.system import getCliOutput
-import argparse, os, pprint, sys, pyperclip, shutil, pydoc, json
+import argparse, os, pprint, sys, pyperclip, shutil, pydoc, json, re
 
 
 def chat():
@@ -47,6 +47,14 @@ def main(keep_chat_record=False):
     # clipboard
     parser.add_argument("-pa", "--paste", action="store_true", dest="paste", help="paste the clipboard text as a suffix to the user prompt")
     parser.add_argument("-py", "--copy", action="store_true", dest="copy", help="copy assistant response to the clipboard")
+    # list
+    parser.add_argument("-la", "--list_agents", action="store", dest="list_agents", help="list agents")
+    parser.add_argument("-li", "--list_instructions", action="store", dest="list_instructions", help="list instructions")
+    parser.add_argument("-lpl", "--list_plugins", action="store", dest="list_plugins", help="list plugins")
+    parser.add_argument("-lpr", "--list_prompts", action="store", dest="list_prompts", help="list prompts")
+    parser.add_argument("-ls", "--list_systems", action="store", dest="list_systems", help="list systems")
+    parser.add_argument("-lt", "--list_tools", action="store", dest="list_tools", help="list tools")
+    parser.add_argument("-lti", "--list_tools_info", action="store", dest="list_tools_info", help="list tools information")
     # find
     parser.add_argument("-fa", "--find_agents", action="store", dest="find_agents", help="find agents")
     parser.add_argument("-fi", "--find_instructions", action="store", dest="find_instructions", help="find instructions")
@@ -80,6 +88,22 @@ def main(keep_chat_record=False):
         config.image_height = args.image_height
     if args.image_sample_steps:
         config.image_sample_steps = args.image_sample_steps
+
+    # list
+    if args.list_agents:
+        listComponent("agents")
+    if args.list_instructions:
+        listComponent("instructions")
+    if args.list_plugins:
+        listComponent("plugins", ext="py")
+    if args.list_prompts:
+        listComponent("prompts")
+    if args.list_systems:
+        listComponent("systems")
+    if args.list_tools:
+        listComponent("tools", ext="py")
+    if args.list_tools_info:
+        listComponent("tools", ext="py", info=True)
 
     # find
     if args.find_agents:
@@ -233,6 +257,26 @@ def main(keep_chat_record=False):
                 os.system(f'''{getOpenCommand()} "{args.export_conversation}"''')
             except:
                 raise ValueError(f"Error! Failed to export conversation to '{args.export_conversation}'!")
+
+def listComponent(folder, ext="md", info=False):
+    folder1 = os.path.join(AGENTMAKE_USER_DIR, folder)
+    folder2 = os.path.join(PACKAGE_PATH, folder)
+    for i in (folder1, folder2):
+        if os.path.isdir(i):
+            for ii in os.listdir(i):
+                fullPath = os.path.join(i, ii)
+                if os.path.isfile(fullPath) and not ii.lower() == "readme.md" and ii.endswith(f".{ext}"):
+                    component = os.path.join(folder, ii)
+                    if info:
+                        try:
+                            print(getToolInfo(fullPath))
+                        except:
+                            # skipped unsupported tools
+                            pass
+                    else:
+                        print(re.sub(r"^.*?[/\\]", "", component))
+                elif os.path.isdir(fullPath):
+                    listComponent(os.path.join(folder, ii), ext=ext, info=info)
 
 def highlightMarkdownSyntax(content, theme=""):
 
