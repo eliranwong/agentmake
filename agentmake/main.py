@@ -4,7 +4,10 @@ from agentmake.utils.handle_text import readTextFile, writeTextFile
 from agentmake.utils.files import searchFolder
 from agentmake.utils.text_wrapper import wrapText
 from agentmake.utils.system import getCliOutput
-import argparse, os, pprint, sys, pyperclip, shutil, pydoc, json, re
+from pprint import pformat
+from json import loads
+from shutil import which
+import argparse, os, sys, pyperclip, re
 
 
 def chat():
@@ -67,15 +70,41 @@ def main(keep_chat_record=False):
     parser.add_argument("-ih", "--image_height", action='store', dest="image_height", type=int, help="image height for image creation")
     parser.add_argument("-iss", "--image_sample_steps", action='store', dest="image_sample_steps", type=int, help="sample steps for image creation")
     # others
+    parser.add_argument("-u", "--upgrade", action="store_true", dest="upgrade", help="upgrade `agentmake` pip package")
+    parser.add_argument("-gm", "--get_model", action="append", dest="get_model", help=f"download ollama models if they do not exist; export downloaded ollama models to `{os.path.join(AGENTMAKE_USER_DIR, 'models', 'gguf')}`")
     parser.add_argument("-ec", "--edit_configurations", action="store_true", dest="edit_configurations", help="edit default configurations with text editor")
     parser.add_argument("-ei", "--edit_input", action="store_true", dest="edit_input", help="edit user input with text editor")
     parser.add_argument("-mh", "--markdown_highlights", action="store_true", dest="markdown_highlights", help="highlight markdown syntax")
     # Parse arguments
     args = parser.parse_args()
 
+    # upgrade
+    if args.upgrade:
+        if pip := which("pip"):
+            try:
+                from google.genai.types import Content
+                genai_installed = True
+            except:
+                genai_installed = False
+            cmd = f'''{pip} install --upgrade "agentmake[genai]"''' if genai_installed else f"{pip} install --upgrade agentmake"
+            print(f"Upgrading ...\nRunning `{cmd}` ...")
+            os.system(cmd)
+            print("Done! Closing ...")
+            exit(0)
+        else:
+            print("Upgrade aborted! `pip` command not found!")
+
     # edit configurations
     if args.edit_configurations:
         edit_configurations()
+
+    # export ollama models
+    if args.get_model:
+        from agentmake.utils.export_gguf import exportOllamaModels
+        from agentmake import OllamaAI
+        for i in args.get_model:
+            OllamaAI.downloadModel(i)
+        exportOllamaModels(args.get_model)
 
     # enable chat feature
     if args.chat:
@@ -142,7 +171,7 @@ def main(keep_chat_record=False):
     if stdin_text:
         stdin_text = f"\n\n{stdin_text.strip()}"
     if args.paste:
-        clipboardText = getCliOutput("termux-clipboard-get") if shutil.which("termux-clipboard-get") else pyperclip.paste()
+        clipboardText = getCliOutput("termux-clipboard-get") if which("termux-clipboard-get") else pyperclip.paste()
     else:
         clipboardText = ""
     if clipboardText:
@@ -202,7 +231,7 @@ def main(keep_chat_record=False):
             output_content_plugin=args.output_content_plugin,
             agent=args.agent,
             tool=args.tool,
-            schema=json.loads(args.schema) if args.schema else None,
+            schema=loads(args.schema) if args.schema else None,
             temperature=args.temperature,
             max_tokens=args.max_tokens,
             context_window=args.context_window,
@@ -232,16 +261,20 @@ def main(keep_chat_record=False):
                 print(wrapText(last_response) if args.word_wrap else last_response)
     # copy response to the clipboard
     if args.copy and last_response:
-        pydoc.pipepager(last_response, cmd="termux-clipboard-set") if shutil.which("termux-clipboard-set") else pyperclip.copy(last_response)
+        if which("termux-clipboard-set"):
+            from pydoc import pipepager
+            pipepager(last_response, cmd="termux-clipboard-set")
+        else:
+            pyperclip.copy(last_response)
         print("--------------------\nCopied!")
     # save conversation record
     if keep_chat_record:
         config_file = os.path.join(PACKAGE_PATH, "config.py")
-        config_content = "messages = " + pprint.pformat(config.messages)
+        config_content = "messages = " + pformat(config.messages)
         writeTextFile(config_file, config_content)
         if args.save_conversation:
             try:
-                writeTextFile(args.save_conversation, pprint.pformat(config.messages))
+                writeTextFile(args.save_conversation, pformat(config.messages))
             except:
                 raise ValueError(f"Error! Failed to save conversation to '{args.save_conversation}'!")
         if args.export_conversation:
