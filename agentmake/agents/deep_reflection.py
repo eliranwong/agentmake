@@ -1,5 +1,4 @@
 from agentmake import DEFAULT_AI_BACKEND
-from agentmake import agentmake
 from typing import Optional, Union, Any, List, Dict
 
 def deep_reflection(
@@ -22,6 +21,7 @@ def deep_reflection(
         word_wrap: Optional[bool]=True,
         **kwargs,
 ) -> Union[List[Dict[str, str]], Any]:
+    from agentmake import agentmake
     return agentmake(
         messages=messages,
         instruction="think",

@@ -1,4 +1,3 @@
-
 def extract_bible_references(
     content,
     **kwargs,

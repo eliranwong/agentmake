@@ -1,9 +1,5 @@
-from agentmake import AGENTMAKE_USER_DIR, DEFAULT_AI_BACKEND, DEFAULT_FOLLOW_UP_PROMPT, DEVELOPER_MODE, agentmake, getOpenCommand, writeTextFile, getCurrentDateTime
-from pathlib import Path
+from agentmake import DEFAULT_AI_BACKEND
 from typing import Optional, Union, Any, List, Dict
-from copy import deepcopy
-import re, os
-
 """
 TeamGen AI, developed by [Eliran Wong](https://github.com/eliranwong), automates the creation of AI agent teams to address user requests.
 
@@ -30,6 +26,62 @@ def teamgenai(
         word_wrap: Optional[bool]=True,
         **kwargs,
 ) -> Union[List[Dict[str, str]], Any]:
+
+    from agentmake import AGENTMAKE_USER_DIR, DEFAULT_FOLLOW_UP_PROMPT, DEVELOPER_MODE, agentmake, getOpenCommand, writeTextFile, getCurrentDateTime
+    from pathlib import Path
+    from copy import deepcopy
+    import re, os
+
+    def generate_teamgenai_record(backend, messages, userRequest, agents, agents_description, print_on_terminal):
+        timestamp = getCurrentDateTime()
+        storagePath = os.path.join(AGENTMAKE_USER_DIR, "teamgenai", timestamp)
+        Path(storagePath).mkdir(parents=True, exist_ok=True)
+        if print_on_terminal:
+            print()
+            print("# User Request Resolved")
+        agents_description_file = os.path.join(storagePath, "agents_configurations.py")
+        if print_on_terminal:
+            print(f"Saving agents' configurations in '{agents_description_file}' ...")
+        writeTextFile(agents_description_file, str(agents))
+        agents_discussion_file = os.path.join(storagePath, "agents_discussion.py")
+        if print_on_terminal:
+            print(f"Saving agents discussion in '{agents_discussion_file}' ...")
+        writeTextFile(agents_discussion_file, str(messages))
+        plain_record_file = os.path.join(storagePath, "plain_record.md")
+        plain_record = f"""# Datetime
+
+{timestamp}
+
+# AI Backend
+
+{backend}
+
+# User Request
+
+{userRequest}
+
+# Agents Generated
+
+{agents_description}
+
+# Agents Discussion
+"""
+        for i in messages:
+            role = i.get("role", "")
+            content = i.get("content", "")
+            if content:
+                plain_record += f"""
+```{role}
+{content}
+```
+"""
+        print(f"Saving plain record in '{plain_record_file}' ...")
+        writeTextFile(plain_record_file, plain_record)
+        print("Done!")
+        try:
+            os.system(f'''{getOpenCommand()} "{plain_record_file}"''')
+        except:
+            pass
 
     # set initial message chain
     if isinstance(messages, str):
@@ -213,56 +265,5 @@ Please provide me with the final answer to my original request based on the work
         print("# Closing TeamGen AI ...\n")
     
     return messages_copy
-
-def generate_teamgenai_record(backend, messages, userRequest, agents, agents_description, print_on_terminal):
-    timestamp = getCurrentDateTime()
-    storagePath = os.path.join(AGENTMAKE_USER_DIR, "teamgenai", timestamp)
-    Path(storagePath).mkdir(parents=True, exist_ok=True)
-    if print_on_terminal:
-        print()
-        print("# User Request Resolved")
-    agents_description_file = os.path.join(storagePath, "agents_configurations.py")
-    if print_on_terminal:
-        print(f"Saving agents' configurations in '{agents_description_file}' ...")
-    writeTextFile(agents_description_file, str(agents))
-    agents_discussion_file = os.path.join(storagePath, "agents_discussion.py")
-    if print_on_terminal:
-        print(f"Saving agents discussion in '{agents_discussion_file}' ...")
-    writeTextFile(agents_discussion_file, str(messages))
-    plain_record_file = os.path.join(storagePath, "plain_record.md")
-    plain_record = f"""# Datetime
-
-{timestamp}
-
-# AI Backend
-
-{backend}
-
-# User Request
-
-{userRequest}
-
-# Agents Generated
-
-{agents_description}
-
-# Agents Discussion
-"""
-    for i in messages:
-        role = i.get("role", "")
-        content = i.get("content", "")
-        if content:
-            plain_record += f"""
-```{role}
-{content}
-```
-"""
-    print(f"Saving plain record in '{plain_record_file}' ...")
-    writeTextFile(plain_record_file, plain_record)
-    print("Done!")
-    try:
-        os.system(f'''{getOpenCommand()} "{plain_record_file}"''')
-    except:
-        pass
 
 AGENT_FUNCTION = teamgenai
