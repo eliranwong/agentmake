@@ -1,19 +1,20 @@
 from agentmake import config
-from ..utils.text_wrapper import TextWrapper
 from mistralai import Mistral, ChatCompletionResponse, UNSET, CompletionEvent
 from mistralai.utils.eventstreaming import EventStream
 from typing import Optional, Union
-import json, os, traceback
+from traceback import format_exc
+from json import loads
+from os import getenv
 
-DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
+DEVELOPER_MODE = True if getenv("DEVELOPER_MODE") and getenv("DEVELOPER_MODE").upper() == "TRUE" else False
 
 class MistralAI:
     # docs: https://docs.mistral.ai/
 
-    DEFAULT_API_KEY = os.getenv("MISTRAL_API_KEY").split(",") if os.getenv("MISTRAL_API_KEY") and "," in os.getenv("MISTRAL_API_KEY") else [os.getenv("MISTRAL_API_KEY")]
-    DEFAULT_MODEL = os.getenv("MISTRAL_MODEL") if os.getenv("MISTRAL_MODEL") else "mistral-large-latest"
-    DEFAULT_TEMPERATURE = float(os.getenv("MISTRAL_TEMPERATURE")) if os.getenv("MISTRAL_TEMPERATURE") else 0.3
-    DEFAULT_MAX_TOKENS = int(os.getenv("MISTRAL_MAX_TOKENS")) if os.getenv("MISTRAL_MAX_TOKENS") else 8000 # https://docs.mistral.ai/getting-started/models/models_overview/
+    DEFAULT_API_KEY = getenv("MISTRAL_API_KEY").split(",") if getenv("MISTRAL_API_KEY") and "," in getenv("MISTRAL_API_KEY") else [getenv("MISTRAL_API_KEY")]
+    DEFAULT_MODEL = getenv("MISTRAL_MODEL") if getenv("MISTRAL_MODEL") else "mistral-large-latest"
+    DEFAULT_TEMPERATURE = float(getenv("MISTRAL_TEMPERATURE")) if getenv("MISTRAL_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(getenv("MISTRAL_MAX_TOKENS")) if getenv("MISTRAL_MAX_TOKENS") else 8000 # https://docs.mistral.ai/getting-started/models/models_overview/
 
     @staticmethod
     def getApiKey():
@@ -89,7 +90,7 @@ class MistralAI:
             except Exception as e:
                 print(f"An error occurred: {e}")
                 if DEVELOPER_MODE:
-                    print(traceback.format_exc())
+                    print(format_exc())
                 print(f"Failed API key: {this_api_key}")
         return completion
 
@@ -123,4 +124,4 @@ class MistralAI:
             api_timeout=api_timeout,
             **kwargs
         )
-        return json.loads(completion.choices[0].message.tool_calls[0].function.arguments)
+        return loads(completion.choices[0].message.tool_calls[0].function.arguments)

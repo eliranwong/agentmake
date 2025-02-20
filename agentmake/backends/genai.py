@@ -5,18 +5,19 @@ except:
     # Google GenAI SDK is not supported on Android Termux
     pass
 from typing import Optional, Any
-import os
-
+from os import environ, getenv
+from os.path import isfile, expanduser, join
 
 class GenaiAI:
 
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.getenv("VERTEXAI_API_KEY") if not os.getenv("GOOGLE_APPLICATION_CREDENTIALS") and os.getenv("VERTEXAI_API_KEY") and os.path.isfile(os.getenv("VERTEXAI_API_KEY")) else os.getenv("GOOGLE_APPLICATION_CREDENTIALS") or ""
-    DEFAULT_API_KEY = os.getenv("GOOGLE_APPLICATION_CREDENTIALS") if os.getenv("GOOGLE_APPLICATION_CREDENTIALS") else os.getenv("GOOGLEAI_API_KEY")
-    DEFAULT_API_PROJECT_ID = os.getenv("VERTEXAI_API_PROJECT_ID")
-    DEFAULT_API_SERVICE_LOCATION = os.getenv("VERTEXAI_API_SERVICE_LOCATION") if os.getenv("VERTEXAI_API_SERVICE_LOCATION") else "us-central1"
-    DEFAULT_MODEL = os.getenv("VERTEXAI_MODEL") if os.getenv("VERTEXAI_MODEL") else "gemini-1.5-pro"
-    DEFAULT_TEMPERATURE = float(os.getenv("VERTEXAI_TEMPERATURE")) if os.getenv("VERTEXAI_TEMPERATURE") else 0.3
-    DEFAULT_MAX_TOKENS = int(os.getenv("VERTEXAI_MAX_TOKENS")) if os.getenv("VERTEXAI_MAX_TOKENS") else 8192 # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models
+    AGENTMAKE_USER_DIR = getenv("AGENTMAKE_USER_DIR") if getenv("AGENTMAKE_USER_DIR") else join(expanduser("~"), "agentmake")
+    environ["GOOGLE_APPLICATION_CREDENTIALS"] = expanduser(getenv("VERTEXAI_API_KEY")) if not getenv("GOOGLE_APPLICATION_CREDENTIALS") and getenv("VERTEXAI_API_KEY") and isfile(expanduser(getenv("VERTEXAI_API_KEY"))) else getenv("GOOGLE_APPLICATION_CREDENTIALS") or join(AGENTMAKE_USER_DIR, "google_application_credentials.json") if isfile(join(AGENTMAKE_USER_DIR, "google_application_credentials.json")) else ""
+    DEFAULT_API_KEY = getenv("GOOGLE_APPLICATION_CREDENTIALS") if getenv("GOOGLE_APPLICATION_CREDENTIALS") else getenv("GOOGLEAI_API_KEY")
+    DEFAULT_API_PROJECT_ID = getenv("VERTEXAI_API_PROJECT_ID")
+    DEFAULT_API_SERVICE_LOCATION = getenv("VERTEXAI_API_SERVICE_LOCATION") if getenv("VERTEXAI_API_SERVICE_LOCATION") else "us-central1"
+    DEFAULT_MODEL = getenv("VERTEXAI_MODEL") if getenv("VERTEXAI_MODEL") else "gemini-1.5-pro"
+    DEFAULT_TEMPERATURE = float(getenv("VERTEXAI_TEMPERATURE")) if getenv("VERTEXAI_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(getenv("VERTEXAI_MAX_TOKENS")) if getenv("VERTEXAI_MAX_TOKENS") else 8192 # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models
 
     @staticmethod
     def toGenAIMessages(messages: dict=[]) -> Optional[list]:
@@ -50,8 +51,9 @@ class GenaiAI:
         api_project_id = api_project_id if api_project_id else GenaiAI.DEFAULT_API_PROJECT_ID
         api_service_location = api_service_location if api_service_location else GenaiAI.DEFAULT_API_SERVICE_LOCATION
         api_key = api_key if api_key else GenaiAI.DEFAULT_API_KEY
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = api_key if os.path.isfile(api_key) else ""
-        genai_client = Client(vertexai=True, project=api_project_id, location=api_service_location) if os.path.isfile(api_key) and api_project_id and api_service_location else Client(api_key=api_key)
+        current_credentials = getenv("GOOGLE_APPLICATION_CREDENTIALS")
+        environ["GOOGLE_APPLICATION_CREDENTIALS"] = expanduser(api_key) if isfile(expanduser(api_key)) else current_credentials
+        genai_client = Client(vertexai=True, project=api_project_id, location=api_service_location) if isfile(api_key) and api_project_id and api_service_location else Client(api_key=api_key)
         return genai_client
 
     @staticmethod
@@ -65,7 +67,7 @@ class GenaiAI:
         tools: Optional[list]=None,
     ):
         if not system_message:
-            system_message = os.getenv("DEFAULT_SYSTEM_MESSAGE") if os.getenv("DEFAULT_SYSTEM_MESSAGE") else "You are an AI assistant."
+            system_message = getenv("DEFAULT_SYSTEM_MESSAGE") if getenv("DEFAULT_SYSTEM_MESSAGE") else "You are an AI assistant."
         genai_config = GenerateContentConfig(
             http_options=HttpOptions(timeout=api_timeout),
             system_instruction=system_message+"""\n\n# Output Format\nOutputs in JSON.""" if schema else system_message,

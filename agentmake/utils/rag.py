@@ -142,7 +142,7 @@ def embed_texts_with_azure(texts: list, model: str=RAG_EMBEDDING_MODEL):
     return np.array(embeddings)
 
 def embed_texts_with_genai(texts: list, model: str=RAG_EMBEDDING_MODEL):
-    if not (os.getenv("GOOGLE_APPLICATION_CREDENTIALS") and os.getenv("VERTEXAI_PROJECT_ID") and os.getenv("VERTEXAI_SERVICE_LOCATION")) and not os.getenv("GOOGLEAI_API_KEY") and not os.getenv("GEMINI_API_KEY"):
+    if not ((os.getenv("GOOGLE_APPLICATION_CREDENTIALS") and os.getenv("VERTEXAI_PROJECT_ID") and os.getenv("VERTEXAI_SERVICE_LOCATION"))) and not os.getenv("GOOGLEAI_API_KEY") and not os.getenv("GEMINI_API_KEY"):
         return None
     if os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
         client = genai.Client(vertexai=True, project=os.getenv("VERTEXAI_PROJECT_ID"), location=os.getenv("VERTEXAI_SERVICE_LOCATION"))

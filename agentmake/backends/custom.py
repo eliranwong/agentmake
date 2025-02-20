@@ -2,16 +2,17 @@ from agentmake import config
 from openai import OpenAI
 from openai.types.chat import ChatCompletion
 from typing import Optional
-import json, os
+from json import loads
+from os import getenv
 
 
 class OpenaiCompatibleAI:
 
-    DEFAULT_API_KEY = os.getenv("CUSTOM_API_KEY") if os.getenv("CUSTOM_API_KEY") else "agentmake"
-    DEFAULT_API_ENDPOINT = os.getenv("CUSTOM_API_ENDPOINT") if os.getenv("CUSTOM_API_ENDPOINT") else "" # e.g. "http://localhost:11434/v1" for Ollama
-    DEFAULT_MODEL = os.getenv("CUSTOM_MODEL")
-    DEFAULT_TEMPERATURE = float(os.getenv("CUSTOM_TEMPERATURE")) if os.getenv("CUSTOM_TEMPERATURE") else 0.3
-    DEFAULT_MAX_TOKENS = int(os.getenv("CUSTOM_MAX_TOKENS")) if os.getenv("CUSTOM_MAX_TOKENS") else 4000 # https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits
+    DEFAULT_API_KEY = getenv("CUSTOM_API_KEY") if getenv("CUSTOM_API_KEY") else "agentmake"
+    DEFAULT_API_ENDPOINT = getenv("CUSTOM_API_ENDPOINT") if getenv("CUSTOM_API_ENDPOINT") else "" # e.g. "http://localhost:11434/v1" for Ollama
+    DEFAULT_MODEL = getenv("CUSTOM_MODEL")
+    DEFAULT_TEMPERATURE = float(getenv("CUSTOM_TEMPERATURE")) if getenv("CUSTOM_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(getenv("CUSTOM_MAX_TOKENS")) if getenv("CUSTOM_MAX_TOKENS") else 4000 # https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits
 
     @staticmethod
     def getClient(api_key: Optional[str]=None, api_endpoint: Optional[str]=None):
@@ -87,4 +88,4 @@ class OpenaiCompatibleAI:
             api_timeout=api_timeout,
             **kwargs
         )
-        return json.loads(completion.choices[0].message.tool_calls[0].function.arguments)
+        return loads(completion.choices[0].message.tool_calls[0].function.arguments)

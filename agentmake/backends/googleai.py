@@ -2,15 +2,17 @@ from agentmake import config
 from openai import OpenAI
 from openai.types.chat import ChatCompletion
 from typing import Optional
-import json, codecs, os
+from codecs import decode
+from json import loads
+from os import getenv
 
 
 class GoogleaiAI:
 
-    DEFAULT_API_KEY = os.getenv("GEMINI_API_KEY") if os.getenv("GEMINI_API_KEY") else os.getenv("GOOGLEAI_API_KEY")
-    DEFAULT_MODEL = os.getenv("GOOGLEAI_MODEL") if os.getenv("GOOGLEAI_MODEL") else "gemini-1.5-pro"
-    DEFAULT_TEMPERATURE = float(os.getenv("GOOGLEAI_TEMPERATURE")) if os.getenv("GOOGLEAI_TEMPERATURE") else 0.3
-    DEFAULT_MAX_TOKENS = int(os.getenv("GOOGLEAI_MAX_TOKENS")) if os.getenv("GOOGLEAI_MAX_TOKENS") else 8192 # https://ai.google.dev/gemini-api/docs/models/gemini
+    DEFAULT_API_KEY = getenv("GEMINI_API_KEY") if getenv("GEMINI_API_KEY") else getenv("GOOGLEAI_API_KEY")
+    DEFAULT_MODEL = getenv("GOOGLEAI_MODEL") if getenv("GOOGLEAI_MODEL") else "gemini-1.5-pro"
+    DEFAULT_TEMPERATURE = float(getenv("GOOGLEAI_TEMPERATURE")) if getenv("GOOGLEAI_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(getenv("GOOGLEAI_MAX_TOKENS")) if getenv("GOOGLEAI_MAX_TOKENS") else 8192 # https://ai.google.dev/gemini-api/docs/models/gemini
 
     @staticmethod
     def getClient(api_key: Optional[str]=None):
@@ -91,9 +93,9 @@ class GoogleaiAI:
         outputMessage = completion.choices[0].message
         if hasattr(outputMessage, "tool_calls") and outputMessage.tool_calls:
             function_arguments = outputMessage.tool_calls[0].function.arguments
-            return json.loads(codecs.decode(function_arguments, "unicode_escape"))
+            return loads(decode(function_arguments, "unicode_escape"))
         else:
             #print("Failed to output structered data!")
             if hasattr(outputMessage, "content") and outputMessage.content:
-                return codecs.decode(outputMessage.content, "unicode_escape")
+                return decode(outputMessage.content, "unicode_escape")
         return {}

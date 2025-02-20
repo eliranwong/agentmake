@@ -2,16 +2,18 @@ from agentmake import config
 from openai import OpenAI
 from openai.types.chat import ChatCompletion
 from typing import Optional
-import json, os, traceback
+from traceback import format_exc
+from json import loads
+from os import getenv
 
-DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
+DEVELOPER_MODE = True if getenv("DEVELOPER_MODE") and getenv("DEVELOPER_MODE").upper() == "TRUE" else False
 
 class GithubAI:
 
-    DEFAULT_API_KEY = os.getenv("GITHUB_API_KEY").split(",") if os.getenv("GITHUB_API_KEY") and "," in os.getenv("GITHUB_API_KEY") else [os.getenv("GITHUB_API_KEY")]
-    DEFAULT_MODEL = os.getenv("GITHUB_MODEL") if os.getenv("GITHUB_MODEL") else "gpt-4o"
-    DEFAULT_TEMPERATURE = float(os.getenv("GITHUB_TEMPERATURE")) if os.getenv("GITHUB_TEMPERATURE") else 0.3
-    DEFAULT_MAX_TOKENS = int(os.getenv("GITHUB_MAX_TOKENS")) if os.getenv("GITHUB_MAX_TOKENS") else 4000 # https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits
+    DEFAULT_API_KEY = getenv("GITHUB_API_KEY").split(",") if getenv("GITHUB_API_KEY") and "," in getenv("GITHUB_API_KEY") else [getenv("GITHUB_API_KEY")]
+    DEFAULT_MODEL = getenv("GITHUB_MODEL") if getenv("GITHUB_MODEL") else "gpt-4o"
+    DEFAULT_TEMPERATURE = float(getenv("GITHUB_TEMPERATURE")) if getenv("GITHUB_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(getenv("GITHUB_MAX_TOKENS")) if getenv("GITHUB_MAX_TOKENS") else 4000 # https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits
 
     @staticmethod
     def getApiKey():
@@ -77,7 +79,7 @@ class GithubAI:
             except Exception as e:
                 print(f"An error occurred: {e}")
                 if DEVELOPER_MODE:
-                    print(traceback.format_exc())
+                    print(format_exc())
                 print(f"Failed API key: {this_api_key}")
         return completion
 
@@ -112,4 +114,4 @@ class GithubAI:
             api_timeout=api_timeout,
             **kwargs
         )
-        return json.loads(completion.choices[0].message.tool_calls[0].function.arguments)
+        return loads(completion.choices[0].message.tool_calls[0].function.arguments)

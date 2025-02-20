@@ -2,12 +2,13 @@ from ..utils.online import get_local_ip
 from ..utils.schema import getParameterSchema
 from typing import Optional
 from tqdm import tqdm
-from ollama import Options
+from ollama import Options, ResponseError
 from ollama._types import ChatResponse
 from ollama import pull
 from ollama import list as ollama_ls
-import ollama
-import re, json, os
+from ollama import _client as ollama_client
+from json import loads
+import re, os
 
 class OllamaAI:
 
@@ -45,7 +46,7 @@ class OllamaAI:
         # download model if it is not in the model list
         os.environ["OLLAMA_HOST"] = api_endpoint if api_endpoint else OllamaAI.DEFAULT_ENDPOINT
         OllamaAI.downloadModel(model)
-        return ollama.chat(
+        return ollama_client.chat(
             keep_alive=model_keep_alive if model_keep_alive else OllamaAI.DEFAULT_KEEP_ALIVE,
             model=model,
             messages=messages,
@@ -95,7 +96,7 @@ class OllamaAI:
         )
         jsonOutput = completion.message.content
         jsonOutput = re.sub("^[^{]*?({.*?})[^}]*?$", r"\1", jsonOutput)
-        return json.loads(jsonOutput)
+        return loads(jsonOutput)
 
     @staticmethod
     def downloadModel(model: str, force: bool=False) -> bool:
@@ -122,7 +123,7 @@ class OllamaAI:
                         bars[digest].update(completed - bars[digest].n)
 
                     current_digest = digest
-            except ollama.ResponseError as e:
+            except ResponseError as e:
                 print('Error:', e.error)
                 return False
         return True

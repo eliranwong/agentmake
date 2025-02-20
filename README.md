@@ -20,35 +20,35 @@ Windows, macOS, Linux, ChromeOS, Android via Termux
 
 # Supported backends
 
-`anthropic` - [Anthropic API](https://console.anthropic.com/)
+`anthropic` - [Anthropic API](https://console.anthropic.com/) [[docs](https://docs.anthropic.com/en/home)]
 
-`azure` - [Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)
+`azure` - [Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-studio/what-is-ai-studio) [[docs](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)]
 
-`cohere` - [Cohere API](https://docs.cohere.com/docs/the-cohere-platform)
+`cohere` - [Cohere API](https://cohere.com/) [[docs](https://docs.cohere.com/docs/the-cohere-platform)]
 
 `custom` - any openai-compatible backends that support function calling
 
-`deepseek` - [DeepSeek API](https://platform.deepseek.com/)
+`deepseek` - [DeepSeek API](https://platform.deepseek.com/) [[docs](https://api-docs.deepseek.com/)]
 
-`genai` - [Vertex AI](https://cloud.google.com/vertex-ai) or [Google AI](https://ai.google.dev/)
+`genai` - [Vertex AI](https://cloud.google.com/vertex-ai) or [Google AI](https://ai.google.dev/) [[docs](https://github.com/googleapis/python-genai)]
 
-`github` - [Github API](https://docs.github.com/en/github-models/prototyping-with-ai-models#experimenting-with-ai-models-using-the-api)
+`github` - [Github API](https://docs.github.com/en/github-models/prototyping-with-ai-models#experimenting-with-ai-models-using-the-api) [[docs](https://github.com/marketplace/models/azure-openai/gpt-4o)]
 
-`googleai` - [Google AI](https://ai.google.dev/)
+`googleai` - [Google AI](https://ai.google.dev/) [[docs](https://ai.google.dev/gemini-api/docs/openai)]
 
-`groq` - [Groq Cloud API](https://console.groq.com)
+`groq` - [Groq Cloud API](https://console.groq.com) [[docs](https://console.groq.com/docs/overview)]
 
-`llamacpp` - [Llama.cpp Server](https://github.com/ggerganov/llama.cpp) - [locat setup](https://github.com/ggerganov/llama.cpp/blob/master/docs/build.md) required
+`llamacpp` - [Llama.cpp Server](https://github.com/ggml-org/llama.cpp) [[docs](https://github.com/ggml-org/llama.cpp#llama-server)] - [local setup](https://github.com/ggerganov/llama.cpp/blob/master/docs/build.md) required
 
-`mistral` - [Mistral API](https://console.mistral.ai/api-keys/)
+`mistral` - [Mistral API](https://console.mistral.ai/api-keys/) [[docs](https://docs.mistral.ai/)]
 
-`ollama` - [Ollama](https://ollama.com/) - [local setup](https://ollama.com/download) required
+`ollama` - [Ollama](https://ollama.com/) [[docs](https://github.com/ollama/ollama-python)] - [local setup](https://ollama.com/download) required
 
-`openai` - [OpenAI API](https://platform.openai.com/)
+`openai` - [OpenAI API](https://platform.openai.com/) [[docs](https://platform.openai.com/)]
 
-`vertexai` - [Vertex AI](https://cloud.google.com/vertex-ai)
+`vertexai` - [Vertex AI](https://cloud.google.com/vertex-ai) [[docs](https://github.com/googleapis/python-genai)]
 
-`xai` - [XAI API](https://x.ai/api)
+`xai` - [XAI API](https://x.ai/api) [[docs](https://docs.x.ai/docs/overview)]
 
 For simplicity, `agentmake` uses `ollama` as the default backend, if parameter `backend` is not specified. Ollama models are automatically downloaded if they have not already been downloaded. Users can change the default backend by modifying environment variable `DEFAULT_AI_BACKEND`.
 
@@ -122,7 +122,7 @@ It is recommended not to install `agentmake` inside the directory `~/agentmake`,
 
 # Usage
 
-This SDK is designed to offer a single signature function `agentmake` for interacting with all AI backends, delivering a unified experience for generating AI responses. The main APIs are provided with the function `agentmake` located in this [file](https://github.com/eliranwong/agentmake/blob/main/agentmake/__init__.py#L72).
+This SDK is designed to offer a single signature function `agentmake` for interacting with all AI backends, delivering a unified experience for generating AI responses. The main APIs are provided with the function `agentmake` located in this [file](https://github.com/eliranwong/agentmake/blob/main/agentmake/__init__.py#L71).
 
 Find documentation at https://github.com/eliranwong/agentmake/blob/main/docs/README.md
 
@@ -322,6 +322,28 @@ What does this command do?
 
 Remember to save your changes to make them effective.
 
+## Note about Vertex AI Setup
+
+Make sure the extra package `genai` is installed with the command mentioned above:
+
+> pip install --upgrade "agentmake[genai]"
+
+To configure, run:
+
+> ai -ec
+
+Enter the path of your Google application credentials JSON file as the value of `VERTEXAI_API_KEY`. You need to specify your project ID and service location, in the configurations, as well. e.g.:
+
+```
+VERTEXAI_API_KEY=~/agentmake/google_application_credentials.json
+VERTEXAI_API_PROJECT_ID=my_project_id
+VERTEXAI_API_SERVICE_LOCATION=us-central1
+```
+
+To test Gemini 2.0 with Vertex AI, e.g.:
+
+> ai -b vertexai -m gemini-2.0-flash Hi!
+
 ## Remarks
 
 1. Please do not edit the file `agentmake.env`, that is located in the package directory, directly, as it is restored to its default values upon each upgrade.  It is recommended to make a copy of it and edit the copied file.
@@ -339,6 +361,10 @@ To use a fabric pattern in `agentmake`:
 2. Specify a fabric pattern in `agentmake` parameter `system` or `instruction`, by prefixing the selected pattern with `fabric.`
 
 > agentmake("The United Kingdom is a Christian country.", tool="search/searxng", system="fabric.analyze_claims")
+
+# Local Backends with GPU Acceleration
+
+Both local backends `ollama` and `llamacpp` support GPU accelerations.
 
 # TODO
 

@@ -1,9 +1,10 @@
 from dotenv import load_dotenv
-import os, shutil, warnings, getpass
+from getpass import getuser
+import os, shutil
 
 PACKAGE_PATH = os.path.dirname(os.path.realpath(__file__))
 PACKAGE_NAME = os.path.basename(PACKAGE_PATH)
-AGENTMAKE_USERNAME = os.getenv("AGENTMAKE_USERNAME") if os.getenv("AGENTMAKE_USERNAME") else getpass.getuser().capitalize()
+AGENTMAKE_USERNAME = os.getenv("AGENTMAKE_USERNAME") if os.getenv("AGENTMAKE_USERNAME") else getuser().capitalize()
 AGENTMAKE_USER_DIR = os.getenv("AGENTMAKE_USER_DIR") if os.getenv("AGENTMAKE_USER_DIR") else os.path.join(os.path.expanduser("~"), "agentmake") # It is where users store their custom components, i.e. `tools`, `agents`, `plugins`, `systems`, `instructions`, and `prompts`.Custom components are placed outside the package directory, to avoid overriding upon upgrades.
 
 def load_configurations(env_file=""):
@@ -41,11 +42,14 @@ from .utils.handle_text import readTextFile, writeTextFile
 from .utils.system import getCurrentDateTime
 
 from typing import Optional, Callable, Union, Any, List, Dict
-from copy import deepcopy
 from io import StringIO
-import sys, re, json, traceback, platform, atexit, psutil
 from markitdown import MarkItDown
 from pathlib import Path
+from copy import deepcopy
+from atexit import register
+from json import dumps
+from traceback import format_exc
+import sys, re, platform
 
 USER_OS = platform.system()
 DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
@@ -384,7 +388,7 @@ def agentmake(
                 except Exception as e:
                     print(f"Failed to execute input content plugin `{input_content_plugin_name}`! An error occurred: {e}")
                     if DEVELOPER_MODE:
-                        print(traceback.format_exc())
+                        print(format_exc())
             # run user input content plugin
             if input_content_plugin_func:
                 if user_input := messages_copy[-1].get("content", ""):
@@ -444,7 +448,7 @@ def agentmake(
             except Exception as e:
                 print(f"Failed to run agent `{agent_name}`! An error occurred: {e}")
                 if DEVELOPER_MODE:
-                    print(traceback.format_exc())
+                    print(format_exc())
         # run user input content plugin
         if agent_func:
             agent_response = agent_func(
@@ -652,7 +656,7 @@ def agentmake(
             except Exception as e:
                 print(f"Failed to execute tool `{tool_name}`! An error occurred: {e}")
                 if DEVELOPER_MODE:
-                    print(traceback.format_exc())
+                    print(format_exc())
 
     # check if it is last request
     is_last_request = True if not follow_up_prompt and not system and not instruction and not tool and not agent and not prefill else False
@@ -727,7 +731,7 @@ def agentmake(
                 function_name = re.sub("<function (.*?) .*?$", r"\1", str(func))
                 print(f"Failed to run tool function `{function_name}`! An error occurred: {e}")
                 if DEVELOPER_MODE:
-                    print(traceback.format_exc())
+                    print(format_exc())
                 function_response = None # due to unexpected errors encountered in executing the function; fall back to regular completion
             # handle function response
             if function_response is None or function_response: # fall back to regular completion if function_response is None; chat extension if function_response
@@ -766,7 +770,7 @@ def agentmake(
             else: # empty str; function executed successfully without chat extension
                 output = function_text_output if function_text_output else "Done!"
         else: # structured output
-            output = json.dumps(dictionary_output)
+            output = dumps(dictionary_output)
         if print_on_terminal:
             print(output)
     else: # regular completion
@@ -991,7 +995,7 @@ def agentmake(
                 except Exception as e:
                     print(f"Failed to execute output content plugin `{output_content_plugin_name}`! An error occurred: {e}")
                     if DEVELOPER_MODE:
-                        print(traceback.format_exc())
+                        print(format_exc())
             # run user output content plugin
             if output_content_plugin_func and output:
                 output = output_content_plugin_func(
@@ -1315,7 +1319,7 @@ def showErrors(e=None, message=""):
         trace = f"An error occurred: {e}" if e else "An error occurred!"
     print(trace)
     if DEVELOPER_MODE:
-        details = traceback.format_exc()
+        details = format_exc()
         trace += "\n"
         trace += details
         print("```error")
@@ -1406,28 +1410,8 @@ def getFabricPatternSystem(pattern, instruction=False):
             system = re.sub(r'# INPUT.*', '', system, flags=re.DOTALL).rstrip()
     return system
 
-# close open sockets at exit
-def close_open_sockets():
-    def terminate_connection(fd):
-        # Iterate through all network connections
-        for conn in psutil.net_connections(kind='inet'):
-            if conn.fd == fd:  # Match the file descriptor
-                try:
-                    process = psutil.Process(conn.pid)
-                    process.terminate()  # Kill the process holding the socket open
-                    process.wait()  # Wait for the process to terminate
-                except Exception as e:
-                    print(f"Error terminating process: {e}")
-    for conn in psutil.net_connections(kind='inet'):
-        fd = None
-        if found := re.search(r"sconn\(fd=([0-9]+?),.*?11434", str(conn)): # ollama
-            fd = int(found.group(1))
-        elif found := re.search(r"sconn\(fd=([0-9]+?),.*?'34.96.76.122'", str(conn)): # cohere
-            fd = int(found.group(1))
-        if fd:
-            terminate_connection(fd)
-#atexit.register(close_open_sockets)
 def ignore_warnings():
-    warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed <socket.socket.*, 11434\)") # ollama
-    warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed <ssl.SSLSocket.*'34.96.76.122'") # cohere
-atexit.register(ignore_warnings)
+    from warnings import filterwarnings
+    filterwarnings("ignore", category=ResourceWarning, message="unclosed <socket.socket.*, 11434\)") # ollama
+    filterwarnings("ignore", category=ResourceWarning, message="unclosed <ssl.SSLSocket.*'34.96.76.122'") # cohere
+register(ignore_warnings)

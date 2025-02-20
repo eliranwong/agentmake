@@ -3,10 +3,10 @@ from typing import Optional, Union, Any, List, Dict
 """
 TeamGen AI, developed by [Eliran Wong](https://github.com/eliranwong), automates the creation of AI agent teams to address user requests.
 
-Modify from source: https://github.com/eliranwong/teamgenai
+Modify from source: https://github.com/eliranwong/teamwork
 """
 
-def teamgenai(
+def teamwork(
         messages: Union[List[Dict[str, str]], str],
         backend: Optional[str]=DEFAULT_AI_BACKEND,
         model: Optional[str]=None,
@@ -32,9 +32,9 @@ def teamgenai(
     from copy import deepcopy
     import re, os
 
-    def generate_teamgenai_record(backend, messages, userRequest, agents, agents_description, print_on_terminal):
+    def generate_teamwork_record(backend, messages, userRequest, agents, agents_description, print_on_terminal):
         timestamp = getCurrentDateTime()
-        storagePath = os.path.join(AGENTMAKE_USER_DIR, "teamgenai", timestamp)
+        storagePath = os.path.join(AGENTMAKE_USER_DIR, "teamwork", timestamp)
         Path(storagePath).mkdir(parents=True, exist_ok=True)
         if print_on_terminal:
             print()
@@ -260,10 +260,10 @@ Please provide me with the final answer to my original request based on the work
 
     # backup before closing
     if not (stream and stream_events_only):
-        generate_teamgenai_record(backend, messages_copy, userRequest, agents, agents_description, print_on_terminal)
+        generate_teamwork_record(backend, messages_copy, userRequest, agents, agents_description, print_on_terminal)
     if print_on_terminal:
         print("# Closing TeamGen AI ...\n")
     
     return messages_copy
 
-AGENT_FUNCTION = teamgenai
+AGENT_FUNCTION = teamwork

@@ -144,3 +144,24 @@ def get_linux_distro():
         pass
 
     return {"name": "", "version": ""}  # Could not determine distro
+
+# close open sockets at exit
+def close_open_sockets():
+    def terminate_connection(fd):
+        # Iterate through all network connections
+        for conn in psutil.net_connections(kind='inet'):
+            if conn.fd == fd:  # Match the file descriptor
+                try:
+                    process = psutil.Process(conn.pid)
+                    process.terminate()  # Kill the process holding the socket open
+                    process.wait()  # Wait for the process to terminate
+                except Exception as e:
+                    print(f"Error terminating process: {e}")
+    for conn in psutil.net_connections(kind='inet'):
+        fd = None
+        if found := re.search(r"sconn\(fd=([0-9]+?),.*?11434", str(conn)): # ollama
+            fd = int(found.group(1))
+        elif found := re.search(r"sconn\(fd=([0-9]+?),.*?'34.96.76.122'", str(conn)): # cohere
+            fd = int(found.group(1))
+        if fd:
+            terminate_connection(fd)

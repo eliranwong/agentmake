@@ -2,16 +2,16 @@ from anthropic import Anthropic, NOT_GIVEN
 from anthropic.types import Message
 from typing import Optional
 from copy import deepcopy
-import os
+from os import getenv
 
 
 class AnthropicAI:
     # docs: https://docs.anthropic.com/en/home
 
-    DEFAULT_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-    DEFAULT_MODEL = os.getenv("ANTHROPIC_MODEL") if os.getenv("ANTHROPIC_MODEL") else "claude-3-5-sonnet-latest"
-    DEFAULT_TEMPERATURE = float(os.getenv("ANTHROPIC_TEMPERATURE")) if os.getenv("ANTHROPIC_TEMPERATURE") else 0.3
-    DEFAULT_MAX_TOKENS = int(os.getenv("ANTHROPIC_MAX_TOKENS")) if os.getenv("ANTHROPIC_MAX_TOKENS") else 8192 # https://docs.mistral.ai/getting-started/models/models_overview/
+    DEFAULT_API_KEY = getenv("ANTHROPIC_API_KEY")
+    DEFAULT_MODEL = getenv("ANTHROPIC_MODEL") if getenv("ANTHROPIC_MODEL") else "claude-3-5-sonnet-latest"
+    DEFAULT_TEMPERATURE = float(getenv("ANTHROPIC_TEMPERATURE")) if getenv("ANTHROPIC_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(getenv("ANTHROPIC_MAX_TOKENS")) if getenv("ANTHROPIC_MAX_TOKENS") else 8192 # https://docs.mistral.ai/getting-started/models/models_overview/
 
     @staticmethod
     def removeSystemMessage(messages: list) -> str:
