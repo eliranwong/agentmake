@@ -124,8 +124,8 @@ def embed_texts_with_openai(texts: list, model: str=RAG_EMBEDDING_MODEL):
     return np.array(embeddings)
 
 def embed_texts_with_azure(texts: list, model: str=RAG_EMBEDDING_MODEL):
-    api_key = os.getenv("AZURE_OPENAI_API_KEY") if os.getenv("AZURE_OPENAI_API_KEY") else os.getenv("AZURE_API_KEY")
-    azure_endpoint = os.getenv("AZURE_OPENAI_API_ENDPOINT") if os.getenv("AZURE_OPENAI_API_ENDPOINT") else os.getenv("AZURE_API_ENDPOINT")
+    api_key = os.getenv("AZURE_OPENAI_API_KEY") if os.getenv("AZURE_OPENAI_API_KEY") else ""
+    azure_endpoint = os.getenv("AZURE_OPENAI_API_ENDPOINT") if os.getenv("AZURE_OPENAI_API_ENDPOINT") else ""
     if not (api_key and azure_endpoint):
         return None
     client = AzureOpenAI(

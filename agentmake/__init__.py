@@ -1,10 +1,9 @@
 from dotenv import load_dotenv
-from getpass import getuser
-import os, shutil
+import os, shutil, getpass
 
 PACKAGE_PATH = os.path.dirname(os.path.realpath(__file__))
 PACKAGE_NAME = os.path.basename(PACKAGE_PATH)
-AGENTMAKE_USERNAME = os.getenv("AGENTMAKE_USERNAME") if os.getenv("AGENTMAKE_USERNAME") else getuser().capitalize()
+AGENTMAKE_USERNAME = os.getenv("AGENTMAKE_USERNAME") if os.getenv("AGENTMAKE_USERNAME") else getpass.getuser().capitalize()
 AGENTMAKE_USER_DIR = os.getenv("AGENTMAKE_USER_DIR") if os.getenv("AGENTMAKE_USER_DIR") else os.path.join(os.path.expanduser("~"), "agentmake") # It is where users store their custom components, i.e. `tools`, `agents`, `plugins`, `systems`, `instructions`, and `prompts`.Custom components are placed outside the package directory, to avoid overriding upon upgrades.
 
 def load_configurations(env_file=""):
@@ -46,10 +45,7 @@ from io import StringIO
 from markitdown import MarkItDown
 from pathlib import Path
 from copy import deepcopy
-from atexit import register
-from json import dumps
-from traceback import format_exc
-import sys, re, platform
+import sys, re, platform, atexit, json, traceback
 
 USER_OS = platform.system()
 DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
@@ -388,7 +384,7 @@ def agentmake(
                 except Exception as e:
                     print(f"Failed to execute input content plugin `{input_content_plugin_name}`! An error occurred: {e}")
                     if DEVELOPER_MODE:
-                        print(format_exc())
+                        print(traceback.format_exc())
             # run user input content plugin
             if input_content_plugin_func:
                 if user_input := messages_copy[-1].get("content", ""):
@@ -770,7 +766,7 @@ def agentmake(
             else: # empty str; function executed successfully without chat extension
                 output = function_text_output if function_text_output else "Done!"
         else: # structured output
-            output = dumps(dictionary_output)
+            output = json.dumps(dictionary_output)
         if print_on_terminal:
             print(output)
     else: # regular completion
@@ -1414,4 +1410,4 @@ def ignore_warnings():
     from warnings import filterwarnings
     filterwarnings("ignore", category=ResourceWarning, message="unclosed <socket.socket.*, 11434\)") # ollama
     filterwarnings("ignore", category=ResourceWarning, message="unclosed <ssl.SSLSocket.*'34.96.76.122'") # cohere
-register(ignore_warnings)
+atexit.register(ignore_warnings)

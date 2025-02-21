@@ -2,16 +2,16 @@ from agentmake import config
 from openai import OpenAI
 from openai.types.chat import ChatCompletion
 from typing import Optional
-from json import loads
-from os import getenv
+import json
+import os
 
 
 class DeepseekAI:
 
-    DEFAULT_API_KEY = getenv("DEEPSEEK_API_KEY")
-    DEFAULT_MODEL = getenv("DEEPSEEK_MODEL") if getenv("DEEPSEEK_MODEL") else "deepseek-chat" # 'deepseek-chat' or 'deepseek-reasoner'; check https://api-docs.deepseek.com/quick_start/pricing
-    DEFAULT_TEMPERATURE = float(getenv("DEEPSEEK_TEMPERATURE")) if getenv("DEEPSEEK_TEMPERATURE") else 0.3
-    DEFAULT_MAX_TOKENS = int(getenv("DEEPSEEK_MAX_TOKENS")) if getenv("DEEPSEEK_MAX_TOKENS") else 8000 # https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits
+    DEFAULT_API_KEY = os.getenv("DEEPSEEK_API_KEY")
+    DEFAULT_MODEL = os.getenv("DEEPSEEK_MODEL") if os.getenv("DEEPSEEK_MODEL") else "deepseek-chat" # 'deepseek-chat' or 'deepseek-reasoner'; check https://api-docs.deepseek.com/quick_start/pricing
+    DEFAULT_TEMPERATURE = float(os.getenv("DEEPSEEK_TEMPERATURE")) if os.getenv("DEEPSEEK_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("DEEPSEEK_MAX_TOKENS")) if os.getenv("DEEPSEEK_MAX_TOKENS") else 8000 # https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits
 
     @staticmethod
     def getClient(api_key: Optional[str]=None):
@@ -89,4 +89,4 @@ class DeepseekAI:
             api_timeout=api_timeout,
             **kwargs
         )
-        return loads(completion.choices[0].message.tool_calls[0].function.arguments)
+        return json.loads(completion.choices[0].message.tool_calls[0].function.arguments)

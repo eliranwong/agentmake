@@ -2,18 +2,18 @@ from agentmake import config
 from cohere import ClientV2, ChatResponse
 from cohere.core.request_options import RequestOptions
 from typing import Optional
-from json import loads
-from traceback import format_exc
-from os import getenv
+import json
+import traceback
+import os
 
-DEVELOPER_MODE = True if getenv("DEVELOPER_MODE") and getenv("DEVELOPER_MODE").upper() == "TRUE" else False
+DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
 
 class CohereAI:
 
-    DEFAULT_API_KEY = getenv("COHERE_API_KEY").split(",") if getenv("COHERE_API_KEY") and "," in getenv("COHERE_API_KEY") else [getenv("COHERE_API_KEY")]
-    DEFAULT_MODEL = getenv("COHERE_MODEL") if getenv("COHERE_MODEL") else "command-r-plus" # https://docs.cohere.com/docs/models
-    DEFAULT_TEMPERATURE = float(getenv("COHERE_TEMPERATURE")) if getenv("COHERE_TEMPERATURE") else 0.3
-    DEFAULT_MAX_TOKENS = int(getenv("COHERE_MAX_TOKENS")) if getenv("COHERE_MAX_TOKENS") else 4000 # https://docs.cohere.com/docs/rate-limits
+    DEFAULT_API_KEY = os.getenv("COHERE_API_KEY").split(",") if os.getenv("COHERE_API_KEY") and "," in os.getenv("COHERE_API_KEY") else [os.getenv("COHERE_API_KEY")]
+    DEFAULT_MODEL = os.getenv("COHERE_MODEL") if os.getenv("COHERE_MODEL") else "command-r-plus" # https://docs.cohere.com/docs/models
+    DEFAULT_TEMPERATURE = float(os.getenv("COHERE_TEMPERATURE")) if os.getenv("COHERE_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("COHERE_MAX_TOKENS")) if os.getenv("COHERE_MAX_TOKENS") else 4000 # https://docs.cohere.com/docs/rate-limits
 
     @staticmethod
     def getApiKey():
@@ -80,7 +80,7 @@ class CohereAI:
             except Exception as e:
                 print(f"An error occurred: {e}")
                 if DEVELOPER_MODE:
-                    print(format_exc())
+                    print(traceback.format_exc())
                 print(f"Failed API key: {this_api_key}")
         return completion
 
@@ -114,4 +114,4 @@ class CohereAI:
             api_timeout=api_timeout,
             **kwargs
         )
-        return loads(completion.message.tool_calls[0].function.arguments)
+        return json.loads(completion.message.tool_calls[0].function.arguments)

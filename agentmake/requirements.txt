@@ -27,3 +27,4 @@ networkx
 pipmaster
 tenacity
 nano-vectordb
+azure-ai-inference

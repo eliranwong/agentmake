@@ -2,26 +2,26 @@ from agentmake import config
 from openai import AzureOpenAI
 from openai.types.chat import ChatCompletion
 from typing import Optional
-from json import loads
-from os import getenv
+import json
+import os
 
 
 class AzureAI:
     
-    DEFAULT_API_VERSION = getenv("AZURE_API_VERSION") if getenv("AZURE_API_VERSION") else "2024-10-21" # check the latest api version at https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#data-plane-inference
-    DEFAULT_API_KEY = getenv("AZURE_OPENAI_API_KEY") if getenv("AZURE_OPENAI_API_KEY") else getenv("AZURE_API_KEY")
-    DEFAULT_API_ENDPOINT = getenv("AZURE_OPENAI_API_ENDPOINT") if getenv("AZURE_OPENAI_API_ENDPOINT") else getenv("AZURE_API_ENDPOINT")
-    DEFAULT_MODEL = getenv("AZURE_MODEL") if getenv("AZURE_MODEL") else "gpt-4o"
-    DEFAULT_TEMPERATURE = float(getenv("AZURE_TEMPERATURE")) if getenv("AZURE_TEMPERATURE") else 0.3
-    DEFAULT_MAX_TOKENS = int(getenv("AZURE_MAX_TOKENS")) if getenv("AZURE_MAX_TOKENS") else 16384
+    DEFAULT_API_VERSION = os.getenv("AZURE_API_VERSION") if os.getenv("AZURE_API_VERSION") else "2024-10-21" # check the latest api version at https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#data-plane-inference
+    DEFAULT_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY") if os.getenv("AZURE_OPENAI_API_KEY") else ""
+    DEFAULT_API_ENDPOINT = os.getenv("AZURE_OPENAI_API_ENDPOINT") if os.getenv("AZURE_OPENAI_API_ENDPOINT") else ""
+    DEFAULT_MODEL = os.getenv("AZURE_OPENAI_MODEL") if os.getenv("AZURE_OPENAI_MODEL") else "gpt-4o"
+    DEFAULT_TEMPERATURE = float(os.getenv("AZURE_OPENAI_TEMPERATURE")) if os.getenv("AZURE_OPENAI_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("AZURE_OPENAI_MAX_TOKENS")) if os.getenv("AZURE_OPENAI_MAX_TOKENS") else 16384
 
-    DEFAULT_DALLE_API_KEY = getenv("AZURE_OPENAI_DALLE_API_KEY") if getenv("AZURE_OPENAI_DALLE_API_KEY") else getenv("AZURE_DALLE_API_KEY")
-    DEFAULT_DALLE_API_ENDPOINT = getenv("AZURE_OPENAI_DALLE_API_ENDPOINT") if getenv("AZURE_OPENAI_DALLE_API_ENDPOINT") else getenv("AZURE_DALLE_API_ENDPOINT")
-    DEFAULT_DALLE_MODEL = getenv("AZURE_DALLE_MODEL") if getenv("AZURE_DALLE_MODEL") else "dall-e-3"
+    DEFAULT_DALLE_API_KEY = os.getenv("AZURE_DALLE_API_KEY") if os.getenv("AZURE_DALLE_API_KEY") else ""
+    DEFAULT_DALLE_API_ENDPOINT = os.getenv("AZURE_DALLE_API_ENDPOINT") if os.getenv("AZURE_DALLE_API_ENDPOINT") else ""
+    DEFAULT_DALLE_MODEL = os.getenv("AZURE_DALLE_MODEL") if os.getenv("AZURE_DALLE_MODEL") else "dall-e-3"
 
-    DEFAULT_WHISPER_API_KEY = getenv("AZURE_OPENAI_WHISPER_API_KEY") if getenv("AZURE_OPENAI_WHISPER_API_KEY") else getenv("AZURE_WHISPER_API_KEY")
-    DEFAULT_WHISPER_API_ENDPOINT = getenv("AZURE_OPENAI_WHISPER_API_ENDPOINT") if getenv("AZURE_OPENAI_WHISPER_API_ENDPOINT") else getenv("AZURE_WHISPER_API_ENDPOINT")
-    DEFAULT_WHISPER_MODEL = getenv("AZURE_WHISPER_MODEL") if getenv("AZURE_WHISPER_MODEL") else "whisper"
+    DEFAULT_WHISPER_API_KEY = os.getenv("AZURE_WHISPER_API_KEY") if os.getenv("AZURE_WHISPER_API_KEY") else ""
+    DEFAULT_WHISPER_API_ENDPOINT = os.getenv("AZURE_WHISPER_API_ENDPOINT") if os.getenv("AZURE_WHISPER_API_ENDPOINT") else ""
+    DEFAULT_WHISPER_MODEL = os.getenv("AZURE_WHISPER_MODEL") if os.getenv("AZURE_WHISPER_MODEL") else "whisper"
 
     @staticmethod
     def getClient(api_key: Optional[str]=None, api_endpoint: Optional[str]=None):
@@ -125,4 +125,4 @@ class AzureAI:
             api_timeout=api_timeout,
             **kwargs
         )
-        return loads(completion.choices[0].message.tool_calls[0].function.arguments)
+        return json.loads(completion.choices[0].message.tool_calls[0].function.arguments)

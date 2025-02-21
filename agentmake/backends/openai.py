@@ -2,17 +2,15 @@ from agentmake import config
 from openai import OpenAI
 from openai.types.chat import ChatCompletion
 from typing import Optional
-from json import loads
-from os import getenv
-from re import search
+import json, os, re
 
 
 class OpenaiAI:
 
-    DEFAULT_API_KEY = getenv("OPENAI_API_KEY")
-    DEFAULT_MODEL = getenv("OPENAI_MODEL") if getenv("OPENAI_MODEL") else "gpt-4o"
-    DEFAULT_TEMPERATURE = float(getenv("OPENAI_TEMPERATURE")) if getenv("OPENAI_TEMPERATURE") else 0.3
-    DEFAULT_MAX_TOKENS = int(getenv("OPENAI_MAX_TOKENS")) if getenv("OPENAI_MAX_TOKENS") else 16384 # https://platform.openai.com/docs/models
+    DEFAULT_API_KEY = os.getenv("OPENAI_API_KEY")
+    DEFAULT_MODEL = os.getenv("OPENAI_MODEL") if os.getenv("OPENAI_MODEL") else "gpt-4o"
+    DEFAULT_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE")) if os.getenv("OPENAI_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS")) if os.getenv("OPENAI_MAX_TOKENS") else 16384 # https://platform.openai.com/docs/models
 
     @staticmethod
     def getClient(api_key: Optional[str]=None):
@@ -46,7 +44,7 @@ class OpenaiAI:
         #    messages.append({'role': 'assistant', 'content': prefill})
         # tweaks for reasoning models
         model = model if model else OpenaiAI.DEFAULT_MODEL
-        extras = {"stream": stream,} if search("^o[0-9]", model) else {
+        extras = {"stream": stream,} if re.search("^o[0-9]", model) else {
             "temperature": temperature if temperature is not None else OpenaiAI.DEFAULT_TEMPERATURE,
             "max_tokens": max_tokens if max_tokens else OpenaiAI.DEFAULT_MAX_TOKENS,
             "stream": stream,
@@ -95,4 +93,4 @@ class OpenaiAI:
             api_timeout=api_timeout,
             **kwargs
         )
-        return loads(completion.choices[0].message.tool_calls[0].function.arguments)
+        return json.loads(completion.choices[0].message.tool_calls[0].function.arguments)

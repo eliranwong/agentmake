@@ -7,8 +7,7 @@ from ollama._types import ChatResponse
 from ollama import pull
 from ollama import list as ollama_ls
 from ollama import _client as ollama_client
-from json import loads
-import re, os
+import re, os, json
 
 class OllamaAI:
 
@@ -96,7 +95,7 @@ class OllamaAI:
         )
         jsonOutput = completion.message.content
         jsonOutput = re.sub("^[^{]*?({.*?})[^}]*?$", r"\1", jsonOutput)
-        return loads(jsonOutput)
+        return json.loads(jsonOutput)
 
     @staticmethod
     def downloadModel(model: str, force: bool=False) -> bool:

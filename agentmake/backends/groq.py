@@ -2,18 +2,18 @@ from agentmake import config
 from groq import Groq
 from groq.types.chat.chat_completion import ChatCompletion
 from typing import Optional
-from traceback import format_exc
-from json import loads
-from os import getenv
+import traceback
+import json
+import os
 
-DEVELOPER_MODE = True if getenv("DEVELOPER_MODE") and getenv("DEVELOPER_MODE").upper() == "TRUE" else False
+DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
 
 class GroqAI:
 
-    DEFAULT_API_KEY = getenv("GROQ_API_KEY").split(",") if getenv("GROQ_API_KEY") and "," in getenv("GROQ_API_KEY") else [getenv("GROQ_API_KEY")]
-    DEFAULT_MODEL = getenv("GROQ_MODEL") if getenv("GROQ_MODEL") else "llama-3.3-70b-versatile"
-    DEFAULT_TEMPERATURE = float(getenv("GROQ_TEMPERATURE")) if getenv("GROQ_TEMPERATURE") else 0.3
-    DEFAULT_MAX_TOKENS = int(getenv("GROQ_MAX_TOKENS")) if getenv("GROQ_MAX_TOKENS") else 32768 # https://console.groq.com/docs/models
+    DEFAULT_API_KEY = os.getenv("GROQ_API_KEY").split(",") if os.getenv("GROQ_API_KEY") and "," in os.getenv("GROQ_API_KEY") else [os.getenv("GROQ_API_KEY")]
+    DEFAULT_MODEL = os.getenv("GROQ_MODEL") if os.getenv("GROQ_MODEL") else "llama-3.3-70b-versatile"
+    DEFAULT_TEMPERATURE = float(os.getenv("GROQ_TEMPERATURE")) if os.getenv("GROQ_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("GROQ_MAX_TOKENS")) if os.getenv("GROQ_MAX_TOKENS") else 32768 # https://console.groq.com/docs/models
 
     @staticmethod
     def getApiKey():
@@ -77,7 +77,7 @@ class GroqAI:
             except Exception as e:
                 print(f"An error occurred: {e}")
                 if DEVELOPER_MODE:
-                    print(format_exc())
+                    print(traceback.format_exc())
                 print(f"Failed API key: {this_api_key}")
         return completion
 
@@ -111,4 +111,4 @@ class GroqAI:
             api_timeout=api_timeout,
             **kwargs
         )
-        return loads(completion.choices[0].message.tool_calls[0].function.arguments)
+        return json.loads(completion.choices[0].message.tool_calls[0].function.arguments)
