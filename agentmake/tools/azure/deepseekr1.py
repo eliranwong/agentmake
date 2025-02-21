@@ -1,9 +1,8 @@
-def deepseek_chat_github(messages, **kwargs):
+def deepseekr1_azure(messages, **kwargs):
     import os
     from azure.ai.inference import ChatCompletionsClient
     from azure.ai.inference.models import SystemMessage, UserMessage, AssistantMessage
     from azure.core.credentials import AzureKeyCredential
-    from agentmake import GithubAI
 
     azure_messages = []
     for i in messages:
@@ -16,19 +15,19 @@ def deepseek_chat_github(messages, **kwargs):
         elif role == "assistant":
             azure_messages.append(AssistantMessage(content))
 
-    token = os.environ["GITHUB_TOKEN"] = GithubAI.getApiKey()
-    endpoint = "https://models.inference.ai.azure.com"
-    model_name = "DeepSeek-R1"
+    model_name = os.getenv("AZURE_DEEPSEEK_MODEL")
 
     client = ChatCompletionsClient(
-        endpoint=endpoint,
-        credential=AzureKeyCredential(token),
+        endpoint=os.getenv("AZURE_DEEPSEEK_API_ENDPOINT"),
+        credential=AzureKeyCredential(os.getenv("AZURE_DEEPSEEK_API_KEY")),
     )
 
     response = client.complete(
         stream=True,
         messages=azure_messages,
         model=model_name,
+        temperature=float(os.getenv("AZURE_DEEPSEEK_TEMPERATURE")),
+        max_tokens=int(os.getenv("AZURE_DEEPSEEK_MAX_TOKENS")),
     )
 
     for update in response:
@@ -41,4 +40,4 @@ def deepseek_chat_github(messages, **kwargs):
 
 TOOL_SCHEMA = {}
 
-TOOL_FUNCTION = deepseek_chat_github
+TOOL_FUNCTION = deepseekr1_azure

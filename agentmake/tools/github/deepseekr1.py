@@ -1,4 +1,4 @@
-def deepseek_chat_github(messages, **kwargs):
+def deepseekr1_github(messages, **kwargs):
     import os
     from azure.ai.inference import ChatCompletionsClient
     from azure.ai.inference.models import SystemMessage, UserMessage, AssistantMessage
@@ -16,11 +16,13 @@ def deepseek_chat_github(messages, **kwargs):
         elif role == "assistant":
             azure_messages.append(AssistantMessage(content))
 
-    model_name = os.getenv("AZURE_DEEPSEEK_MODEL")
+    token = os.environ["GITHUB_TOKEN"] = GithubAI.getApiKey()
+    endpoint = "https://models.inference.ai.azure.com"
+    model_name = "DeepSeek-R1"
 
     client = ChatCompletionsClient(
-        endpoint=os.getenv("AZURE_DEEPSEEK_API_ENDPOINT"),
-        credential=AzureKeyCredential(os.getenv("AZURE_DEEPSEEK_API_KEY")),
+        endpoint=endpoint,
+        credential=AzureKeyCredential(token),
     )
 
     response = client.complete(
@@ -39,4 +41,4 @@ def deepseek_chat_github(messages, **kwargs):
 
 TOOL_SCHEMA = {}
 
-TOOL_FUNCTION = deepseek_chat_github
+TOOL_FUNCTION = deepseekr1_github

@@ -11,13 +11,12 @@ def search_graph_store_azure(question: str, list_of_files_or_folders: str, **kwa
     import numpy as np
     from openai import AzureOpenAI
 
-    AZURE_OPENAI_API_VERSION = os.getenv("AZURE_API_VERSION") if os.getenv("AZURE_API_VERSION") else "2024-10-21"
+    AZURE_OPENAI_API_VERSION = AZURE_EMBEDDING_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION") if os.getenv("AZURE_OPENAI_API_VERSION") else "2024-10-21"
     AZURE_OPENAI_DEPLOYMENT = os.getenv("AZURE_OPENAI_MODEL") if os.getenv("AZURE_OPENAI_MODEL") else "gpt-4o"
     AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY") if os.getenv("AZURE_OPENAI_API_KEY") else ""
     AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_API_ENDPOINT") if os.getenv("AZURE_OPENAI_API_ENDPOINT") else ""
 
     AZURE_EMBEDDING_DEPLOYMENT = os.getenv("AZURE_EMBEDDING_MODEL") if os.getenv("AZURE_EMBEDDING_MODEL") else "azure-text-embedding-3-large"
-    AZURE_EMBEDDING_API_VERSION = os.getenv("AZURE_API_VERSION") if os.getenv("AZURE_API_VERSION") else "2024-10-21"
 
     # reference: https://github.com/HKUDS/LightRAG
 
