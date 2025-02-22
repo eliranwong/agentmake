@@ -197,10 +197,39 @@ def main(keep_chat_record=False):
             user_prompt = readTextFile(tempTextFile)
     # new
     if args.new_conversation:
+        if config.messages:
+            # save current conversation record
+            from agentmake import getCurrentDateTime
+            from pathlib import Path
+            timestamp = getCurrentDateTime()
+            folderPath = os.path.join(AGENTMAKE_USER_DIR, "chats", re.sub("^([0-9]+?-[0-9]+?)-.*?$", r"\1", timestamp))
+            Path(folderPath).mkdir(parents=True, exist_ok=True)
+            chatFile = os.path.join(folderPath, f"{timestamp}.chat")
+            writeTextFile(chatFile, pformat(config.messages))
         config.messages = []
     # run
     if user_prompt:
+        tools = args.tool if args.tool else []
         follow_up_prompt = args.follow_up_prompt if args.follow_up_prompt else []
+
+        # multiple tools in a single instruction
+        if user_prompt.startswith("@") or re.search("[\n ]@", user_prompt):
+            tool_pattern = "|".join(listComponent("tools", ext="py", print_on_terminal=False))
+            tool_pattern = f"""@({tool_pattern}) """
+            tools_names = re.findall(tool_pattern, f"{user_prompt} ")
+            if tools_names:
+                separator = "＊@＊@＊"
+                tools_prompts = re.sub(tool_pattern, separator, f"{user_prompt} ").split(separator)
+                if tools_prompts:
+                    if tools_prompts[0].strip():
+                        # in case content entered before the first action declared
+                        tools_names.insert(0, "chat")
+                    else:
+                        del tools_prompts[0]
+                    follow_up_prompt = tools_prompts[1:] + follow_up_prompt
+                    user_prompt = tools_prompts[0]
+                    tools = tools_names + tools
+
         if keep_chat_record:
             if args.chat_file:
                 if os.path.isfile(args.chat_file):
@@ -239,7 +268,7 @@ def main(keep_chat_record=False):
             input_content_plugin=args.input_content_plugin,
             output_content_plugin=args.output_content_plugin,
             agent=args.agent,
-            tool=args.tool,
+            tool=tools,
             schema=loads(args.schema) if args.schema else None,
             temperature=args.temperature,
             max_tokens=args.max_tokens,
@@ -256,6 +285,7 @@ def main(keep_chat_record=False):
             stream=False if args.markdown_highlights else True,
             print_on_terminal=False if args.markdown_highlights else True,
         )
+        last_response = ""
         if args.copy or args.markdown_highlights:
             last_response = config.messages[-1].get("content", "")
             if args.markdown_highlights and last_response:
@@ -300,7 +330,8 @@ def main(keep_chat_record=False):
             except:
                 raise ValueError(f"Error! Failed to export conversation to '{args.export_conversation}'!")
 
-def listComponent(folder, ext="md", info=False):
+def listComponent(folder, ext="md", info=False, print_on_terminal=True):
+    items = []
     folder1 = os.path.join(AGENTMAKE_USER_DIR, folder)
     folder2 = os.path.join(PACKAGE_PATH, folder)
     for i in (folder1, folder2):
@@ -318,18 +349,19 @@ def listComponent(folder, ext="md", info=False):
                             # skipped unsupported tools
                             pass
                     else:
-                        print(re.sub(r"^.*?[/\\]", "", component)[:-(len(ext)+1)])
+                        item = re.sub(r"^.*?[/\\]", "", component)[:-(len(ext)+1)]
+                        items.append(item)
+                        if print_on_terminal:
+                            print(item)
                 elif os.path.isdir(fullPath) and not os.path.basename(fullPath) == "lib":
-                    listComponent(os.path.join(folder, ii), ext=ext, info=info)
+                    listComponent(os.path.join(folder, ii), ext=ext, info=info, print_on_terminal=print_on_terminal)
+    return items
 
 def selectInstruction():
-    from prompt_toolkit.shortcuts import radiolist_dialog
     import subprocess, shutil
+    from prompt_toolkit.shortcuts import radiolist_dialog
+    
     input_text = subprocess.run("""echo "$(xsel -o)" | sed 's/"/\"/g'""", shell=True, capture_output=True, text=True).stdout if shutil.which("xsel") else ""
-    if not input_text:
-        input_text = subprocess.run("termux-clipboard-get", shell=True, capture_output=True, text=True).stdout if shutil.which("termux-clipboard-get") else pyperclip.paste()
-    if input_text is None:
-        input_text = ""
 
     values=[
         ("explain", "Explain"),
@@ -347,6 +379,7 @@ def selectInstruction():
             values.append((f"custom{i}", custom[30:] + " ..." if len(custom) > 30 else custom))
         else:
             break
+    values.append(("custom", "Custom"))
 
     result = radiolist_dialog(
         title="Instructions",
@@ -364,6 +397,7 @@ def selectInstruction():
             "professional": "Rewrite the following content in professional tone:",
             "markdown": "Rewrite the following content in markdown format:",
             "translate": "Translate the following content to ",
+            "custom": "",
         }
         for i in range(1, 11):
             custom = os.getenv(f"CUSTOM_INSTRUCTION_{i}")
@@ -371,7 +405,36 @@ def selectInstruction():
                 instructions[f"custom{i}"] = custom
             else:
                 break
-        instruction = instructions.get(result)
+        if result.startswith("custom"):
+            from prompt_toolkit import PromptSession
+            from prompt_toolkit.history import FileHistory
+            from prompt_toolkit.completion import WordCompleter, FuzzyCompleter
+            from prompt_toolkit.key_binding import KeyBindings
+            bindings = KeyBindings()
+            @bindings.add("c-q")
+            def _(event):
+                " Exit when `c-x` is pressed. "
+                event.app.exit()
+            @bindings.add("c-i")
+            def _(event):
+                event.app.current_buffer.newline()
+
+            history_dir = os.path.join(AGENTMAKE_USER_DIR, "history")
+            if not os.path.isdir(history_dir):
+                from pathlib import Path
+                Path(history_dir).mkdir(parents=True, exist_ok=True)
+            session = PromptSession(history=FileHistory(os.path.join(history_dir, "instruction_history")))
+            completer = FuzzyCompleter(WordCompleter([f"@{i}" for i in listComponent("tools", ext="py", print_on_terminal=False)], ignore_case=True))
+            instruction = session.prompt(
+                "Instruction: ",
+                bottom_toolbar="Press <Enter> to submit <Tab> to start a new line <Ctrl+Q> to exit",
+                completer=completer,
+                key_bindings=bindings,
+            )
+            if not instruction:
+                return ""
+        else:
+            instruction = instructions.get(result)
         if instruction.startswith("Translate the following content to "):
             from prompt_toolkit import PromptSession
             from prompt_toolkit.history import FileHistory
@@ -385,7 +448,8 @@ def selectInstruction():
                 language = "English"
             instruction = instruction + language + ". Provide me with the traslation ONLY, without extra comments and explanations."
         instruction += input_text
-    return instruction.rstrip() + "\n\n" if instruction else ""
+        return instruction.rstrip() + "\n\n" if instruction else ""
+    return ""
 
 def highlightMarkdownSyntax(content, theme=""):
 
