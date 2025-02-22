@@ -899,7 +899,7 @@ layout = Layout(root_container, focused_element=text_field)
 def update_title(customTitle=None):
     set_title(customTitle if customTitle is not None else f'''eTextEdit - {os.path.basename(ApplicationState.current_path) if ApplicationState.current_path else "NEW"}''')
 
-def launch(input_text=None, filename=None, exitWithoutSaving=False, customTitle=None):
+def launch(input_text=None, filename=None, exitWithoutSaving=False, customTitle=None, startAtEnd=False):
     ApplicationState.exit_without_saving = exitWithoutSaving
     if filename and os.path.isfile(filename):
         try:
@@ -930,7 +930,7 @@ def launch(input_text=None, filename=None, exitWithoutSaving=False, customTitle=
         full_screen=True,
         input=input,
         clipboard=ApplicationState.clipboard,
-        before_render=do_go_to_end_once if exitWithoutSaving else None,
+        before_render=do_go_to_end_once if startAtEnd else None,
     )
     application.run()
     clear_title()

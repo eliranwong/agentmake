@@ -266,6 +266,8 @@ CLI options allow you to work with selected or copied text easily.
 
 A setup example on Linux: https://github.com/eliranwong/AMD_iGPU_AI_Setup#test-with-selected-or-copied-text
 
+A setup example on macOS: https://github.com/eliranwong/agentmake/blob/main/docs/work_with_text_selection.md#macos-setup
+
 ## CLI for Testing
 
 CLI options are handy for testing, e.g. simply use a newly developed `tool` file with `-t` option and run:

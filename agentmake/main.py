@@ -75,6 +75,7 @@ def main(keep_chat_record=False):
     parser.add_argument("-gm", "--get_model", action="append", dest="get_model", help=f"download ollama models if they do not exist; export downloaded ollama models to `{os.path.join(AGENTMAKE_USER_DIR, 'models', 'gguf')}`")
     parser.add_argument("-ec", "--edit_configurations", action="store_true", dest="edit_configurations", help="edit default configurations with text editor")
     parser.add_argument("-ei", "--edit_input", action="store_true", dest="edit_input", help="edit user input with text editor")
+    parser.add_argument("-eo", "--edit_output", action="store_true", dest="edit_output", help="edit assistant response with text editor")
     parser.add_argument("-mh", "--markdown_highlights", action="store_true", dest="markdown_highlights", help="highlight markdown syntax")
     # Parse arguments
     args = parser.parse_args()
@@ -189,7 +190,7 @@ def main(keep_chat_record=False):
     # edit with text editor
     if args.edit_input and DEFAULT_TEXT_EDITOR:
         if DEFAULT_TEXT_EDITOR == "etextedit":
-            user_prompt = launch(input_text=user_prompt, filename=None, exitWithoutSaving=True, customTitle="Edit instruction below; exit when you finish")
+            user_prompt = launch(input_text=user_prompt, filename=None, exitWithoutSaving=True, customTitle="Edit instruction below; exit when you finish", startAtEnd=True)
         else:
             tempTextFile = os.path.join(PACKAGE_PATH, "temp", "edit_instruction")
             writeTextFile(tempTextFile, user_prompt)
@@ -298,6 +299,18 @@ def main(keep_chat_record=False):
                 highlightMarkdownSyntax(last_response)
             else:
                 print(wrapText(last_response) if args.word_wrap else last_response)
+    # edit assistant response with text editor
+    if args.edit_output and DEFAULT_TEXT_EDITOR and last_response:
+        original_response = last_response
+        if DEFAULT_TEXT_EDITOR == "etextedit":
+            last_response = launch(input_text=last_response, filename=None, exitWithoutSaving=True, customTitle="Edit assistant response; exit when you finish")
+        else:
+            tempTextFile = os.path.join(PACKAGE_PATH, "temp", "edit_response")
+            writeTextFile(tempTextFile, last_response)
+            os.system(f'''{DEFAULT_TEXT_EDITOR} "{tempTextFile}"''')
+            last_response = readTextFile(tempTextFile)
+        if keep_chat_record and last_response and not last_response == original_response:
+            config.messages[-1]["content"] = last_response
     # copy response to the clipboard
     if args.copy and last_response:
         if which("termux-clipboard-set"):
