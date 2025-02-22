@@ -22,7 +22,7 @@ Windows, macOS, Linux, ChromeOS, Android via Termux
 
 `anthropic` - [Anthropic API](https://console.anthropic.com/) [[docs](https://docs.anthropic.com/en/home)]
 
-`azure` - [Azure OpenAI API](https://learn.microsoft.com/en-us/azure/ai-studio/what-is-ai-studio) [[docs](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)]
+`azure` - [Azure OpenAI API](https://ai.azure.com/github) [[docs](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)]
 
 `cohere` - [Cohere API](https://cohere.com/) [[docs](https://docs.cohere.com/docs/the-cohere-platform)]
 
@@ -186,24 +186,27 @@ To specify an AI backend:
 
 To work collaboratively with different backends, e.g.
 
-```
-messages = agentmake("What is the most effective method for training AI models?", backend="openai")
-messages = agentmake(messages, backend="googleai", follow_up_prompt="Can you give me some different options?")
-messages = agentmake(messages, backend="xai", follow_up_prompt="What are the limitations or potential biases in this information?")
-agentmake(messages, backend="mistral", follow_up_prompt="Please provide a summary of the discussion so far.")
-```
+> messages = agentmake("What is the most effective method for training AI models?", backend="openai")
+
+> messages = agentmake(messages, backend="googleai", follow_up_prompt="Can you give me some different options?")
+
+> messages = agentmake(messages, backend="xai", follow_up_prompt="What are the limitations or potential biases in this information?")
+
+> agentmake(messages, backend="mistral", follow_up_prompt="Please provide a summary of the discussion so far.")
 
 As you may see, the `agentmake` function returns the `messages` list, which is passed to the next `agentmake` function in turns.
 
 Therefore, it is very simple to create a chatbot application, you can do it as few as five lines or less, e.g.:
 
-```
-messages = [{"role": "system", "content": "You are an AI assistant."}]
-user_input = "Hello!"
-while user_input:
-    messages = agentmake(messages, follow_up_prompt=user_input, stream=True)
-    user_input = input("Enter your query:\n(enter a blank entry to exit)\n>>> ")
-```
+> messages = [{"role": "system", "content": "You are an AI assistant."}]
+
+> user_input = "Hello!"
+
+> while user_input:
+
+>     messages = agentmake(messages, follow_up_prompt=user_input, stream=True)
+
+>     user_input = input("Enter your query:\n(enter a blank entry to exit)\n>>> ")
 
 You may take a look at out our built-in components for more ideas:
 
@@ -256,6 +259,12 @@ The available CLI options use the same parameter names as the `agentmake` functi
 > ai Is it better to drink wine in the morning, afternoon, or evening? --instruction think --follow_up_prompt review --follow_up_prompt refine
 
 > ai Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre --agent teamwork --model "llama3.3:70b"
+
+## Work with Text Selection and Clipboard
+
+CLI options allow you to work with selected or copied text easily.
+
+A setup example on Linux: https://github.com/eliranwong/AMD_iGPU_AI_Setup#test-with-selected-or-copied-text
 
 ## CLI for Testing
 
@@ -321,6 +330,22 @@ What does this command do?
 * It uses the text editor, specified in `DEFAULT_TEXT_EDITOR`, to open the configuration file `~/agentmake/agentmake.env` if it exists or `<package_directory>/.env` if `~/agentmake/agentmake.env` does not exist.
 
 Remember to save your changes to make them effective.
+
+## Note about Azure AI Setup
+
+An easy way to deploy AI models via Azure service:
+
+1. Sign in https://ai.azure.com/github
+2. All resources > Create New
+3. Overview > copy an API key, Azure OpenAI Service and Azure AI inference endpoints
+
+* Use Azure OpenAI Service endpoint for running OpenAI models; the endpoint should look like https://resource_name.openai.azure.com/
+
+* Use Azure AI inference endpoint for running DeepSeek-R1 and Phi-4; the endpoint should look like https://resource_name.services.ai.azure.com/models
+
+To configure AgentMake AI, run:
+
+> ai -ec
 
 ## Note about Vertex AI Setup
 

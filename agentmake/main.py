@@ -70,6 +70,7 @@ def main(keep_chat_record=False):
     parser.add_argument("-ih", "--image_height", action='store', dest="image_height", type=int, help="image height for image creation")
     parser.add_argument("-iss", "--image_sample_steps", action='store', dest="image_sample_steps", type=int, help="sample steps for image creation")
     # others
+    parser.add_argument("-i", "--interactive", action="store_true", dest="interactive", help="interactive mode to select an instruction to work on selected or copied text")
     parser.add_argument("-u", "--upgrade", action="store_true", dest="upgrade", help="upgrade `agentmake` pip package")
     parser.add_argument("-gm", "--get_model", action="append", dest="get_model", help=f"download ollama models if they do not exist; export downloaded ollama models to `{os.path.join(AGENTMAKE_USER_DIR, 'models', 'gguf')}`")
     parser.add_argument("-ec", "--edit_configurations", action="store_true", dest="edit_configurations", help="edit default configurations with text editor")
@@ -105,6 +106,14 @@ def main(keep_chat_record=False):
         for i in args.get_model:
             OllamaAI.downloadModel(i)
         exportOllamaModels(args.get_model)
+
+    # interactive mode
+    if args.interactive:
+        instruction = selectInstruction()
+        if instruction:
+            args.default.insert(0, instruction)
+            if instruction.startswith("Rewrite the following content in markdown format"):
+                args.markdown_highlights = True
 
     # enable chat feature
     if args.chat:
@@ -312,6 +321,71 @@ def listComponent(folder, ext="md", info=False):
                         print(re.sub(r"^.*?[/\\]", "", component)[:-(len(ext)+1)])
                 elif os.path.isdir(fullPath) and not os.path.basename(fullPath) == "lib":
                     listComponent(os.path.join(folder, ii), ext=ext, info=info)
+
+def selectInstruction():
+    from prompt_toolkit.shortcuts import radiolist_dialog
+    import subprocess, shutil
+    input_text = subprocess.run("""echo "$(xsel -o)" | sed 's/"/\"/g'""", shell=True, capture_output=True, text=True).stdout if shutil.which("xsel") else ""
+    if not input_text:
+        input_text = subprocess.run("termux-clipboard-get", shell=True, capture_output=True, text=True).stdout if shutil.which("termux-clipboard-get") else pyperclip.paste()
+    if input_text is None:
+        input_text = ""
+
+    values=[
+        ("explain", "Explain"),
+        ("improve", "Improve writing"),
+        ("summarize", "Summarize"),
+        ("elaborate", "Elaborate"),
+        ("analyze", "Analyze"),
+        ("professional", "Rewrite in professional tone"),
+        ("markdown", "Rewrite in markdown format"),
+        ("translate", "Translate to ..."),
+    ]
+    for i in range(1, 11):
+        custom = os.getenv(f"CUSTOM_INSTRUCTION_{i}")
+        if custom:
+            values.append((f"custom{i}", custom[30:] + " ..." if len(custom) > 30 else custom))
+        else:
+            break
+
+    result = radiolist_dialog(
+        title="Instructions",
+        text="Select an instruction",
+        values=values,
+    ).run()
+    if result:
+        DEFAULT_WRITING_STYLE = os.getenv('DEFAULT_WRITING_STYLE') if os.getenv('DEFAULT_WRITING_STYLE') else 'standard English'
+        instructions = {
+            "explain": "Explain the following content:",
+            "improve": f"Improve the following writing, according to {DEFAULT_WRITING_STYLE}:",
+            "summarize": "Summarize the following content:",
+            "elaborate": "Elaborate the following content:",
+            "analyze": "Analyze the following content:",
+            "professional": "Rewrite the following content in professional tone:",
+            "markdown": "Rewrite the following content in markdown format:",
+            "translate": "Translate the following content to ",
+        }
+        for i in range(1, 11):
+            custom = os.getenv(f"CUSTOM_INSTRUCTION_{i}")
+            if custom:
+                instructions[f"custom{i}"] = custom
+            else:
+                break
+        instruction = instructions.get(result)
+        if instruction.startswith("Translate the following content to "):
+            from prompt_toolkit import PromptSession
+            from prompt_toolkit.history import FileHistory
+            history_dir = os.path.join(AGENTMAKE_USER_DIR, "history")
+            if not os.path.isdir(history_dir):
+                from pathlib import Path
+                Path(history_dir).mkdir(parents=True, exist_ok=True)
+            session = PromptSession(history=FileHistory(os.path.join(history_dir, "translate_history")))
+            language = session.prompt("Translate to: ", bottom_toolbar="Press <Enter> to submit")
+            if not language:
+                language = "English"
+            instruction = instruction + language + ". Provide me with the traslation ONLY, without extra comments and explanations."
+        instruction += input_text
+    return instruction.rstrip() + "\n\n" if instruction else ""
 
 def highlightMarkdownSyntax(content, theme=""):
 
