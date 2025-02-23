@@ -248,8 +248,8 @@ def main(keep_chat_record=False):
                                 config.messages({"role", i.get("role"), "content", i.get("content")})
                             except:
                                 pass
-                    except:
-                        raise ValueError("Error! Chat file format is invalid!")
+                    except Exception as e:
+                        raise ValueError("An error occurred: {e}" if e else "Error! Chat file format is invalid!")
                 else:
                     raise ValueError("Error! Given chat file path does not exist!")
         if keep_chat_record and config.messages:
@@ -327,8 +327,8 @@ def main(keep_chat_record=False):
         if args.save_conversation:
             try:
                 writeTextFile(args.save_conversation, pformat(config.messages))
-            except:
-                raise ValueError(f"Error! Failed to save conversation to '{args.save_conversation}'!")
+            except Exception as e:
+                raise ValueError("An error occurred: {e}" if e else f"Error! Failed to save conversation to '{args.save_conversation}'!")
         if args.export_conversation:
             export_content = []
             for i in config.messages:
@@ -340,8 +340,8 @@ def main(keep_chat_record=False):
             try:
                 writeTextFile(args.export_conversation, "\n".join(export_content))
                 os.system(f'''{getOpenCommand()} "{args.export_conversation}"''')
-            except:
-                raise ValueError(f"Error! Failed to export conversation to '{args.export_conversation}'!")
+            except Exception as e:
+                raise ValueError("An error occurred: {e}" if e else f"Error! Failed to export conversation to '{args.export_conversation}'!")
 
 def listComponent(folder, ext="md", info=False, print_on_terminal=True):
     items = []
@@ -378,7 +378,7 @@ def selectInstruction():
 
     values=[
         ("explain", "Explain"),
-        ("improve", "Improve writing"),
+        ("refine", "Refine"),
         ("summarize", "Summarize"),
         ("elaborate", "Elaborate"),
         ("analyze", "Analyze"),
@@ -389,7 +389,7 @@ def selectInstruction():
     for i in range(1, 11):
         custom = os.getenv(f"CUSTOM_INSTRUCTION_{i}")
         if custom:
-            values.append((f"custom{i}", custom[30:] + " ..." if len(custom) > 30 else custom))
+            values.append((f"custom{i}", custom[:30] + " ..." if len(custom) > 30 else custom))
         else:
             break
     values.append(("custom", "Custom"))
@@ -402,8 +402,8 @@ def selectInstruction():
     if result:
         DEFAULT_WRITING_STYLE = os.getenv('DEFAULT_WRITING_STYLE') if os.getenv('DEFAULT_WRITING_STYLE') else 'standard English'
         instructions = {
-            "explain": "Explain the following content:",
-            "improve": f"Improve the following writing, according to {DEFAULT_WRITING_STYLE}:",
+            "explain": "Explain the following content or words:",
+            "refine": f"Improve the following writing, according to {DEFAULT_WRITING_STYLE}:",
             "summarize": "Summarize the following content:",
             "elaborate": "Elaborate the following content:",
             "analyze": "Analyze the following content:",
@@ -418,7 +418,7 @@ def selectInstruction():
                 instructions[f"custom{i}"] = custom
             else:
                 break
-        if result.startswith("custom"):
+        if result == "custom":
             from prompt_toolkit import PromptSession
             from prompt_toolkit.history import FileHistory
             from prompt_toolkit.completion import WordCompleter, FuzzyCompleter

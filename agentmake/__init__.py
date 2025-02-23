@@ -444,7 +444,7 @@ def agentmake(
             except Exception as e:
                 print(f"Failed to run agent `{agent_name}`! An error occurred: {e}")
                 if DEVELOPER_MODE:
-                    print(format_exc())
+                    print(traceback.format_exc())
         # run user input content plugin
         if agent_func:
             agent_response = agent_func(
@@ -479,7 +479,7 @@ def agentmake(
         possible_system_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "systems", f"{system_instruction}.md")
         if system_instruction is None:
             pass
-        if system_instruction=="auto":
+        elif system_instruction=="auto":
             if print_on_terminal:
                 print(">>> Generating system instruction ...\n")
             latest_request = messages_copy[-1].get("content", "")
@@ -652,7 +652,7 @@ def agentmake(
             except Exception as e:
                 print(f"Failed to execute tool `{tool_name}`! An error occurred: {e}")
                 if DEVELOPER_MODE:
-                    print(format_exc())
+                    print(traceback.format_exc())
 
     # check if it is last request
     is_last_request = True if not follow_up_prompt and not system and not instruction and not tool and not agent and not prefill else False
@@ -727,7 +727,7 @@ def agentmake(
                 function_name = re.sub("<function (.*?) .*?$", r"\1", str(func))
                 print(f"Failed to run tool function `{function_name}`! An error occurred: {e}")
                 if DEVELOPER_MODE:
-                    print(format_exc())
+                    print(traceback.format_exc())
                 function_response = None # due to unexpected errors encountered in executing the function; fall back to regular completion
             # handle function response
             if function_response is None or function_response: # fall back to regular completion if function_response is None; chat extension if function_response
@@ -991,7 +991,7 @@ def agentmake(
                 except Exception as e:
                     print(f"Failed to execute output content plugin `{output_content_plugin_name}`! An error occurred: {e}")
                     if DEVELOPER_MODE:
-                        print(format_exc())
+                        print(traceback.format_exc())
             # run user output content plugin
             if output_content_plugin_func and output:
                 output = output_content_plugin_func(
@@ -1315,7 +1315,7 @@ def showErrors(e=None, message=""):
         trace = f"An error occurred: {e}" if e else "An error occurred!"
     print(trace)
     if DEVELOPER_MODE:
-        details = format_exc()
+        details = traceback.format_exc()
         trace += "\n"
         trace += details
         print("```error")

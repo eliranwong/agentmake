@@ -33,6 +33,10 @@ pbcopy
 open $HOME/agentmake.command
 ```
 
-5. Save the configured `Quick Action`
+5. Save the configured `Quick Action` as `AgentMakeAI`
 
 <img width="424" alt="Image" src="https://github.com/user-attachments/assets/91de5714-8ea8-404e-8a75-f9aa6fab439d" />
+
+6. To test, e.g. select some text from an application, right click and select `Services` > `AgentMakeAI`
+
+<img width="856" alt="Image" src="https://github.com/user-attachments/assets/40a127f5-c05e-48f3-a3c5-d061f32a197a" />
