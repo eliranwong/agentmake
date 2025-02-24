@@ -1393,6 +1393,36 @@ def getToolInfo(tool_path):
     info = f"""`{tool}` {description}{required}{optional}"""
     return info
 
+# list available components
+def listResources(folder: str, ext: str="md", info: bool=False, display_func: Optional[Callable]=None):
+    items = []
+    folder1 = os.path.join(AGENTMAKE_USER_DIR, folder)
+    folder2 = os.path.join(PACKAGE_PATH, folder)
+    for i in (folder1, folder2):
+        if os.path.isdir(i):
+            for ii in os.listdir(i):
+                fullPath = os.path.join(i, ii)
+                if os.path.isfile(fullPath) and not ii.lower() == "readme.md" and ii.endswith(f".{ext}"):
+                    component = os.path.join(folder, ii)
+                    if info:
+                        try:
+                            #print(getToolInfo(fullPath))
+                            info = getToolInfo(fullPath)
+                            items.append(info)
+                            if display_func:
+                                display_func(info)
+                        except:
+                            # skipped unsupported tools
+                            pass
+                    else:
+                        item = re.sub(r"^.*?[/\\]", "", component)[:-(len(ext)+1)]
+                        items.append(item)
+                        if display_func:
+                            display_func(item)
+                elif os.path.isdir(fullPath) and not os.path.basename(fullPath) == "lib":
+                    items += listResources(os.path.join(folder, ii), ext=ext, info=info, display_func=display_func)
+    return items
+
 # fabric integration
 def isFabricPattern(item):
     return True if item.startswith("fabric.") and os.path.isfile(os.path.join(os.path.expanduser(DEFAULT_FABRIC_PATTERNS_PATH), item[7:], "system.md")) else False

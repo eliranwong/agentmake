@@ -1,4 +1,4 @@
-from agentmake import AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand, getToolInfo
+from agentmake import AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand, listResources
 from agentmake.etextedit import launch
 from agentmake.utils.handle_text import readTextFile, writeTextFile
 from agentmake.utils.files import searchFolder
@@ -58,6 +58,7 @@ def main(keep_chat_record=False):
     parser.add_argument("-ls", "--list_systems", action="store_true", dest="list_systems", help="list systems")
     parser.add_argument("-lt", "--list_tools", action="store_true", dest="list_tools", help="list tools")
     parser.add_argument("-lti", "--list_tools_info", action="store_true", dest="list_tools_info", help="list tools information")
+    parser.add_argument("-lm", "--list_models", action="store_true", dest="list_models", help="list downloaded gguf models")
     # find
     parser.add_argument("-fa", "--find_agents", action="store", dest="find_agents", help="find agents")
     parser.add_argument("-fi", "--find_instructions", action="store", dest="find_instructions", help="find instructions")
@@ -73,6 +74,7 @@ def main(keep_chat_record=False):
     parser.add_argument("-i", "--interactive", action="store_true", dest="interactive", help="interactive mode to select an instruction to work on selected or copied text")
     parser.add_argument("-u", "--upgrade", action="store_true", dest="upgrade", help="upgrade `agentmake` pip package")
     parser.add_argument("-gm", "--get_model", action="append", dest="get_model", help=f"download ollama models if they do not exist; export downloaded ollama models to `{os.path.join(AGENTMAKE_USER_DIR, 'models', 'gguf')}`")
+    parser.add_argument("-ed", "--editor", action="store", dest="editor", help="specify the text editor used for editing features; use default text editor if not specified")
     parser.add_argument("-ec", "--edit_configurations", action="store_true", dest="edit_configurations", help="edit default configurations with text editor")
     parser.add_argument("-ei", "--edit_input", action="store_true", dest="edit_input", help="edit user input with text editor")
     parser.add_argument("-eo", "--edit_output", action="store_true", dest="edit_output", help="edit assistant response with text editor")
@@ -95,6 +97,9 @@ def main(keep_chat_record=False):
             exit(0)
         else:
             print("Upgrade aborted! `pip` command not found!")
+
+    # set text editor
+    text_editor = args.editor if args.editor else DEFAULT_TEXT_EDITOR
 
     # edit configurations
     if args.edit_configurations:
@@ -130,19 +135,21 @@ def main(keep_chat_record=False):
 
     # list
     if args.list_agents:
-        listComponent("agents", ext="py")
+        listResources("agents", ext="py", display_func=print)
     if args.list_instructions:
-        listComponent("instructions")
+        listResources("instructions", display_func=print)
     if args.list_plugins:
-        listComponent("plugins", ext="py")
+        listResources("plugins", ext="py", display_func=print)
     if args.list_prompts:
-        listComponent("prompts")
+        listResources("prompts", display_func=print)
     if args.list_systems:
-        listComponent("systems")
+        listResources("systems", display_func=print)
     if args.list_tools:
-        listComponent("tools", ext="py")
+        listResources("tools", ext="py", display_func=print)
     if args.list_tools_info:
-        listComponent("tools", ext="py", info=True)
+        listResources("tools", ext="py", info=True, display_func=highlightMarkdownSyntax)
+    if args.list_models:
+        listResources("models", ext="gguf", display_func=print)
 
     # find
     if args.find_agents:
@@ -188,13 +195,13 @@ def main(keep_chat_record=False):
         clipboardText = f"\n\n{clipboardText.strip()}"
     user_prompt = user_prompt + stdin_text + clipboardText
     # edit with text editor
-    if args.edit_input and DEFAULT_TEXT_EDITOR:
-        if DEFAULT_TEXT_EDITOR == "etextedit":
+    if args.edit_input and text_editor:
+        if text_editor == "etextedit":
             user_prompt = launch(input_text=user_prompt, filename=None, exitWithoutSaving=True, customTitle="Edit instruction below; exit when you finish", startAtEnd=True)
         else:
             tempTextFile = os.path.join(PACKAGE_PATH, "temp", "edit_instruction")
             writeTextFile(tempTextFile, user_prompt)
-            os.system(f'''{DEFAULT_TEXT_EDITOR} "{tempTextFile}"''')
+            os.system(f'''{text_editor} "{tempTextFile}"''')
             user_prompt = readTextFile(tempTextFile)
     # new
     if args.new_conversation:
@@ -215,7 +222,7 @@ def main(keep_chat_record=False):
 
         # multiple tools in a single instruction
         if user_prompt.startswith("@") or re.search("[\n ]@", user_prompt):
-            tool_pattern = "|".join(listComponent("tools", ext="py", print_on_terminal=False))
+            tool_pattern = "|".join(listResources("tools", ext="py"))
             tool_pattern = f"""@({tool_pattern}) """
             tools_names = re.findall(tool_pattern, f"{user_prompt} ")
             if tools_names:
@@ -300,14 +307,14 @@ def main(keep_chat_record=False):
             else:
                 print(wrapText(last_response) if args.word_wrap else last_response)
     # edit assistant response with text editor
-    if args.edit_output and DEFAULT_TEXT_EDITOR and last_response:
+    if args.edit_output and text_editor and last_response:
         original_response = last_response
-        if DEFAULT_TEXT_EDITOR == "etextedit":
+        if text_editor == "etextedit":
             last_response = launch(input_text=last_response, filename=None, exitWithoutSaving=True, customTitle="Edit assistant response; exit when you finish")
         else:
             tempTextFile = os.path.join(PACKAGE_PATH, "temp", "edit_response")
             writeTextFile(tempTextFile, last_response)
-            os.system(f'''{DEFAULT_TEXT_EDITOR} "{tempTextFile}"''')
+            os.system(f'''{text_editor} "{tempTextFile}"''')
             last_response = readTextFile(tempTextFile)
         if keep_chat_record and last_response and not last_response == original_response:
             config.messages[-1]["content"] = last_response
@@ -342,33 +349,6 @@ def main(keep_chat_record=False):
                 os.system(f'''{getOpenCommand()} "{args.export_conversation}"''')
             except Exception as e:
                 raise ValueError("An error occurred: {e}" if e else f"Error! Failed to export conversation to '{args.export_conversation}'!")
-
-def listComponent(folder, ext="md", info=False, print_on_terminal=True):
-    items = []
-    folder1 = os.path.join(AGENTMAKE_USER_DIR, folder)
-    folder2 = os.path.join(PACKAGE_PATH, folder)
-    for i in (folder1, folder2):
-        if os.path.isdir(i):
-            for ii in os.listdir(i):
-                fullPath = os.path.join(i, ii)
-                if os.path.isfile(fullPath) and not ii.lower() == "readme.md" and ii.endswith(f".{ext}"):
-                    component = os.path.join(folder, ii)
-                    if info:
-                        try:
-                            #print(getToolInfo(fullPath))
-                            info = getToolInfo(fullPath)
-                            highlightMarkdownSyntax(info)
-                        except:
-                            # skipped unsupported tools
-                            pass
-                    else:
-                        item = re.sub(r"^.*?[/\\]", "", component)[:-(len(ext)+1)]
-                        items.append(item)
-                        if print_on_terminal:
-                            print(item)
-                elif os.path.isdir(fullPath) and not os.path.basename(fullPath) == "lib":
-                    listComponent(os.path.join(folder, ii), ext=ext, info=info, print_on_terminal=print_on_terminal)
-    return items
 
 def selectInstruction():
     import subprocess, shutil
@@ -437,7 +417,7 @@ def selectInstruction():
                 from pathlib import Path
                 Path(history_dir).mkdir(parents=True, exist_ok=True)
             session = PromptSession(history=FileHistory(os.path.join(history_dir, "instruction_history")))
-            completer = FuzzyCompleter(WordCompleter([f"@{i}" for i in listComponent("tools", ext="py", print_on_terminal=False)], ignore_case=True))
+            completer = FuzzyCompleter(WordCompleter([f"@{i}" for i in listResources("tools", ext="py")], ignore_case=True))
             instruction = session.prompt(
                 "Instruction: ",
                 bottom_toolbar="Press <Enter> to submit <Tab> to start a new line <Ctrl+Q> to exit",
