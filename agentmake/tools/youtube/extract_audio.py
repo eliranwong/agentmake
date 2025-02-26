@@ -29,7 +29,7 @@ TOOL_SCHEMA = {
                 "type": "string",
                 "description": "The start time of the extract audio, in the format like '00:00:00'",
             },
-            "duration": {
+            "end_time": {
                 "type": "string",
                 "description": "The duration of the extract audio, in the format like '00:00:00'",
             },
@@ -42,7 +42,7 @@ TOOL_SCHEMA = {
     },
 }
 
-def extract_youtube_audio(url: str="", start_time: str="", duration: str="", location: str="", **kwargs):
+def extract_youtube_audio(url: str="", start_time: str="", end_time: str="", location: str="", **kwargs):
 
     from agentmake import getOpenCommand, showErrors, extractText, getCurrentDateTime
     from agentmake.utils.files import find_last_added_file
@@ -62,7 +62,7 @@ def extract_youtube_audio(url: str="", start_time: str="", duration: str="", loc
             os.system("cd {2}; {0} {1}".format(downloadCommand, url_string, outputFolder))
             if shutil.which("pkill"):
                 os.system("pkill yt-dlp")
-            command = f"""ffmpeg -i {os.path.join(outputFolder, "test123.mp3")} -ss {start_time} -t {duration}  -c copy {os.path.join(outputFolder, f"{getCurrentDateTime()}_extracted_youtube_audio.mp3")}"""
+            command = f"""ffmpeg -i {os.path.join(outputFolder, "test123.mp3")} -ss {start_time} -to {end_time}  -c copy {os.path.join(outputFolder, f"{getCurrentDateTime()}_extracted_youtube_audio.mp3")}"""
             os.system("cd {0}; {1}".format(outputFolder, command))
             print(f"Downloaded in: '{outputFolder}'")
             if shutil.which(getOpenCommand()):
