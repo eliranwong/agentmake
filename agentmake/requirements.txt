@@ -29,3 +29,5 @@ pipmaster
 tenacity
 nano-vectordb
 flashtext
+pypandoc
+markdown

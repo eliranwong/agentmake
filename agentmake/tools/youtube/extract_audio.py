@@ -55,14 +55,15 @@ def extract_youtube_audio(url: str="", start_time: str="", end_time: str="", loc
         return match is not None
 
     def terminalDownloadYoutubeFile(downloadCommand, url_string, outputFolder):
-        downloadCommand += f" --output '{getCurrentDateTime()}_original_youtube_audio.mp3'"
+        original_file = f"{getCurrentDateTime()}_original_youtube_audio.mp3"
+        downloadCommand += f" --output '{original_file}'"
         try:
             print("--------------------")
             # use os.system, as it displays download status ...
             os.system("cd {2}; {0} {1}".format(downloadCommand, url_string, outputFolder))
             if shutil.which("pkill"):
                 os.system("pkill yt-dlp")
-            command = f"""ffmpeg -i {os.path.join(outputFolder, "test123.mp3")} -ss {start_time} -to {end_time}  -c copy {os.path.join(outputFolder, f"{getCurrentDateTime()}_extracted_youtube_audio.mp3")}"""
+            command = f"""ffmpeg -i {os.path.join(outputFolder, original_file)} -ss {start_time} -to {end_time}  -c copy {os.path.join(outputFolder, f"{getCurrentDateTime()}_extracted_youtube_audio.mp3")}"""
             os.system("cd {0}; {1}".format(outputFolder, command))
             print(f"Downloaded in: '{outputFolder}'")
             if shutil.which(getOpenCommand()):

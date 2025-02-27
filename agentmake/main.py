@@ -5,9 +5,7 @@ from agentmake.utils.files import searchFolder
 from agentmake.utils.text_wrapper import wrapText
 from agentmake.utils.system import getCliOutput
 from pprint import pformat
-from json import loads
-from shutil import which
-import argparse, os, sys, pyperclip, re
+import argparse, os, sys, pyperclip, re, json, shutil
 
 
 def chat():
@@ -43,13 +41,18 @@ def main(keep_chat_record=False):
     parser.add_argument("-ww", "--word_wrap", action="store_true", dest="word_wrap", help="wrap output text according to current terminal width")
     # chat features
     parser.add_argument("-c", "--chat", action="store_true", dest="chat", help="enable chat feature")
-    parser.add_argument("-cf", "--chat_file", action="store", dest="chat_file", help="load the conversation recorded in the given file")
+    parser.add_argument("-o", "--open_conversation", action="store", dest="open_conversation", help="open a saved conversation file")
     parser.add_argument("-n", "--new_conversation", action="store_true", dest="new_conversation", help="new conversation; applicable when chat feature is enabled")
     parser.add_argument("-s", "--save_conversation", action="store", dest="save_conversation", help="save conversation in a chat file; specify the file path for saving the file; applicable when chat feature is enabled")
     parser.add_argument("-e", "--export_conversation", action="store", dest="export_conversation", help="export conversation in plain text format; specify the file path for the export; applicable when chat feature is enabled")
     # clipboard
     parser.add_argument("-pa", "--paste", action="store_true", dest="paste", help="paste the clipboard text as a suffix to the user prompt")
     parser.add_argument("-py", "--copy", action="store_true", dest="copy", help="copy assistant response to the clipboard")
+    # export assistant response to a file
+    parser.add_argument("-docx", "--document", action="store", dest="document", help="save assistant response to a specified docx file")
+    parser.add_argument("-html", "--webpage", action="store", dest="webpage", help="save assistant response to a specified html file")
+    parser.add_argument("-md", "--markdown", action="store", dest="markdown", help="save assistant response to a specified markdown file")
+    parser.add_argument("-txt", "--text", action="store", dest="text", help="save assistant response to a specified text file")
     # list
     parser.add_argument("-la", "--list_agents", action="store_true", dest="list_agents", help="list agents")
     parser.add_argument("-li", "--list_instructions", action="store_true", dest="list_instructions", help="list instructions")
@@ -84,7 +87,7 @@ def main(keep_chat_record=False):
 
     # upgrade
     if args.upgrade:
-        if pip := which("pip"):
+        if pip := shutil.which("pip"):
             try:
                 from google.genai.types import Content
                 genai_installed = True
@@ -188,7 +191,7 @@ def main(keep_chat_record=False):
     if stdin_text:
         stdin_text = f"\n\n{stdin_text.strip()}"
     if args.paste:
-        clipboardText = getCliOutput("termux-clipboard-get") if which("termux-clipboard-get") else pyperclip.paste()
+        clipboardText = getCliOutput("termux-clipboard-get") if shutil.which("termux-clipboard-get") else pyperclip.paste()
     else:
         clipboardText = ""
     if clipboardText:
@@ -239,12 +242,12 @@ def main(keep_chat_record=False):
                     tools = tools_names + tools
 
         if keep_chat_record:
-            if args.chat_file:
-                if os.path.isfile(args.chat_file):
+            if args.open_conversation:
+                if os.path.isfile(args.open_conversation):
                     glob = {}
                     loc = {}
                     try:
-                        content = "chat_file_messages = " + readTextFile(args.chat_file)
+                        content = "chat_file_messages = " + readTextFile(args.open_conversation)
                         exec(content, glob, loc)
                         chat_file_messages = loc.get("chat_file_messages")
                         if not isinstance(chat_file_messages, dict):
@@ -277,7 +280,7 @@ def main(keep_chat_record=False):
             output_content_plugin=args.output_content_plugin,
             agent=args.agent,
             tool=tools,
-            schema=loads(args.schema) if args.schema else None,
+            schema=json.loads(args.schema) if args.schema else None,
             temperature=args.temperature,
             max_tokens=args.max_tokens,
             context_window=args.context_window,
@@ -293,9 +296,8 @@ def main(keep_chat_record=False):
             stream=False if args.markdown_highlights else True,
             print_on_terminal=False if args.markdown_highlights else True,
         )
-        last_response = ""
+        last_response = config.messages[-1].get("content", "")
         if args.copy or args.markdown_highlights:
-            last_response = config.messages[-1].get("content", "")
             if args.markdown_highlights and last_response:
                 highlightMarkdownSyntax(last_response)
     elif keep_chat_record and config.messages:
@@ -306,26 +308,54 @@ def main(keep_chat_record=False):
                 highlightMarkdownSyntax(last_response)
             else:
                 print(wrapText(last_response) if args.word_wrap else last_response)
-    # edit assistant response with text editor
-    if args.edit_output and text_editor and last_response:
-        original_response = last_response
-        if text_editor == "etextedit":
-            last_response = launch(input_text=last_response, filename=None, exitWithoutSaving=True, customTitle="Edit assistant response; exit when you finish")
-        else:
-            tempTextFile = os.path.join(PACKAGE_PATH, "temp", "edit_response")
-            writeTextFile(tempTextFile, last_response)
-            os.system(f'''{text_editor} "{tempTextFile}"''')
-            last_response = readTextFile(tempTextFile)
-        if keep_chat_record and last_response and not last_response == original_response:
-            config.messages[-1]["content"] = last_response
-    # copy response to the clipboard
-    if args.copy and last_response:
-        if which("termux-clipboard-set"):
-            from pydoc import pipepager
-            pipepager(last_response, cmd="termux-clipboard-set")
-        else:
-            pyperclip.copy(last_response)
-        print("--------------------\nCopied!")
+    if last_response:
+        # edit assistant response with text editor
+        if args.edit_output and text_editor:
+            original_response = last_response
+            if text_editor == "etextedit":
+                last_response = launch(input_text=last_response, filename=None, exitWithoutSaving=True, customTitle="Edit assistant response; exit when you finish")
+            else:
+                tempTextFile = os.path.join(PACKAGE_PATH, "temp", "edit_response")
+                writeTextFile(tempTextFile, last_response)
+                os.system(f'''{text_editor} "{tempTextFile}"''')
+                last_response = readTextFile(tempTextFile)
+            if keep_chat_record and last_response and not last_response == original_response:
+                config.messages[-1]["content"] = last_response
+        # copy response to the clipboard
+        if args.copy:
+            if shutil.which("termux-clipboard-set"):
+                from pydoc import pipepager
+                pipepager(last_response, cmd="termux-clipboard-set")
+            else:
+                pyperclip.copy(last_response)
+            print("--------------------\nCopied!")
+        # export assistant response to a file
+        if args.document:
+            if shutil.which("pandoc"):
+                import pypandoc
+                output_file = args.document if args.document.endswith(".docx") else args.document + ".docx"
+                pypandoc.convert_text(last_response, "docx", format="md", outputfile=output_file)
+                os.system(f'''{getOpenCommand()} "{output_file}"''')
+            else:
+                print("To save a *.docx file, install `pandoc` first! Read https://pandoc.org/installing.html for details.")
+        if args.webpage:
+            output_file = args.webpage if args.webpage.endswith(".html") else args.webpage + ".html"
+            if shutil.which("pandoc"):
+                import pypandoc
+                pypandoc.convert_text(last_response, "html", format="md", outputfile=output_file)
+            else:
+                import markdown
+                writeTextFile(output_file, markdown.markdown(last_response))
+            os.system(f'''{getOpenCommand()} "{output_file}"''')
+        if args.markdown:
+            output_file = args.markdown if args.markdown.endswith(".md") else args.markdown + ".md"
+            writeTextFile(output_file, last_response)
+            os.system(f'''{getOpenCommand()} "{output_file}"''')
+        if args.text:
+            output_file = args.text if args.text.endswith(".txt") else args.text + ".txt"
+            writeTextFile(output_file, last_response)
+            os.system(f'''{getOpenCommand()} "{output_file}"''')
+            
     # save conversation record
     if keep_chat_record:
         config_file = os.path.join(PACKAGE_PATH, "config.py")
@@ -351,7 +381,7 @@ def main(keep_chat_record=False):
                 raise ValueError("An error occurred: {e}" if e else f"Error! Failed to export conversation to '{args.export_conversation}'!")
 
 def selectInstruction():
-    import subprocess, shutil
+    import subprocess
     from prompt_toolkit.shortcuts import radiolist_dialog
     
     input_text = subprocess.run("""echo "$(xsel -o)" | sed 's/"/\"/g'""", shell=True, capture_output=True, text=True).stdout if shutil.which("xsel") else ""
