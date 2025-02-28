@@ -219,6 +219,7 @@ def main(keep_chat_record=False):
             writeTextFile(chatFile, pformat(config.messages))
         config.messages = []
     # run
+    last_response = ""
     if user_prompt:
         tools = args.tool if args.tool else []
         follow_up_prompt = args.follow_up_prompt if args.follow_up_prompt else []
@@ -331,21 +332,14 @@ def main(keep_chat_record=False):
             print("--------------------\nCopied!")
         # export assistant response to a file
         if args.document:
-            if shutil.which("pandoc"):
-                import pypandoc
-                output_file = args.document if args.document.endswith(".docx") else args.document + ".docx"
-                pypandoc.convert_text(last_response, "docx", format="md", outputfile=output_file)
-                os.system(f'''{getOpenCommand()} "{output_file}"''')
-            else:
-                print("To save a *.docx file, install `pandoc` first! Read https://pandoc.org/installing.html for details.")
+            from agentmake.utils.handle_text import markdownToDocx
+            output_file = args.document if args.document.endswith(".docx") else args.document + ".docx"
+            markdownToDocx(last_response, output_file)
+            os.system(f'''{getOpenCommand()} "{output_file}"''')
         if args.webpage:
+            from agentmake.utils.handle_text import markdownToHtml
             output_file = args.webpage if args.webpage.endswith(".html") else args.webpage + ".html"
-            if shutil.which("pandoc"):
-                import pypandoc
-                pypandoc.convert_text(last_response, "html", format="md", outputfile=output_file)
-            else:
-                import markdown
-                writeTextFile(output_file, markdown.markdown(last_response))
+            markdownToHtml(last_response, output_file)
             os.system(f'''{getOpenCommand()} "{output_file}"''')
         if args.markdown:
             output_file = args.markdown if args.markdown.endswith(".md") else args.markdown + ".md"

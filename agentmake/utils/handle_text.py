@@ -1,5 +1,9 @@
 import os, html2text, html
 from typing import Union
+import markdown, pypandoc, shutil
+from docx import Document
+from docx.shared import Pt
+from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 def readTextFile(textFile: str) -> Union[str, None]:
     if not os.path.isfile(textFile):
@@ -31,3 +35,52 @@ def plainTextToUrl(text):
     for search, replace in searchReplace:
         text = text.replace(search, replace)
     return text
+
+def markdownToHtml(markdown_text, output_file):
+    if shutil.which("pandoc"):
+        pypandoc.convert_text(markdown_text, "html", format="md", outputfile=output_file)
+    else:
+        writeTextFile(output_file, markdown.markdown(markdown_text))
+
+def markdownToDocx(markdown_text, output_file):
+    if shutil.which("pandoc"):
+        pypandoc.convert_text(markdown_text, "docx", format="md", outputfile=output_file)
+        return None
+
+    # Parse the markdown text
+    html = markdown.markdown(markdown_text)
+
+    # Create a new docx document
+    document = Document()
+
+    # Add the parsed markdown text to the document
+    for element in html.split('\n'):
+        if element.startswith('<h1>'):
+            # Add a heading
+            heading = document.add_heading(text=element.replace('<h1>', '').replace('</h1>', ''), level=1)
+            heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        elif element.startswith('<h2>'):
+            # Add a subheading
+            subheading = document.add_heading(text=element.replace('<h2>', '').replace('</h2>', ''), level=2)
+            subheading.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        elif element.startswith('<p>'):
+            # Add a paragraph
+            paragraph = document.add_paragraph()
+            paragraph.add_run(text=element.replace('<p>', '').replace('</p>', ''))
+        elif element.startswith('<ul>'):
+            # Add an unordered list
+            ul = document.add_paragraph()
+            ul.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            for item in element.replace('<ul>', '').replace('</ul>', '').split('<li>'):
+                if item:
+                    ul.add_run(text=item.replace('</li>', '') + '\n')
+        elif element.startswith('<ol>'):
+            # Add an ordered list
+            ol = document.add_paragraph()
+            ol.alignment = WD_ALIGN_PARAGRAPH.LEFT
+            for i, item in enumerate(element.replace('<ol>', '').replace('</ol>', '').split('<li>')):
+                if item:
+                    ol.add_run(text=str(i+1) + '. ' + item.replace('</li>', '') + '\n')
+
+    # Save the document
+    document.save(output_file)

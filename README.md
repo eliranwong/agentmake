@@ -16,7 +16,7 @@ This SDK incorporates the best aspects of our favorite projects, [LetMeDoIt AI](
 
 # Supported Platforms
 
-Windows, macOS, Linux, ChromeOS, Android via Termux
+Windows, macOS, Linux, ChromeOS, [Android](https://github.com/eliranwong/agentmake/blob/main/docs/android_termux_setup.md)
 
 # Supported backends
 

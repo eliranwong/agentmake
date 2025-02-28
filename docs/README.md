@@ -239,6 +239,8 @@ Return:
 
 # More
 
+[Android Setup](https://github.com/eliranwong/agentmake/blob/main/docs/android_termux_setup.md)
+
 [Create tools](https://github.com/eliranwong/agentmake/blob/main/docs/create_tools.md)
 
 [Create agents](https://github.com/eliranwong/agentmake/blob/main/docs/create_agents.md)

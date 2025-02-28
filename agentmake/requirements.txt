@@ -31,3 +31,4 @@ nano-vectordb
 flashtext
 pypandoc
 markdown
+python-docx
