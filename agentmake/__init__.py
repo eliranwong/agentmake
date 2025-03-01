@@ -52,16 +52,17 @@ USER_OS = platform.system()
 DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
 SUPPORTED_AI_BACKENDS = ["anthropic", "azure", "cohere", "custom", "deepseek", "genai", "github", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"]
 DEFAULT_AI_BACKEND = os.getenv("DEFAULT_AI_BACKEND") if os.getenv("DEFAULT_AI_BACKEND") else "ollama"
-DEFAULT_SYSTEM_MESSAGE = os.getenv("DEFAULT_SYSTEM_MESSAGE") if os.getenv("DEFAULT_SYSTEM_MESSAGE") else f"You are my personal AI assistant. I am your user, {AGENTMAKE_USERNAME}. I will give you both text-based and non-text-based tasks, and the necessary tools to resolve my requests. Therefore, do not tell me that you are only a text-based language model. Try your best to resolve my requests. Do not address my name more than once in a single conversation unless I request it."
+RAW_SYSTEM_MESSAGE = f"You are my personal AI assistant. I am your user, {AGENTMAKE_USERNAME}. I will give you both text-based and non-text-based tasks, and the necessary tools to resolve my requests. Therefore, do not tell me that you are only a text-based language model. Try your best to resolve my requests. Do not address my name more than once in a single conversation unless I request it."
+DEFAULT_SYSTEM_MESSAGE = os.getenv("DEFAULT_SYSTEM_MESSAGE") if os.getenv("DEFAULT_SYSTEM_MESSAGE") else RAW_SYSTEM_MESSAGE
 DEFAULT_FOLLOW_UP_PROMPT = os.getenv("DEFAULT_FOLLOW_UP_PROMPT") if os.getenv("DEFAULT_FOLLOW_UP_PROMPT") else "Please tell me more."
 DEFAULT_TEXT_EDITOR = os.getenv("DEFAULT_TEXT_EDITOR") if os.getenv("DEFAULT_TEXT_EDITOR") else "etextedit"
 DEFAULT_MARKDOWN_THEME = os.getenv("DEFAULT_MARKDOWN_THEME") if os.getenv("DEFAULT_MARKDOWN_THEME") else "github-dark"
 DEFAULT_FABRIC_PATTERNS_PATH = os.getenv("DEFAULT_FABRIC_PATTERNS_PATH") if os.getenv("DEFAULT_FABRIC_PATTERNS_PATH") else os.path.join(os.path.expanduser("~"), ".config", "fabric", "patterns")
 
-def override_DEFAULT_SYSTEM_MESSAGE(instruction):
+def override_DEFAULT_SYSTEM_MESSAGE(system_instruction):
     # override default system message without changing the environment variable
     global DEFAULT_SYSTEM_MESSAGE
-    DEFAULT_SYSTEM_MESSAGE = get_system_instruction(instruction)
+    DEFAULT_SYSTEM_MESSAGE = system_instruction
 
 def override_DEFAULT_FOLLOW_UP_PROMPT(prompt):
     # override default follow-up prompt without changing the environment variable
@@ -346,7 +347,7 @@ def agentmake(
     # placeholders
     original_system = ""
     chat_system = ""
-    # deep copy messages avoid modifying the original one
+    # deep copy messages to avoid modifying the original one
     messages_copy = deepcopy(messages) if isinstance(messages, list) else [{"role": "system", "content": DEFAULT_SYSTEM_MESSAGE}, {"role": "user", "content": messages}]
     # convert follow-up-prompt to a list if it is given as a string
     if follow_up_prompt and isinstance(follow_up_prompt, str):
@@ -489,9 +490,10 @@ def agentmake(
         if system_instruction is None:
             pass
         else:
-            system_instruction = get_system_instruction(
+            user_prompt = messages_copy[-1].get("content", "")
+            system_instruction = refine_system_instruction(
                 system_instruction,
-                messages=messages_copy,
+                user_prompt=user_prompt,
                 backend=backend,
                 model=model,
                 model_keep_alive=model_keep_alive,
@@ -509,6 +511,30 @@ def agentmake(
                 word_wrap=word_wrap,
                 **kwargs
             )
+        if system_instruction:
+            original_system = updateSystemMessage(messages_copy, system_instruction)
+    elif not system and not agent_response and DEFAULT_SYSTEM_MESSAGE:
+        user_prompt = messages_copy[-1].get("content", "")
+        system_instruction = refine_system_instruction(
+            DEFAULT_SYSTEM_MESSAGE,
+            user_prompt=user_prompt,
+            backend=backend,
+            model=model,
+            model_keep_alive=model_keep_alive,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            context_window=context_window,
+            batch_size=batch_size,
+            stream=stream,
+            api_key=api_key,
+            api_endpoint=api_endpoint,
+            api_project_id=api_project_id,
+            api_service_location=api_service_location,
+            api_timeout=api_timeout,
+            print_on_terminal=print_on_terminal,
+            word_wrap=word_wrap,
+            **kwargs
+        )
         if system_instruction:
             original_system = updateSystemMessage(messages_copy, system_instruction)
     # handle given predefined instruction(s)
@@ -999,11 +1025,13 @@ def agentmake(
             word_wrap=word_wrap,
             **kwargs
         )
+    # For debugging
+    #print(messages_copy)
     return messages_copy
 
-def get_system_instruction(
+def refine_system_instruction(
     system_instruction,
-    messages: Optional[Union[List[Dict[str, str]], str]]=None, # user request or messages containing user request; accepts either a single string or a list of dictionaries
+    user_prompt: Optional[str]=None, # user prompt
     backend: Optional[str]=DEFAULT_AI_BACKEND, # AI backend; check SUPPORTED_AI_BACKENDS for supported backends
     model: Optional[str]=None, # AI model name; applicable to all backends, execept for llamacpp
     model_keep_alive: Optional[str]=None, # time to keep the model loaded in memory; applicable to ollama only
@@ -1024,12 +1052,13 @@ def get_system_instruction(
     # check if it is a predefined system message built-in with this SDK
     possible_system_file_path_2 = os.path.join(PACKAGE_PATH, "systems", f"{system_instruction}.md")
     possible_system_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "systems", f"{system_instruction}.md")
-    if system_instruction=="auto" and messages:
+
+    if system_instruction=="auto" and user_prompt:
         if print_on_terminal:
             print(">>> Generating system instruction ...\n")
-        latest_request = messages[-1].get("content", "")
         system_instruction = agentmake(
-            latest_request,
+            user_prompt,
+            system="create_agent",
             instruction=os.path.join("system", "auto"),
             backend=backend,
             model=model,
@@ -1048,6 +1077,8 @@ def get_system_instruction(
             word_wrap=word_wrap,
             **kwargs,
         )[-1].get("content", "")
+        if agent := re.search("""```agent(.+?)```""", system_instruction, re.DOTALL):
+            system_instruction = agent.group(1).strip()
         try:
             user_systems_file = saveUserSystemMessage(system_instruction)
             if print_on_terminal:
@@ -1497,6 +1528,6 @@ def getFabricPatternSystem(pattern, instruction=False):
 
 def ignore_warnings():
     from warnings import filterwarnings
-    #filterwarnings("ignore", category=ResourceWarning, message=r"unclosed <socket.socket.*, 11434\)") # ollama
-    filterwarnings("ignore", category=ResourceWarning, message="unclosed <ssl.SSLSocket.*'34.96.76.122'") # cohere
+    #filterwarnings("ignore", category=ResourceWarning, message=r"unclosed <socket.socket.*, 11434\)") # ollama # resolved
+    filterwarnings("ignore", category=ResourceWarning, message="unclosed <ssl.SSLSocket.*'34.96.76.122'") # cohere # https://github.com/cohere-ai/cohere-python/issues/650
 atexit.register(ignore_warnings)

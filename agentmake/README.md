@@ -260,6 +260,52 @@ The available CLI options use the same parameter names as the `agentmake` functi
 
 > ai Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre --agent teamwork --model "llama3.3:70b"
 
+## Example: Make AI Models Smarter in a Simple Way
+
+This example demonstrate that you can make AI models smarter with use of a simple system message.
+
+We ask the AI model `llama3.3:70b` to answer the same question `How many r are there in the word strawberry?`:
+
+Without system message
+
+> ai How many r are there in the word strawberry?
+
+Here is the response:
+
+There are 2 R's and also 2 other double letters in the word "strawberry" and "rr" is one of them, the other double letters are "ww".
+
+
+Result: Wrong answer!
+
+With system message
+
+> ai -sys "Think deeply about how to solve user requests with a systematic plan and strong reasoning in mind." How many r are there in the word strawberry?
+
+Here is the response:
+
+To solve this, let's break down the word "strawberry" into its individual letters:
+
+1. S
+2. T
+3. R
+4. A
+5. W
+6. B
+7. E
+8. R
+9. R
+10. Y
+
+Now, let's count the number of times the letter "R" appears:
+
+- The letter "R" appears at position 3.
+- The letter "R" appears at position 8.
+- The letter "R" appears at position 9.
+
+Therefore, there are 3 "R"s in the word "strawberry".
+
+Result: Correct answer!
+
 ## Work with Text Selection and Clipboard
 
 CLI options allow you to work with selected or copied text easily.

@@ -202,6 +202,10 @@ To test:
 
 > ai Send an email to Eliran to express appreciation for his work at eliran@email.com -t android/send_email
 
+To list all Android specific tools:
+
+> ai -lt | grep android
+
 Remarks: Run `ollama serve` in a separate Termux session if you use `ollama` as default backend for running AgentMake AI.
 
 For more tests or examples, read https://github.com/eliranwong/AMD_iGPU_AI_Setup#edit-configurations
