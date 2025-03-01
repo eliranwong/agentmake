@@ -5,6 +5,7 @@ PACKAGE_PATH = os.path.dirname(os.path.realpath(__file__))
 PACKAGE_NAME = os.path.basename(PACKAGE_PATH)
 AGENTMAKE_USERNAME = os.getenv("AGENTMAKE_USERNAME") if os.getenv("AGENTMAKE_USERNAME") else getpass.getuser().capitalize()
 AGENTMAKE_USER_DIR = os.getenv("AGENTMAKE_USER_DIR") if os.getenv("AGENTMAKE_USER_DIR") else os.path.join(os.path.expanduser("~"), "agentmake") # It is where users store their custom components, i.e. `tools`, `agents`, `plugins`, `systems`, `instructions`, and `prompts`.Custom components are placed outside the package directory, to avoid overriding upon upgrades.
+ASSISTANT_NAME = os.getenv("ASSISTANT_NAME") if os.getenv("ASSISTANT_NAME") else "AI"
 
 def load_configurations(env_file=""):
     if not env_file:
@@ -1438,6 +1439,6 @@ def getFabricPatternSystem(pattern, instruction=False):
 
 def ignore_warnings():
     from warnings import filterwarnings
-    filterwarnings("ignore", category=ResourceWarning, message="unclosed <socket.socket.*, 11434\)") # ollama
+    filterwarnings("ignore", category=ResourceWarning, message=r"unclosed <socket.socket.*, 11434\)") # ollama
     filterwarnings("ignore", category=ResourceWarning, message="unclosed <ssl.SSLSocket.*'34.96.76.122'") # cohere
 atexit.register(ignore_warnings)

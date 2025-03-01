@@ -1,4 +1,4 @@
-from agentmake import AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand, listResources
+from agentmake import ASSISTANT_NAME, AGENTMAKE_USERNAME, AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand, listResources
 from agentmake.etextedit import launch
 from agentmake.utils.handle_text import readTextFile, writeTextFile
 from agentmake.utils.files import searchFolder
@@ -41,6 +41,7 @@ def main(keep_chat_record=False):
     parser.add_argument("-ww", "--word_wrap", action="store_true", dest="word_wrap", help="wrap output text according to current terminal width")
     # chat features
     parser.add_argument("-c", "--chat", action="store_true", dest="chat", help="enable chat feature")
+    parser.add_argument("-p", "--prompts", action="store_true", dest="prompts", help="enable mult-turn prompts for the user interface")
     parser.add_argument("-o", "--open_conversation", action="store", dest="open_conversation", help="open a saved conversation file")
     parser.add_argument("-n", "--new_conversation", action="store_true", dest="new_conversation", help="new conversation; applicable when chat feature is enabled")
     parser.add_argument("-s", "--save_conversation", action="store", dest="save_conversation", help="save conversation in a chat file; specify the file path for saving the file; applicable when chat feature is enabled")
@@ -125,7 +126,7 @@ def main(keep_chat_record=False):
                 args.markdown_highlights = True
 
     # enable chat feature
-    if args.chat:
+    if args.chat or args.prompts:
         keep_chat_record = True
 
     # image creation
@@ -220,27 +221,33 @@ def main(keep_chat_record=False):
         config.messages = []
     # run
     last_response = ""
+    if not user_prompt and args.prompts:
+        user_prompt = getInput(prompt=f"{AGENTMAKE_USERNAME.capitalize()}: ")
     if user_prompt:
         tools = args.tool if args.tool else []
         follow_up_prompt = args.follow_up_prompt if args.follow_up_prompt else []
 
-        # multiple tools in a single instruction
-        if user_prompt.startswith("@") or re.search("[\n ]@", user_prompt):
-            tool_pattern = "|".join(listResources("tools", ext="py"))
-            tool_pattern = f"""@({tool_pattern}) """
-            tools_names = re.findall(tool_pattern, f"{user_prompt} ")
-            if tools_names:
-                separator = "＊@＊@＊"
-                tools_prompts = re.sub(tool_pattern, separator, f"{user_prompt} ").split(separator)
-                if tools_prompts:
-                    if tools_prompts[0].strip():
-                        # in case content entered before the first action declared
-                        tools_names.insert(0, "chat")
-                    else:
-                        del tools_prompts[0]
-                    follow_up_prompt = tools_prompts[1:] + follow_up_prompt
-                    user_prompt = tools_prompts[0]
-                    tools = tools_names + tools
+        def checkTools(user_prompt, tools, follow_up_prompt):
+            # multiple tools in a single instruction
+            if user_prompt.startswith("@") or re.search("[\n ]@", user_prompt):
+                tool_pattern = "|".join(listResources("tools", ext="py"))
+                tool_pattern = f"""@({tool_pattern}) """
+                tools_names = re.findall(tool_pattern, f"{user_prompt} ")
+                if tools_names:
+                    separator = "＊@＊@＊"
+                    tools_prompts = re.sub(tool_pattern, separator, f"{user_prompt} ").split(separator)
+                    if tools_prompts:
+                        if tools_prompts[0].strip():
+                            # in case content entered before the first action declared
+                            tools_names.insert(0, "chat")
+                        else:
+                            del tools_prompts[0]
+                        user_prompt = tools_prompts[0]
+                        for i in tools_prompts[1:]:
+                            follow_up_prompt.insert(0, i)
+                        for i in tools_names:
+                            tools.insert(0, i)
+            return user_prompt
 
         if keep_chat_record:
             if args.open_conversation:
@@ -269,34 +276,48 @@ def main(keep_chat_record=False):
         messages = config.messages if keep_chat_record and config.messages else user_prompt
 
         # run agentmake function
-        config.messages = agentmake(
-            messages=messages,
-            backend=args.backend if args.backend else DEFAULT_AI_BACKEND,
-            model=args.model,
-            model_keep_alive=args.model_keep_alive,
-            system=args.system,
-            instruction=args.instruction,
-            follow_up_prompt=follow_up_prompt,
-            input_content_plugin=args.input_content_plugin,
-            output_content_plugin=args.output_content_plugin,
-            agent=args.agent,
-            tool=tools,
-            schema=json.loads(args.schema) if args.schema else None,
-            temperature=args.temperature,
-            max_tokens=args.max_tokens,
-            context_window=args.context_window,
-            batch_size=args.batch_size,
-            prefill=args.prefill,
-            stop=args.stop,
-            api_key=args.api_key,
-            api_endpoint=args.api_endpoint,
-            api_project_id=args.api_project_id,
-            api_service_location=args.api_service_location,
-            api_timeout=int(args.api_timeout) if args.api_timeout and args.backend and args.backend in ("cohere", "mistral", "genai", "vertexai") else args.api_timeout,
-            word_wrap=args.word_wrap,
-            stream=False if args.markdown_highlights else True,
-            print_on_terminal=False if args.markdown_highlights else True,
-        )
+        is_first_go = True
+        while user_prompt:
+            user_prompt = checkTools(user_prompt, tools, follow_up_prompt)
+            if args.prompts:
+                print(f"{ASSISTANT_NAME}: ", end='', flush=True)
+            config.messages = agentmake(
+                messages=messages if is_first_go else config.messages,
+                backend=args.backend if args.backend else DEFAULT_AI_BACKEND,
+                model=args.model,
+                model_keep_alive=args.model_keep_alive,
+                system=args.system,
+                instruction=args.instruction,
+                follow_up_prompt=follow_up_prompt if is_first_go else [user_prompt],
+                input_content_plugin=args.input_content_plugin,
+                output_content_plugin=args.output_content_plugin,
+                agent=args.agent,
+                tool=tools,
+                schema=json.loads(args.schema) if args.schema else None,
+                temperature=args.temperature,
+                max_tokens=args.max_tokens,
+                context_window=args.context_window,
+                batch_size=args.batch_size,
+                prefill=args.prefill,
+                stop=args.stop,
+                api_key=args.api_key,
+                api_endpoint=args.api_endpoint,
+                api_project_id=args.api_project_id,
+                api_service_location=args.api_service_location,
+                api_timeout=int(args.api_timeout) if args.api_timeout and args.backend and args.backend in ("cohere", "mistral", "genai", "vertexai") else args.api_timeout,
+                word_wrap=args.word_wrap,
+                stream=False if args.markdown_highlights else True,
+                print_on_terminal=False if args.markdown_highlights else True,
+            )
+            if not args.prompts:
+                break
+            # reset tools and follow_up_prompt
+            is_first_go = False
+            tools = []
+            follow_up_prompt = []
+            # get user prompt
+            user_prompt = getInput(prompt=f"{AGENTMAKE_USERNAME.capitalize()}: ")
+
         last_response = config.messages[-1].get("content", "")
         if args.copy or args.markdown_highlights:
             if args.markdown_highlights and last_response:
@@ -374,6 +395,35 @@ def main(keep_chat_record=False):
             except Exception as e:
                 raise ValueError("An error occurred: {e}" if e else f"Error! Failed to export conversation to '{args.export_conversation}'!")
 
+def getInput(prompt="Instruction: "):
+    from prompt_toolkit import PromptSession
+    from prompt_toolkit.history import FileHistory
+    from prompt_toolkit.completion import WordCompleter, FuzzyCompleter
+    from prompt_toolkit.key_binding import KeyBindings
+    bindings = KeyBindings()
+    @bindings.add("c-q")
+    def _(event):
+        " Exit when `c-x` is pressed. "
+        event.app.exit()
+    @bindings.add("c-i")
+    def _(event):
+        event.app.current_buffer.newline()
+
+    history_dir = os.path.join(AGENTMAKE_USER_DIR, "history")
+    if not os.path.isdir(history_dir):
+        from pathlib import Path
+        Path(history_dir).mkdir(parents=True, exist_ok=True)
+    session = PromptSession(history=FileHistory(os.path.join(history_dir, "instruction_history")))
+    completer = FuzzyCompleter(WordCompleter([f"@{i}" for i in listResources("tools", ext="py")], ignore_case=True))
+    instruction = session.prompt(
+        prompt,
+        bottom_toolbar="Press <Enter> to submit <Tab> to start a new line <Ctrl+Q> to exit",
+        completer=completer,
+        key_bindings=bindings,
+    )
+    print()
+    return instruction.strip() if instruction else ""
+
 def selectInstruction():
     import subprocess
     from prompt_toolkit.shortcuts import radiolist_dialog
@@ -423,31 +473,7 @@ def selectInstruction():
             else:
                 break
         if result == "custom":
-            from prompt_toolkit import PromptSession
-            from prompt_toolkit.history import FileHistory
-            from prompt_toolkit.completion import WordCompleter, FuzzyCompleter
-            from prompt_toolkit.key_binding import KeyBindings
-            bindings = KeyBindings()
-            @bindings.add("c-q")
-            def _(event):
-                " Exit when `c-x` is pressed. "
-                event.app.exit()
-            @bindings.add("c-i")
-            def _(event):
-                event.app.current_buffer.newline()
-
-            history_dir = os.path.join(AGENTMAKE_USER_DIR, "history")
-            if not os.path.isdir(history_dir):
-                from pathlib import Path
-                Path(history_dir).mkdir(parents=True, exist_ok=True)
-            session = PromptSession(history=FileHistory(os.path.join(history_dir, "instruction_history")))
-            completer = FuzzyCompleter(WordCompleter([f"@{i}" for i in listResources("tools", ext="py")], ignore_case=True))
-            instruction = session.prompt(
-                "Instruction: ",
-                bottom_toolbar="Press <Enter> to submit <Tab> to start a new line <Ctrl+Q> to exit",
-                completer=completer,
-                key_bindings=bindings,
-            )
+            instruction = getInput(prompt="Custom instruction: ")
             if not instruction:
                 return ""
         else:
