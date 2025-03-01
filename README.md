@@ -186,27 +186,24 @@ To specify an AI backend:
 
 To work collaboratively with different backends, e.g.
 
-> messages = agentmake("What is the most effective method for training AI models?", backend="openai")
-
-> messages = agentmake(messages, backend="googleai", follow_up_prompt="Can you give me some different options?")
-
-> messages = agentmake(messages, backend="xai", follow_up_prompt="What are the limitations or potential biases in this information?")
-
-> agentmake(messages, backend="mistral", follow_up_prompt="Please provide a summary of the discussion so far.")
+```
+messages = agentmake("What is the most effective method for training AI models?", backend="openai")
+messages = agentmake(messages, backend="googleai", follow_up_prompt="Can you give me some different options?")
+messages = agentmake(messages, backend="xai", follow_up_prompt="What are the limitations or potential biases in this information?")
+agentmake(messages, backend="mistral", follow_up_prompt="Please provide a summary of the discussion so far.")
+```
 
 As you may see, the `agentmake` function returns the `messages` list, which is passed to the next `agentmake` function in turns.
 
 Therefore, it is very simple to create a chatbot application, you can do it as few as five lines or less, e.g.:
 
-> messages = [{"role": "system", "content": "You are an AI assistant."}]
-
-> user_input = "Hello!"
-
-> while user_input:
-
->     messages = agentmake(messages, follow_up_prompt=user_input, stream=True)
-
->     user_input = input("Enter your query:\n(enter a blank entry to exit)\n>>> ")
+```
+messages = [{"role": "system", "content": "You are an AI assistant."}]
+user_input = "Hello!"
+while user_input:
+    messages = agentmake(messages, follow_up_prompt=user_input, stream=True)
+    user_input = input("Enter your query:\n(enter a blank entry to exit)\n>>> ")
+```
 
 You may take a look at out our built-in components for more ideas:
 
@@ -260,50 +257,9 @@ The available CLI options use the same parameter names as the `agentmake` functi
 
 > ai Write detailed comments about the works of William Shakespeare, focusing on his literary contributions, dramatic techniques, and the profound impact he has had on the world of literature and theatre --agent teamwork --model "llama3.3:70b"
 
-## Example: Make AI Models Smarter in a Simple Way
+## More Examples
 
-This example demonstrate that you can make AI models smarter with use of a simple system message.
-
-We ask the AI model `llama3.3:70b` to answer the same question `How many r are there in the word strawberry?`:
-
-**Without system message**
-
-> ai How many r are there in the word strawberry?
-
-```output
-There are 2 R's and also 2 other double letters in the word "strawberry" and "rr" is one of them, the other double letters are "ww".
-```
-
-Result: Wrong answer!
-
-**With system message**
-
-> ai -sys "Think deeply about how to solve user requests with a systematic plan and strong reasoning in mind." How many r are there in the word strawberry?
-
-```output
-To solve this, let's break down the word "strawberry" into its individual letters:
-
-1. S
-2. T
-3. R
-4. A
-5. W
-6. B
-7. E
-8. R
-9. R
-10. Y
-
-Now, let's count the number of times the letter "R" appears:
-
-- The letter "R" appears at position 3.
-- The letter "R" appears at position 8.
-- The letter "R" appears at position 9.
-
-Therefore, there are 3 "R"s in the word "strawberry".
-```
-
-Result: Correct answer!
+More examples at https://github.com/eliranwong/agentmake/tree/main/examples
 
 ## Work with Text Selection and Clipboard
 
@@ -437,9 +393,3 @@ To use a fabric pattern in `agentmake`:
 # Local Backends with GPU Acceleration
 
 Both local backends `ollama` and `llamacpp` support GPU accelerations.
-
-# TODO
-
-* add more examples
-* convert availble ToolMate AI tools into tools that runable with this SDK (... in progess ...)
-* add documentation about tool creation

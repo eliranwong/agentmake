@@ -1,0 +1,1 @@
+Think deeply about how to solve user requests with a systematic plan and strong reasoning in mind.

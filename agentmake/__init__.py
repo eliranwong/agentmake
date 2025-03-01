@@ -67,7 +67,7 @@ def override_DEFAULT_SYSTEM_MESSAGE(system_instruction):
 def override_DEFAULT_FOLLOW_UP_PROMPT(prompt):
     # override default follow-up prompt without changing the environment variable
     global DEFAULT_FOLLOW_UP_PROMPT
-    DEFAULT_FOLLOW_UP_PROMPT = get_follow_up_prompt_content(prompt)
+    DEFAULT_FOLLOW_UP_PROMPT = refine_follow_up_prompt_content(prompt)
 
 def edit_configurations(env_file=""):
     if not env_file:
@@ -994,7 +994,7 @@ def agentmake(
         follow_up_prompt = DEFAULT_FOLLOW_UP_PROMPT
     if follow_up_prompt:
         follow_up_prompt_content = follow_up_prompt.pop(0)
-        follow_up_prompt_content = get_follow_up_prompt_content(follow_up_prompt_content, messages_copy)
+        follow_up_prompt_content = refine_follow_up_prompt_content(follow_up_prompt_content, messages_copy)
         messages_copy.append({"role": "user", "content": follow_up_prompt_content})
         return agentmake(
             messages=messages_copy,
@@ -1146,7 +1146,7 @@ def refine_system_instruction(
             system_instruction = system_file_content
     return system_instruction
 
-def get_follow_up_prompt_content(follow_up_prompt_content):
+def refine_follow_up_prompt_content(follow_up_prompt_content):
     # check if it is a predefined follow_up_prompt built-in with this SDK
     possible_follow_up_prompt_file_path_2 = os.path.join(PACKAGE_PATH, "prompts", f"{follow_up_prompt_content}.md")
     possible_follow_up_prompt_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "prompts", f"{follow_up_prompt_content}.md")
