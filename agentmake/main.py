@@ -1,4 +1,4 @@
-from agentmake import ASSISTANT_NAME, AGENTMAKE_USERNAME, AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand, listResources
+from agentmake import AGENTMAKE_ASSISTANT_NAME, AGENTMAKE_USERNAME, AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand, listResources, override_DEFAULT_SYSTEM_MESSAGE, override_DEFAULT_FOLLOW_UP_PROMPT
 from agentmake.etextedit import launch
 from agentmake.utils.handle_text import readTextFile, writeTextFile
 from agentmake.utils.files import searchFolder
@@ -39,6 +39,9 @@ def main(keep_chat_record=False):
     parser.add_argument("-sl", "--api_service_location", action="store", dest="api_service_location", help="cloud service location; applicable to Vertex AI only")
     parser.add_argument("-tim", "--api_timeout", action="store", dest="api_timeout", type=float, help="timeout for API request")
     parser.add_argument("-ww", "--word_wrap", action="store_true", dest="word_wrap", help="wrap output text according to current terminal width")
+    # override default system message and follow-up prompt
+    parser.add_argument("-dsys", "--default_system_message", action="store", dest="default_system_message", help="override default system message without changing the configuration")
+    parser.add_argument("-dfup", "--default_follow_up_prompt", action="store", dest="default_follow_up_prompt", help="override default follow-up prompt without changing the configuration")
     # chat features
     parser.add_argument("-c", "--chat", action="store_true", dest="chat", help="enable chat feature")
     parser.add_argument("-p", "--prompts", action="store_true", dest="prompts", help="enable mult-turn prompts for the user interface")
@@ -108,6 +111,12 @@ def main(keep_chat_record=False):
     # edit configurations
     if args.edit_configurations:
         edit_configurations()
+
+    # override default system message and follow-up prompt
+    if args.default_system_message:
+        override_DEFAULT_SYSTEM_MESSAGE(args.default_system_message)
+    if args.default_follow_up_prompt:
+        override_DEFAULT_FOLLOW_UP_PROMPT(args.default_follow_up_prompt)
 
     # export ollama models
     if args.get_model:
@@ -280,7 +289,7 @@ def main(keep_chat_record=False):
         while user_prompt:
             user_prompt = checkTools(user_prompt, tools, follow_up_prompt)
             if args.prompts:
-                print(f"{ASSISTANT_NAME}: ", end='', flush=True)
+                print(f"{AGENTMAKE_ASSISTANT_NAME}: ", end='', flush=True)
             config.messages = agentmake(
                 messages=messages if is_first_go else config.messages,
                 backend=args.backend if args.backend else DEFAULT_AI_BACKEND,

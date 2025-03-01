@@ -6,7 +6,7 @@ def examine_images_ollama(query: str, image_filepath: Union[str, list], **kwargs
     from agentmake.utils.online import is_valid_url
     from agentmake import OllamaAI
     from ollama import Options
-    import os, ollama
+    import os
     import http.client
     import urllib.request
     from typing import cast
@@ -45,7 +45,7 @@ def examine_images_ollama(query: str, image_filepath: Union[str, list], **kwargs
             #image_filepath.remove(i)
 
     if content:
-        client = ollama._client
+        client = OllamaAI.getClient()
 
         response = client.chat(
             model=OLLAMA_VISUAL_MODEL,

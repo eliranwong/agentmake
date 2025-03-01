@@ -5,9 +5,8 @@ from typing import Optional
 from tqdm import tqdm
 from ollama import Options, ResponseError
 from ollama._types import ChatResponse
-from ollama import pull
+from ollama import pull, Client
 from ollama import list as ollama_ls
-from ollama import _client as ollama_client
 import re, os, json
 
 class OllamaAI:
@@ -19,6 +18,11 @@ class OllamaAI:
     DEFAULT_CONTEXT_WINDOW = int(os.getenv("OLLAMA_CONTEXT_WINDOW")) if os.getenv("OLLAMA_CONTEXT_WINDOW") else 2048
     DEFAULT_BATCH_SIZE = int(os.getenv("OLLAMA_BATCH_SIZE")) if os.getenv("OLLAMA_BATCH_SIZE") else 512
     DEFAULT_KEEP_ALIVE = os.getenv("OLLAMA_KEEP_ALIVE") if os.getenv("OLLAMA_KEEP_ALIVE") else "5m"
+
+    @staticmethod
+    def getClient(api_endpoint: Optional[str]=None):
+        config.ollama_client = Client(host=api_endpoint if api_endpoint else OllamaAI.DEFAULT_ENDPOINT)
+        return config.ollama_client
 
     @staticmethod
     def getChatCompletion(
@@ -46,8 +50,7 @@ class OllamaAI:
         # download model if it is not in the model list
         os.environ["OLLAMA_HOST"] = api_endpoint if api_endpoint else OllamaAI.DEFAULT_ENDPOINT
         OllamaAI.downloadModel(model)
-        config.ollama_client = ollama_client
-        return config.ollama_client.chat(
+        return OllamaAI.getClient(api_endpoint=api_endpoint).chat(
             keep_alive=model_keep_alive if model_keep_alive else OllamaAI.DEFAULT_KEEP_ALIVE,
             model=model,
             messages=messages,

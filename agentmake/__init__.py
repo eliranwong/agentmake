@@ -3,9 +3,7 @@ import os, shutil, getpass
 
 PACKAGE_PATH = os.path.dirname(os.path.realpath(__file__))
 PACKAGE_NAME = os.path.basename(PACKAGE_PATH)
-AGENTMAKE_USERNAME = os.getenv("AGENTMAKE_USERNAME") if os.getenv("AGENTMAKE_USERNAME") else getpass.getuser().capitalize()
 AGENTMAKE_USER_DIR = os.getenv("AGENTMAKE_USER_DIR") if os.getenv("AGENTMAKE_USER_DIR") else os.path.join(os.path.expanduser("~"), "agentmake") # It is where users store their custom components, i.e. `tools`, `agents`, `plugins`, `systems`, `instructions`, and `prompts`.Custom components are placed outside the package directory, to avoid overriding upon upgrades.
-ASSISTANT_NAME = os.getenv("ASSISTANT_NAME") if os.getenv("ASSISTANT_NAME") else "AI"
 
 def load_configurations(env_file=""):
     if not env_file:
@@ -48,6 +46,8 @@ from pathlib import Path
 from copy import deepcopy
 import sys, re, platform, atexit, json, traceback
 
+AGENTMAKE_ASSISTANT_NAME = os.getenv("AGENTMAKE_ASSISTANT_NAME") if os.getenv("AGENTMAKE_ASSISTANT_NAME") else "AI"
+AGENTMAKE_USERNAME = os.getenv("AGENTMAKE_USERNAME") if os.getenv("AGENTMAKE_USERNAME") else getpass.getuser().capitalize()
 USER_OS = platform.system()
 DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
 SUPPORTED_AI_BACKENDS = ["anthropic", "azure", "cohere", "custom", "deepseek", "genai", "github", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"]
@@ -58,12 +58,23 @@ DEFAULT_TEXT_EDITOR = os.getenv("DEFAULT_TEXT_EDITOR") if os.getenv("DEFAULT_TEX
 DEFAULT_MARKDOWN_THEME = os.getenv("DEFAULT_MARKDOWN_THEME") if os.getenv("DEFAULT_MARKDOWN_THEME") else "github-dark"
 DEFAULT_FABRIC_PATTERNS_PATH = os.getenv("DEFAULT_FABRIC_PATTERNS_PATH") if os.getenv("DEFAULT_FABRIC_PATTERNS_PATH") else os.path.join(os.path.expanduser("~"), ".config", "fabric", "patterns")
 
+def override_DEFAULT_SYSTEM_MESSAGE(message):
+    # override default system message without changing the environment variable
+    global DEFAULT_SYSTEM_MESSAGE
+    DEFAULT_SYSTEM_MESSAGE = message
+
+def override_DEFAULT_FOLLOW_UP_PROMPT(prompt):
+    # override default follow-up prompt without changing the environment variable
+    global DEFAULT_FOLLOW_UP_PROMPT
+    DEFAULT_FOLLOW_UP_PROMPT = prompt
 
 def edit_configurations(env_file=""):
     if not env_file:
         user_env = os.path.join(AGENTMAKE_USER_DIR, "agentmake.env")
         env_file = user_env if os.path.isfile(user_env) else os.path.join(PACKAGE_PATH, ".env")
     os.system(f'''{DEFAULT_TEXT_EDITOR} "{env_file}"''')
+    # reload
+    load_configurations()
 
 def agentmake(
     messages: Union[List[Dict[str, str]], str], # user request or messages containing user request; accepts either a single string or a list of dictionaries
