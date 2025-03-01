@@ -1,3 +1,4 @@
+from agentmake import config
 from ..utils.online import get_local_ip
 from ..utils.schema import getParameterSchema
 from typing import Optional
@@ -45,7 +46,8 @@ class OllamaAI:
         # download model if it is not in the model list
         os.environ["OLLAMA_HOST"] = api_endpoint if api_endpoint else OllamaAI.DEFAULT_ENDPOINT
         OllamaAI.downloadModel(model)
-        return ollama_client.chat(
+        config.ollama_client = ollama_client
+        return config.ollama_client.chat(
             keep_alive=model_keep_alive if model_keep_alive else OllamaAI.DEFAULT_KEEP_ALIVE,
             model=model,
             messages=messages,

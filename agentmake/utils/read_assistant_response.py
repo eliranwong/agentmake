@@ -66,6 +66,9 @@ def closeConnections(backend: str):
     elif backend == "openai" and hasattr(config, "openai_client") and config.openai_client is not None:
         config.openai_client.close()
         config.openai_client = None
+    elif backend == "ollama" and hasattr(config, "ollama_client") and config.ollama_client is not None:
+        config.ollama_client._client.close()
+        config.ollama_client = None
     elif backend == "xai" and hasattr(config, "xai_client") and config.xai_client is not None:
         config.xai_client.close()
         config.xai_client = None

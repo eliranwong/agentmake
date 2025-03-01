@@ -1439,6 +1439,6 @@ def getFabricPatternSystem(pattern, instruction=False):
 
 def ignore_warnings():
     from warnings import filterwarnings
-    filterwarnings("ignore", category=ResourceWarning, message=r"unclosed <socket.socket.*, 11434\)") # ollama
+    #filterwarnings("ignore", category=ResourceWarning, message=r"unclosed <socket.socket.*, 11434\)") # ollama
     filterwarnings("ignore", category=ResourceWarning, message="unclosed <ssl.SSLSocket.*'34.96.76.122'") # cohere
 atexit.register(ignore_warnings)
