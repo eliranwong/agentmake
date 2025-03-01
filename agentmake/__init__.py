@@ -58,15 +58,15 @@ DEFAULT_TEXT_EDITOR = os.getenv("DEFAULT_TEXT_EDITOR") if os.getenv("DEFAULT_TEX
 DEFAULT_MARKDOWN_THEME = os.getenv("DEFAULT_MARKDOWN_THEME") if os.getenv("DEFAULT_MARKDOWN_THEME") else "github-dark"
 DEFAULT_FABRIC_PATTERNS_PATH = os.getenv("DEFAULT_FABRIC_PATTERNS_PATH") if os.getenv("DEFAULT_FABRIC_PATTERNS_PATH") else os.path.join(os.path.expanduser("~"), ".config", "fabric", "patterns")
 
-def override_DEFAULT_SYSTEM_MESSAGE(message):
+def override_DEFAULT_SYSTEM_MESSAGE(instruction):
     # override default system message without changing the environment variable
     global DEFAULT_SYSTEM_MESSAGE
-    DEFAULT_SYSTEM_MESSAGE = message
+    DEFAULT_SYSTEM_MESSAGE = get_system_instruction(instruction)
 
 def override_DEFAULT_FOLLOW_UP_PROMPT(prompt):
     # override default follow-up prompt without changing the environment variable
     global DEFAULT_FOLLOW_UP_PROMPT
-    DEFAULT_FOLLOW_UP_PROMPT = prompt
+    DEFAULT_FOLLOW_UP_PROMPT = get_follow_up_prompt_content(prompt)
 
 def edit_configurations(env_file=""):
     if not env_file:
@@ -486,18 +486,12 @@ def agentmake(
         else: # a string instead
             system_instruction = system
             system = []
-        # check if it is a predefined system message built-in with this SDK
-        possible_system_file_path_2 = os.path.join(PACKAGE_PATH, "systems", f"{system_instruction}.md")
-        possible_system_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "systems", f"{system_instruction}.md")
         if system_instruction is None:
             pass
-        elif system_instruction=="auto":
-            if print_on_terminal:
-                print(">>> Generating system instruction ...\n")
-            latest_request = messages_copy[-1].get("content", "")
-            system_instruction = agentmake(
-                latest_request,
-                instruction=os.path.join("system", "auto"),
+        else:
+            system_instruction = get_system_instruction(
+                system_instruction,
+                messages=messages_copy,
                 backend=backend,
                 model=model,
                 model_keep_alive=model_keep_alive,
@@ -513,73 +507,8 @@ def agentmake(
                 api_timeout=api_timeout,
                 print_on_terminal=print_on_terminal,
                 word_wrap=word_wrap,
-                **kwargs,
-            )[-1].get("content", "")
-            try:
-                user_systems_file = saveUserSystemMessage(system_instruction)
-                if print_on_terminal:
-                    print(f">>> System instruction saved: {user_systems_file}")
-            except:
-                pass
-            if print_on_terminal:
-                print(">>> System instruction updated!\n")
-        elif system_instruction.startswith("role."):
-            role = system_instruction[5:]
-            filename = re.sub("[^A-Za-z_]", "", role.replace(" ", "_"))
-            custom_role = os.path.join(AGENTMAKE_USER_DIR, "systems", "roles", f"{filename}.md")
-            builtin_role = os.path.join(PACKAGE_PATH, "systems", "roles", f"{filename}.md")
-            if os.path.isfile(custom_role):
-                # reuse previously generated sytem message
-                system_instruction = readTextFile(custom_role)
-            elif os.path.isfile(builtin_role):
-                # use built-in role system message
-                system_instruction = readTextFile(builtin_role)
-            else:
-                # generate new role
-                if print_on_terminal:
-                    print(">>> Generating system instruction ...\n")
-                system_instruction = agentmake(
-                    role,
-                    instruction=os.path.join("system", "role"),
-                    backend=backend,
-                    model=model,
-                    model_keep_alive=model_keep_alive,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    context_window=context_window,
-                    batch_size=batch_size,
-                    stream=stream,
-                    api_key=api_key,
-                    api_endpoint=api_endpoint,
-                    api_project_id=api_project_id,
-                    api_service_location=api_service_location,
-                    api_timeout=api_timeout,
-                    print_on_terminal=print_on_terminal,
-                    word_wrap=word_wrap,
-                    **kwargs,
-                )[-1].get("content", "")
-            try:
-                user_systems_file = saveUserSystemMessage(system_instruction, subfolder="roles", filename=role)
-                if print_on_terminal:
-                    print(f">>> System instruction saved: {user_systems_file}")
-            except:
-                pass
-            if print_on_terminal:
-                print(">>> System instruction updated!\n")
-        elif isFabricPattern(system_instruction): # fabric integration
-            system_instruction = getFabricPatternSystem(system_instruction[7:])
-        elif os.path.isfile(possible_system_file_path_1):
-            system_file_content = readTextFile(possible_system_file_path_1)
-            if system_file_content:
-                system_instruction = system_file_content
-        elif os.path.isfile(possible_system_file_path_2):
-            system_file_content = readTextFile(possible_system_file_path_2)
-            if system_file_content:
-                system_instruction = system_file_content
-        elif os.path.isfile(system_instruction): # system_instruction itself is a valid filepath
-            system_file_content = readTextFile(system_instruction)
-            if system_file_content:
-                system_instruction = system_file_content
+                **kwargs
+            )
         if system_instruction:
             original_system = updateSystemMessage(messages_copy, system_instruction)
     # handle given predefined instruction(s)
@@ -1039,21 +968,7 @@ def agentmake(
         follow_up_prompt = DEFAULT_FOLLOW_UP_PROMPT
     if follow_up_prompt:
         follow_up_prompt_content = follow_up_prompt.pop(0)
-        # check if it is a predefined follow_up_prompt built-in with this SDK
-        possible_follow_up_prompt_file_path_2 = os.path.join(PACKAGE_PATH, "prompts", f"{follow_up_prompt_content}.md")
-        possible_follow_up_prompt_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "prompts", f"{follow_up_prompt_content}.md")
-        if os.path.isfile(possible_follow_up_prompt_file_path_1):
-            follow_up_prompt_file_content = readTextFile(possible_follow_up_prompt_file_path_1)
-            if follow_up_prompt_file_content:
-                follow_up_prompt_content = follow_up_prompt_file_content
-        elif os.path.isfile(possible_follow_up_prompt_file_path_2):
-            follow_up_prompt_file_content = readTextFile(possible_follow_up_prompt_file_path_2)
-            if follow_up_prompt_file_content:
-                follow_up_prompt_content = follow_up_prompt_file_content
-        elif os.path.isfile(follow_up_prompt_content): # follow_up_prompt_content itself is a valid filepath
-            follow_up_prompt_file_content = readTextFile(follow_up_prompt_content)
-            if follow_up_prompt_file_content:
-                follow_up_prompt_content = follow_up_prompt_file_content
+        follow_up_prompt_content = get_follow_up_prompt_content(follow_up_prompt_content, messages_copy)
         messages_copy.append({"role": "user", "content": follow_up_prompt_content})
         return agentmake(
             messages=messages_copy,
@@ -1085,6 +1000,138 @@ def agentmake(
             **kwargs
         )
     return messages_copy
+
+def get_system_instruction(
+    system_instruction,
+    messages: Optional[Union[List[Dict[str, str]], str]]=None, # user request or messages containing user request; accepts either a single string or a list of dictionaries
+    backend: Optional[str]=DEFAULT_AI_BACKEND, # AI backend; check SUPPORTED_AI_BACKENDS for supported backends
+    model: Optional[str]=None, # AI model name; applicable to all backends, execept for llamacpp
+    model_keep_alive: Optional[str]=None, # time to keep the model loaded in memory; applicable to ollama only
+    temperature: Optional[float]=None, # temperature for sampling
+    max_tokens: Optional[int]=None, # maximum number of tokens to generate
+    context_window: Optional[int]=None, # context window size; applicable to ollama only
+    batch_size: Optional[int]=None, # batch size; applicable to ollama only
+    stream: Optional[bool]=False, # stream partial message deltas as they are available
+    api_key: Optional[str]=None, # API key or credentials json file path in case of using Vertex AI as backend; applicable to anthropic, custom, deepseek, genai, github, googleai, groq, mistral, openai, xai
+    api_endpoint: Optional[str]=None, # API endpoint; applicable to azure, custom, llamacpp, ollama
+    api_project_id: Optional[str]=None, # project id; applicable to Vertex AI only, i.e., vertexai or genai
+    api_service_location: Optional[str]=None, # cloud service location; applicable to Vertex AI only, i.e., vertexai or genai
+    api_timeout: Optional[Union[int, float]]=None, # timeout for API request; applicable to all backends, execept for ollama
+    print_on_terminal: Optional[bool]=True, # print output on terminal
+    word_wrap: Optional[bool]=True, # word wrap output according to current terminal width
+    **kwargs, # pass extra options supported by individual backends
+) -> str:
+    # check if it is a predefined system message built-in with this SDK
+    possible_system_file_path_2 = os.path.join(PACKAGE_PATH, "systems", f"{system_instruction}.md")
+    possible_system_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "systems", f"{system_instruction}.md")
+    if system_instruction=="auto" and messages:
+        if print_on_terminal:
+            print(">>> Generating system instruction ...\n")
+        latest_request = messages[-1].get("content", "")
+        system_instruction = agentmake(
+            latest_request,
+            instruction=os.path.join("system", "auto"),
+            backend=backend,
+            model=model,
+            model_keep_alive=model_keep_alive,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            context_window=context_window,
+            batch_size=batch_size,
+            stream=stream,
+            api_key=api_key,
+            api_endpoint=api_endpoint,
+            api_project_id=api_project_id,
+            api_service_location=api_service_location,
+            api_timeout=api_timeout,
+            print_on_terminal=print_on_terminal,
+            word_wrap=word_wrap,
+            **kwargs,
+        )[-1].get("content", "")
+        try:
+            user_systems_file = saveUserSystemMessage(system_instruction)
+            if print_on_terminal:
+                print(f">>> System instruction saved: {user_systems_file}")
+        except:
+            pass
+        if print_on_terminal:
+            print(">>> System instruction updated!\n")
+    elif system_instruction.startswith("role."):
+        role = system_instruction[5:]
+        filename = re.sub("[^A-Za-z_]", "", role.replace(" ", "_"))
+        custom_role = os.path.join(AGENTMAKE_USER_DIR, "systems", "roles", f"{filename}.md")
+        builtin_role = os.path.join(PACKAGE_PATH, "systems", "roles", f"{filename}.md")
+        if os.path.isfile(custom_role):
+            # reuse previously generated sytem message
+            system_instruction = readTextFile(custom_role)
+        elif os.path.isfile(builtin_role):
+            # use built-in role system message
+            system_instruction = readTextFile(builtin_role)
+        else:
+            # generate new role
+            if print_on_terminal:
+                print(">>> Generating system instruction ...\n")
+            system_instruction = agentmake(
+                role,
+                instruction=os.path.join("system", "role"),
+                backend=backend,
+                model=model,
+                model_keep_alive=model_keep_alive,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                context_window=context_window,
+                batch_size=batch_size,
+                stream=stream,
+                api_key=api_key,
+                api_endpoint=api_endpoint,
+                api_project_id=api_project_id,
+                api_service_location=api_service_location,
+                api_timeout=api_timeout,
+                print_on_terminal=print_on_terminal,
+                word_wrap=word_wrap,
+                **kwargs,
+            )[-1].get("content", "")
+        try:
+            user_systems_file = saveUserSystemMessage(system_instruction, subfolder="roles", filename=role)
+            if print_on_terminal:
+                print(f">>> System instruction saved: {user_systems_file}")
+        except:
+            pass
+        if print_on_terminal:
+            print(">>> System instruction updated!\n")
+    elif isFabricPattern(system_instruction): # fabric integration
+        system_instruction = getFabricPatternSystem(system_instruction[7:])
+    elif os.path.isfile(possible_system_file_path_1):
+        system_file_content = readTextFile(possible_system_file_path_1)
+        if system_file_content:
+            system_instruction = system_file_content
+    elif os.path.isfile(possible_system_file_path_2):
+        system_file_content = readTextFile(possible_system_file_path_2)
+        if system_file_content:
+            system_instruction = system_file_content
+    elif os.path.isfile(system_instruction): # system_instruction itself is a valid filepath
+        system_file_content = readTextFile(system_instruction)
+        if system_file_content:
+            system_instruction = system_file_content
+    return system_instruction
+
+def get_follow_up_prompt_content(follow_up_prompt_content):
+    # check if it is a predefined follow_up_prompt built-in with this SDK
+    possible_follow_up_prompt_file_path_2 = os.path.join(PACKAGE_PATH, "prompts", f"{follow_up_prompt_content}.md")
+    possible_follow_up_prompt_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "prompts", f"{follow_up_prompt_content}.md")
+    if os.path.isfile(possible_follow_up_prompt_file_path_1):
+        follow_up_prompt_file_content = readTextFile(possible_follow_up_prompt_file_path_1)
+        if follow_up_prompt_file_content:
+            follow_up_prompt_content = follow_up_prompt_file_content
+    elif os.path.isfile(possible_follow_up_prompt_file_path_2):
+        follow_up_prompt_file_content = readTextFile(possible_follow_up_prompt_file_path_2)
+        if follow_up_prompt_file_content:
+            follow_up_prompt_content = follow_up_prompt_file_content
+    elif os.path.isfile(follow_up_prompt_content): # follow_up_prompt_content itself is a valid filepath
+        follow_up_prompt_file_content = readTextFile(follow_up_prompt_content)
+        if follow_up_prompt_file_content:
+            follow_up_prompt_content = follow_up_prompt_file_content
+    return follow_up_prompt_content
 
 def getDictionaryOutput(
     messages: List[Dict[str, str]],
