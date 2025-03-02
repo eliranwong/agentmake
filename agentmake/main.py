@@ -42,9 +42,11 @@ def main(keep_chat_record=False):
     # override default system message and follow-up prompt
     parser.add_argument("-dsys", "--default_system_message", action="store", dest="default_system_message", help="override default system message without changing the configuration")
     parser.add_argument("-dfup", "--default_follow_up_prompt", action="store", dest="default_follow_up_prompt", help="override default follow-up prompt without changing the configuration")
+    # prompts
+    parser.add_argument("-i", "--interactive", action="store_true", dest="interactive", help="interactive mode to select an instruction to work on selected or copied text")
+    parser.add_argument("-p", "--prompts", action="store_true", dest="prompts", help="enable mult-turn prompts for the user interface")
     # chat features
     parser.add_argument("-c", "--chat", action="store_true", dest="chat", help="enable chat feature")
-    parser.add_argument("-p", "--prompts", action="store_true", dest="prompts", help="enable mult-turn prompts for the user interface")
     parser.add_argument("-o", "--open_conversation", action="store", dest="open_conversation", help="open a saved conversation file")
     parser.add_argument("-n", "--new_conversation", action="store_true", dest="new_conversation", help="new conversation; applicable when chat feature is enabled")
     parser.add_argument("-s", "--save_conversation", action="store", dest="save_conversation", help="save conversation in a chat file; specify the file path for saving the file; applicable when chat feature is enabled")
@@ -78,7 +80,6 @@ def main(keep_chat_record=False):
     parser.add_argument("-ih", "--image_height", action='store', dest="image_height", type=int, help="image height for image creation")
     parser.add_argument("-iss", "--image_sample_steps", action='store', dest="image_sample_steps", type=int, help="sample steps for image creation")
     # others
-    parser.add_argument("-i", "--interactive", action="store_true", dest="interactive", help="interactive mode to select an instruction to work on selected or copied text")
     parser.add_argument("-u", "--upgrade", action="store_true", dest="upgrade", help="upgrade `agentmake` pip package")
     parser.add_argument("-gm", "--get_model", action="append", dest="get_model", help=f"download ollama models if they do not exist; export downloaded ollama models to `{os.path.join(AGENTMAKE_USER_DIR, 'models', 'gguf')}`")
     parser.add_argument("-ed", "--editor", action="store", dest="editor", help="specify the text editor used for editing features; use default text editor if not specified")
@@ -135,7 +136,7 @@ def main(keep_chat_record=False):
                 args.markdown_highlights = True
 
     # enable chat feature
-    if args.chat or args.prompts:
+    if args.chat:
         keep_chat_record = True
 
     # image creation
