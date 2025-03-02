@@ -236,8 +236,12 @@ def main(keep_chat_record=False):
     if user_prompt:
         tools = args.tool if args.tool else []
         follow_up_prompt = args.follow_up_prompt if args.follow_up_prompt else []
+        instruction_prefix = args.instruction if args.instruction else []
 
-        def checkTools(user_prompt, tools, follow_up_prompt):
+        instruction_pattern = "|".join(listResources("instructions", ext="md"))
+        instruction_pattern = rf"""\+({instruction_pattern}) """
+
+        def checkComponents(user_prompt, tools, follow_up_prompt, instruction_prefix):
             # multiple tools in a single instruction
             if user_prompt.startswith("@") or re.search("[\n ]@", user_prompt):
                 tool_pattern = "|".join(listResources("tools", ext="py"))
@@ -253,10 +257,23 @@ def main(keep_chat_record=False):
                         else:
                             del tools_prompts[0]
                         user_prompt = tools_prompts[0]
+                        if found_instruction := re.search(instruction_pattern, user_prompt):
+                            found_instruction = found_instruction.group(1)
+                            instruction_prefix.insert(0, found_instruction)
+                            user_prompt = re.sub(rf"\+({found_instruction}) ", "", user_prompt)
                         for i in tools_prompts[1:]:
+                            if found_instruction := re.search(instruction_pattern, i):
+                                found_instruction = found_instruction.group(1)
+                                instruction_prefix.insert(0, found_instruction)
+                                i = re.sub(rf"\+({found_instruction}) ", "", i)
                             follow_up_prompt.insert(0, i)
                         for i in tools_names:
                             tools.insert(0, i)
+            else:
+                instruction_names = re.findall(instruction_pattern, f"{user_prompt} ")
+                for i in instruction_names:
+                    instruction_prefix.insert(0, i)
+                user_prompt = re.sub(instruction_pattern, "", user_prompt)
             return user_prompt
 
         if keep_chat_record:
@@ -288,7 +305,7 @@ def main(keep_chat_record=False):
         # run agentmake function
         is_first_go = True
         while user_prompt:
-            user_prompt = checkTools(user_prompt, tools, follow_up_prompt)
+            user_prompt = checkComponents(user_prompt, tools, follow_up_prompt, instruction_prefix)
             if args.prompts:
                 print(f"{AGENTMAKE_ASSISTANT_NAME}: ", end='', flush=True)
             config.messages = agentmake(
@@ -297,7 +314,7 @@ def main(keep_chat_record=False):
                 model=args.model,
                 model_keep_alive=args.model_keep_alive,
                 system=args.system,
-                instruction=args.instruction,
+                instruction=instruction_prefix,
                 follow_up_prompt=follow_up_prompt if is_first_go else [user_prompt],
                 input_content_plugin=args.input_content_plugin,
                 output_content_plugin=args.output_content_plugin,
@@ -424,7 +441,7 @@ def getInput(prompt="Instruction: "):
         from pathlib import Path
         Path(history_dir).mkdir(parents=True, exist_ok=True)
     session = PromptSession(history=FileHistory(os.path.join(history_dir, "instruction_history")))
-    completer = FuzzyCompleter(WordCompleter([f"@{i}" for i in listResources("tools", ext="py")], ignore_case=True))
+    completer = FuzzyCompleter(WordCompleter([f"+{i}" for i in listResources("instructions", ext="md")]+[f"@{i}" for i in listResources("tools", ext="py")], ignore_case=True))
     instruction = session.prompt(
         prompt,
         bottom_toolbar="Press <Enter> to submit <Tab> to start a new line <Ctrl+Q> to exit",

@@ -994,7 +994,7 @@ def agentmake(
         follow_up_prompt = DEFAULT_FOLLOW_UP_PROMPT
     if follow_up_prompt:
         follow_up_prompt_content = follow_up_prompt.pop(0)
-        follow_up_prompt_content = refine_follow_up_prompt_content(follow_up_prompt_content, messages_copy)
+        follow_up_prompt_content = refine_follow_up_prompt_content(follow_up_prompt_content)
         messages_copy.append({"role": "user", "content": follow_up_prompt_content})
         return agentmake(
             messages=messages_copy,

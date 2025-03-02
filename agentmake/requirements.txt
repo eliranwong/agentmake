@@ -32,3 +32,4 @@ flashtext
 pypandoc
 markdown
 python-docx
+edge-tts
