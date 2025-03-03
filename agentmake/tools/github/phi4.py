@@ -40,5 +40,6 @@ def phi4_github(messages, **kwargs):
     return ""
 
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Provide user with information via reasoning model Phi-4 via Github tokens."""
 
 TOOL_FUNCTION = phi4_github

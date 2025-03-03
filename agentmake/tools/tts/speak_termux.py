@@ -1,6 +1,7 @@
 TOOL_SYSTEM = ""
 
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Read text aloud with Termux TTS API"""
 
 def speak_termux_tts(messages, **kwargs):
     content = messages[-1].get("content", "")

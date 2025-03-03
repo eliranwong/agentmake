@@ -1474,13 +1474,14 @@ def getToolInfo(tool_path):
     schema = loc.get("TOOL_SCHEMA")
     tool = re.sub(r"^.*?tools[/\\](.*?)\.[^.]+?$", r"\1", tool_path)
     if not schema:
-        return f"`{tool}`"
+        description = loc.get("TOOL_DESCRIPTION", "")
+        return f"`@{tool}` {description}"
     description = schema["description"]
     required = schema["parameters"]["required"]
     optional = [i for i in schema["parameters"]["properties"] if not i in required]
     required = f""" (Required parameters: {str(required)[1:-1]})""" if required else ""
     optional = f""" [Optional parameters: {str(optional)[1:-1]}]""" if optional else ""
-    info = f"""`{tool}` {description}{required}{optional}"""
+    info = f"""`@{tool}` {description}{required}{optional}"""
     return info
 
 # list available components

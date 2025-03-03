@@ -1,6 +1,7 @@
 TOOL_SYSTEM = ""
 
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Improve prompt clarity and writing style of the user request."""
 
 def improve_prompt(messages, **kwargs):
     from agentmake import agentmake

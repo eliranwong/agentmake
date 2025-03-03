@@ -130,5 +130,6 @@ def create_image_flux_portrait(messages, **kwargs):
     return ""
 
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Create a portrait-oriented image with Flux model."""
 
 TOOL_FUNCTION = create_image_flux_portrait

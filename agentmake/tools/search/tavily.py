@@ -28,5 +28,6 @@ def search_tavily(messages: list, **kwargs):
     return ""
 
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Search for online information via Tavily."""
 
 TOOL_FUNCTION = search_tavily

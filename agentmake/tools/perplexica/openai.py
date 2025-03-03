@@ -77,5 +77,6 @@ def perplexica_openai(messages, **kwargs):
     return ""
 
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Get research result via Perplexica using OpenAI API"""
 
 TOOL_FUNCTION = perplexica_openai

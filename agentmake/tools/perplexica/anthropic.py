@@ -77,5 +77,6 @@ def perplexica_anthropic(messages, **kwargs):
     return ""
 
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Get research result via Perplexica using Anthropic API"""
 
 TOOL_FUNCTION = perplexica_anthropic

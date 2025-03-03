@@ -39,5 +39,6 @@ def phi4_azure(messages, **kwargs):
     return ""
 
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Provide user with information via reasoning model Phi-4 via Azure service."""
 
 TOOL_FUNCTION = phi4_azure

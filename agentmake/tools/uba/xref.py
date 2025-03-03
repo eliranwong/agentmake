@@ -1,5 +1,6 @@
 TOOL_SYSTEM = ""
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Retrieve cross-references of bible verses."""
 
 def xref(messages, **kwargs):
     from agentmake.utils.online import get_local_ip

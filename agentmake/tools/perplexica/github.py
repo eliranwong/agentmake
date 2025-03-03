@@ -80,5 +80,6 @@ def perplexica_github(messages, **kwargs):
     return ""
 
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Get research result via Perplexica using Github API"""
 
 TOOL_FUNCTION = perplexica_github

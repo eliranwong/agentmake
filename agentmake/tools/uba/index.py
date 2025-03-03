@@ -1,5 +1,6 @@
 TOOL_SYSTEM = ""
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Get bible verse smart indexes."""
 
 def index(messages, **kwargs):
     from agentmake.utils.online import get_local_ip

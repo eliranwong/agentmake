@@ -80,5 +80,6 @@ def perplexica_groq(messages, **kwargs):
     return ""
 
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Get research result via Perplexica using Groq API"""
 
 TOOL_FUNCTION = perplexica_groq

@@ -1,5 +1,6 @@
 TOOL_SYSTEM = ""
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Run Unique Bible App UBA commands"""
 
 def uba_api(messages, **kwargs):
     from agentmake.utils.online import get_local_ip

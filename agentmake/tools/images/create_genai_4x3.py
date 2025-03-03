@@ -47,5 +47,6 @@ def create_image_genai_4x3(messages, **kwargs):
     return ""
 
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Create a landscape-oriented image with Imagen model in 4:3 ratio."""
 
 TOOL_FUNCTION = create_image_genai_4x3

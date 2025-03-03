@@ -28,5 +28,6 @@ def ask_tavily(messages: list, **kwargs):
     return ""
 
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Ask Tavily to answer a question."""
 
 TOOL_FUNCTION = ask_tavily

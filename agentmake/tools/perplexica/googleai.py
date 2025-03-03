@@ -78,5 +78,6 @@ def perplexica_googleai(messages, **kwargs):
     return ""
 
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Get research result via Perplexica using Google Gemini API"""
 
 TOOL_FUNCTION = perplexica_googleai

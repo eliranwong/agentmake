@@ -47,5 +47,6 @@ def create_image_genai(messages, **kwargs):
     return ""
 
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Create a square-shaped image with Imagen model"""
 
 TOOL_FUNCTION = create_image_genai

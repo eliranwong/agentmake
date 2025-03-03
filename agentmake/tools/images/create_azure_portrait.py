@@ -45,5 +45,6 @@ def create_image_azure_portrait(messages, **kwargs):
     return ""
 
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Create a portrait-oriented image with Dall E 3 model, deployed via Azure service."""
 
 TOOL_FUNCTION = create_image_azure_portrait

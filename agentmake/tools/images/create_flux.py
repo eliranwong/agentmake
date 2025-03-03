@@ -128,5 +128,6 @@ def create_image_flux(messages, **kwargs):
     return ""
 
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Create a square-shaped image with Flux model."""
 
 TOOL_FUNCTION = create_image_flux

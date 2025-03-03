@@ -45,5 +45,6 @@ def create_image_openai_landscape(messages, **kwargs):
     return ""
 
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Create a landscape-oriented image with OpenAI Dall E 3 model."""
 
 TOOL_FUNCTION = create_image_openai_landscape

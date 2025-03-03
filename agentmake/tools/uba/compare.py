@@ -1,5 +1,6 @@
 TOOL_SYSTEM = ""
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Compare bible verses."""
 
 def compare(messages, **kwargs):
     from agentmake.utils.online import get_local_ip

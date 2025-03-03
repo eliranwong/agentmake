@@ -47,5 +47,6 @@ def create_image_genai_3x4(messages, **kwargs):
     return ""
 
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Create a portrait-oriented image with Imagen model in 3:4 ratio."""
 
 TOOL_FUNCTION = create_image_genai_3x4

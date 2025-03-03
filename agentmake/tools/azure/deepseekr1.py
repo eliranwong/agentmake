@@ -39,5 +39,6 @@ def deepseekr1_azure(messages, **kwargs):
     return ""
 
 TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Provide user with information via reasoning model DeepSeek-R1 via Azure service."""
 
 TOOL_FUNCTION = deepseekr1_azure
