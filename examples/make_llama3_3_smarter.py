@@ -1,3 +1,4 @@
+"""
 ## Example: Make AI Models Smarter in a Simple Way
 
 This example demonstrate that you can make AI models smarter with use of a simple system message.
@@ -41,3 +42,26 @@ So, the correct count is 2 "r"s after the first "r" if counting from the first "
 
 Therefore, there are 3 "r"s in "strawberry" if we count each "r" from the beginning of the word without overthinking the count.
 ```
+"""
+
+from agentmake import agentmake
+
+question = "How many r are there in the word strawberry?"
+
+print(f"""## Example: Make AI Models Smarter in a Simple Way
+
+This example demonstrate that you can make AI models smarter with use of a simple system message.
+
+We ask the AI model `llama3.3:70b` to answer the same question `{question}`""")
+
+print("# The model `llama3.3:70b` gives incorrect answer by default:")
+
+print(f"Question: {question}\n\nAnswer: ")
+
+agentmake(question, backend="groq", model="llama-3.3-70b-versatile")
+
+print("# With a simple system message `Think deeply about how to solve user requests with a systematic plan and strong reasoning in mind.`, the same model answers correctly:")
+
+print(f"Question: {question}\n\nAnswer: ")
+
+agentmake(question, backend="groq", model="llama-3.3-70b-versatile", system="Think deeply about how to solve user requests with a systematic plan and strong reasoning in mind.")

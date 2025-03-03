@@ -1053,12 +1053,12 @@ def refine_system_instruction(
     possible_system_file_path_2 = os.path.join(PACKAGE_PATH, "systems", f"{system_instruction}.md")
     possible_system_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "systems", f"{system_instruction}.md")
 
-    if system_instruction=="auto" and user_prompt:
+    if system_instruction in ("auto", "reasoning") and user_prompt:
         if print_on_terminal:
             print(">>> Generating system instruction ...\n")
         system_instruction = agentmake(
             user_prompt,
-            system="create_agent",
+            system="create_reasoning_agent" if system_instruction == "reasoning" else "create_agent",
             instruction=os.path.join("system", "auto"),
             backend=backend,
             model=model,
