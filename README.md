@@ -158,7 +158,7 @@ A cross-platform solution to work with a `tool` that is placed in a sub-folder, 
 
 To work with parameters `input_content_plugin` and `output_content_plugin`, e.g.:
 
-> agentmake("what AI model best", input_content_plugin="improve_writing", output_content_plugin="translate_into_chinese", stream=True)
+> agentmake("what AI model best", input_content_plugin=os.path.join("styles", "british_english"), output_content_plugin=os.path.join("chinese", "translate_tc_deepseek"), stream=True)
 
 To work with `plugin` that is placed in a sub-folder, e.g.:
 
@@ -253,7 +253,7 @@ The available CLI options use the same parameter names as the `agentmake` functi
 
 > ai What is Microsoft stock price today? -t search/finance -b azure
 
-> ai what AI model best --input_content_plugin improve_writing --output_content_plugin translate_into_chinese
+> ai what AI model best --input_content_plugin styles/british_english --output_content_plugin chinese/translate_tc_deepseek
 
 > ai what best LLM training method --system auto --input_content_plugin improve_prompt
 

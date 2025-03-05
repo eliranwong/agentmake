@@ -1,19 +1,29 @@
-TOOL_SYSTEM = ""
+from agentmake import AGENTMAKE_USER_DIR, PACKAGE_PATH
+from agentmake.utils.handle_text import readTextFile
+import os
 
-TOOL_SCHEMA = {}
-TOOL_DESCRIPTION = """Improve prompt clarity and writing style of the user request."""
+system_path_1 = os.path.join(AGENTMAKE_USER_DIR, "systems", "improve_prompt.md")
+system_path_2 = os.path.join(PACKAGE_PATH, "systems", "improve_prompt.md")
 
-def improve_prompt(messages, **kwargs):
-    from agentmake import agentmake
+TOOL_SYSTEM = readTextFile(system_path_1 if os.path.isfile(system_path_1) else system_path_2)
 
-    messages = agentmake(
-        messages,
-        system="improve_prompt",
-        **kwargs,
-    )
-    if not kwargs.get("print_on_terminal"):
-        # make sure the output is printed on terminal
-        print(messages[-1].get("content", ""))
+TOOL_SCHEMA = {
+    "name": "improve_prompt",
+    "description": "Refine and optimize user requests to achieve more effective and efficient task resolution.",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "improved_prompt": {
+                "type": "string",
+                "description": "Refine and optimize user requests to achieve more effective and efficient task resolution.",
+            },
+        },
+        "required": ["improved_prompt"],
+    },
+}
+
+def improve_prompt(improved_prompt: str, **kwargs):
+    print(f"```improved_version\n{improved_prompt}\n```")
     return ""
 
 TOOL_FUNCTION = improve_prompt
