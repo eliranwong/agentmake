@@ -1,53 +1,21 @@
-from agentmake.utils.system import get_linux_distro
-from agentmake import USER_OS
+# a dummy tool to force fallback to regular chat completion
 
-TOOL_PLATFORM = "Linux (" + get_linux_distro().get("name", "") + ")" if USER_OS == "Linux" else USER_OS
-TOOL_PLATFORM = TOOL_PLATFORM.replace("()", "")
-
-TOOL_SYSTEM = f"""You are a senior python engineer. Your expertise lies in generating python code that works on {TOOL_PLATFORM}, to resolve my request.
-Remember, you should format the answer or requested information, if any, into a string that is easily readable by humans.
-Use the 'print' function in the last line of your generated code to display the requested information."""
-
-TOOL_SCHEMA = {
-    "name": "magic",
-    "description": "Execute computing task or gain access to device information",
-    "parameters": {
-        "type": "object",
-        "properties": {
-            "code": {
-                "type": "string",
-                "description": "Generate Python code that integrates any relevant packages to resolve my request",
-            },
-            "title": {
-                "type": "string",
-                "description": "Title for the task",
-            },
-            "risk": {
-                "type": "string",
-                "description": "Assess the risk level of damaging my device upon executing the task. e.g. file deletions or similar significant impacts are regarded as 'high' level.",
-                "enum": ["high", "medium", "low"],
-            },
-        },
-        "required": ["code", "title", "risk"],
-    },
-}
-
-def magic(code: str, title: str, risk: str, **kwargs):
-    from agentmake.utils.handle_python_code import fineTunePythonCode
+def auto_heal(messages, **kwargs):
+    from agentmake import agentmake
+    from copy import deepcopy
     import os
 
-    print(f"# Task: {title}")
-    #print(f"Risk: {risk}") # implement risk management later
-    print()
-
-    refined_python_code = fineTunePythonCode(code)
-    print("Running python code:")
-    print(f"```python\n{refined_python_code}\n```\n")
-
-    print("```output")
-    exec(refined_python_code)
-    print("```")
-
+    MAXIMUM_AUTO_HEALING = int(os.getenv("MAXIMUM_AUTO_HEALING")) if os.getenv("MAXIMUM_AUTO_HEALING") else 3
+    
+    messages_copy = deepcopy(messages)
+    messages_copy = agentmake(messages_copy, tool="magic", **kwargs)
+    trial = 0
+    while "```buggy_python_code\n" in messages_copy[-1].get("content", "") and trial < MAXIMUM_AUTO_HEALING:
+        messages_copy = agentmake(messages_copy, tool="correct_python", **kwargs)
+        trial += 1
     return ""
 
-TOOL_FUNCTION = magic
+TOOL_SCHEMA = {}
+TOOL_DESCRIPTION = """Execute various computing tasks or gain access to device information, with additional capabilities to automatically diagnose and correct broken Python code."""
+
+TOOL_FUNCTION = auto_heal
