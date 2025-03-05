@@ -1,0 +1,1 @@
+Predefined prompts are placed in this folder.

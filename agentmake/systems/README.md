@@ -1,0 +1,1 @@
+Predefined system messages are placed in this folder.
