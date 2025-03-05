@@ -457,54 +457,43 @@ def selectInstruction():
     
     input_text = subprocess.run("""echo "$(xsel -o)" | sed 's/"/\"/g'""", shell=True, capture_output=True, text=True).stdout if shutil.which("xsel") else ""
 
-    values=[
-        ("explain", "Explain"),
-        ("refine", "Refine"),
-        ("summarize", "Summarize"),
-        ("elaborate", "Elaborate"),
-        ("analyze", "Analyze"),
-        ("professional", "Rewrite in professional tone"),
-        ("markdown", "Rewrite in markdown format"),
-        ("translate", "Translate to ..."),
-    ]
+    # support custom menu
+    custom_instructions = os.path.join(AGENTMAKE_USER_DIR, "menu.py")
+    if os.path.isfile(custom_instructions):
+        instructions = eval(readTextFile(custom_instructions))
+    else:
+        DEFAULT_REFINE_INSTRUCTION = os.getenv("DEFAULT_REFINE_INSTRUCTION") if os.getenv("DEFAULT_REFINE_INSTRUCTION") else f"@{os.path.join('styles', 'english')} "
+        instructions = {
+            "explain": ("Explain", "Explain the following content or words:"),
+            "refine": ("Refine", DEFAULT_REFINE_INSTRUCTION),
+            "summarize": ("Summarize", "Summarize the following content:"),
+            "elaborate": ("Elaborate", "Elaborate the following content:"),
+            "analyze": ("Analyze", "Analyze the following content:"),
+            "professional": ("Rewrite in professional tone", "Rewrite the following content in professional tone:"),
+            "markdown": ("Rewrite in markdown format", "Rewrite the following content in markdown format:"),
+            "translate": ("Translate to ...", "Translate the following content to "),
+        }
     for i in range(1, 11):
-        custom = os.getenv(f"CUSTOM_INSTRUCTION_{i}")
-        if custom:
-            values.append((f"custom{i}", custom[:30] + " ..." if len(custom) > 30 else custom))
+        if custom := os.getenv(f"CUSTOM_INSTRUCTION_{i}"):
+            instructions[f"custom{i}"] = (custom[:30]+" ..." if len(custom) > 30 else custom, custom)
         else:
             break
-    values.append(("custom", "Custom"))
+    DEFAULT_CUSTOM_LABEL = os.getenv("DEFAULT_CUSTOM_LABEL") if os.getenv("DEFAULT_CUSTOM_LABEL") else "Custom"
+    instructions["custom"] = (DEFAULT_CUSTOM_LABEL, "")
 
+    values=[(key, value[0]) for key, value in instructions.items()]
     result = radiolist_dialog(
         title="Instructions",
         text="Select an instruction",
         values=values,
     ).run()
     if result:
-        DEFAULT_WRITING_STYLE = os.getenv('DEFAULT_WRITING_STYLE') if os.getenv('DEFAULT_WRITING_STYLE') else 'standard English'
-        instructions = {
-            "explain": "Explain the following content or words:",
-            "refine": f"Improve the following writing, according to {DEFAULT_WRITING_STYLE}:",
-            "summarize": "Summarize the following content:",
-            "elaborate": "Elaborate the following content:",
-            "analyze": "Analyze the following content:",
-            "professional": "Rewrite the following content in professional tone:",
-            "markdown": "Rewrite the following content in markdown format:",
-            "translate": "Translate the following content to ",
-            "custom": "",
-        }
-        for i in range(1, 11):
-            custom = os.getenv(f"CUSTOM_INSTRUCTION_{i}")
-            if custom:
-                instructions[f"custom{i}"] = custom
-            else:
-                break
         if result == "custom":
             instruction = getInput(prompt="Custom instruction: ")
             if not instruction:
                 return ""
         else:
-            instruction = instructions.get(result)
+            instruction = instructions.get(result)[-1]
         if instruction.startswith("Translate the following content to "):
             from prompt_toolkit import PromptSession
             from prompt_toolkit.history import FileHistory
@@ -518,7 +507,7 @@ def selectInstruction():
                 language = "English"
             instruction = instruction + language + ". Provide me with the traslation ONLY, without extra comments and explanations."
         instruction += input_text
-        return instruction.rstrip() + "\n\n" if instruction else ""
+        return instruction + "\n\n" if instruction else ""
     return ""
 
 def highlightMarkdownSyntax(content, theme=""):

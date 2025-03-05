@@ -200,7 +200,7 @@ To work collaboratively with different backends, e.g.
 
 > agentmake(messages, backend="mistral", follow_up_prompt="Please provide a summary of the discussion so far.")
 
-As you may see, the `agentmake` function returns the `messages` list, which is passed to the next `agentmake` function in turns.
+As you may see, the agentmake function returns the messages list, which is passed to the next agentmake function in turns.
 
 Therefore, it is very simple to create a chatbot application, you can do it as few as five lines or less, e.g.:
 
@@ -210,9 +210,9 @@ Therefore, it is very simple to create a chatbot application, you can do it as f
 
 > while user_input:
 
->     messages = agentmake(messages, follow_up_prompt=user_input, stream=True)
+> messages = agentmake(messages, follow_up_prompt=user_input, stream=True)
 
->     user_input = input("Enter your query:\n(enter a blank entry to exit)\n>>> ")
+> user_input = input("Enter your query:n(enter a blank entry to exit)n>>> ")
 
 You may take a look at out our built-in components for more ideas:
 
