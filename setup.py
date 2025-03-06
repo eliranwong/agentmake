@@ -24,7 +24,7 @@ with open(os.path.join(package, "requirements.txt"), "r") as fileObj:
 # https://packaging.python.org/en/latest/guides/distributing-packages-using-setuptools/
 setup(
     name="agentmake",
-    version="1.0.9",
+    version="1.0.10",
     python_requires=">=3.8, <3.13",
     description="AgentMake AI: a software developement kit for developing agentic AI applications that support 14 AI backends and work with 7 agentic components, such as tools and agents. (Developer: Eliran Wong)",
     long_description=long_description,

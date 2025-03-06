@@ -102,6 +102,18 @@ If you organize the custom agentic components in this way, you only need to spec
 
 In cases where a built-in tool and a custom tool have the same name, the custom tool takes priority over the built-in one. This allows for flexibility, enabling users to copy a built-in tool, modify its content, and retain the same name, thereby effectively overriding the built-in tool.
 
+# Examples: Agentic Application Built with AgentMake AI
+
+[ToolMate AI version 2.0](https://github.com/eliranwong/toolmate) is completely built on AgentMake AI based on the following two agentic workflows.
+
+To resolve complex tasks:
+
+<img width="794" alt="Image" src="https://github.com/user-attachments/assets/c79efda7-5da5-41fe-af67-e48ea32e5af6" />
+
+To resolve simple tasks:
+
+<img width="881" alt="Image" src="https://github.com/user-attachments/assets/7809fa98-83e1-4a82-af80-2706895d4985" />
+
 # Installation
 
 Basic:
@@ -182,9 +194,9 @@ To work with parameter `agent`, e.g.:
 
 > agentmake("Send an email to Eliran Wong at eliran.wong@domain.com to express my gratitude for his work", agent="auto_tool_selection")
 
-> agentmake("Write brief introductions to the Gospels of Mark, Luke, and John, and save each introduction in a separate file, placing them in three different folders named after the respective Gospel book.", agent="auto_task_execution", backend="azure")
+> agentmake("Write brief introductions to the Gospels of Mark, Luke, and John, and save each introduction in a separate file, placing them in three different folders named after the respective Gospel book.", agent="super", backend="azure")
 
-Remarks: the agent `auto_task_execution` is designed to resolve complex tasks that involve multiple steps, tools and agents. It fully automates task plan, tool selection, execution and quality control. Read more at https://github.com/eliranwong/agentmake/blob/main/examples/automate_task_execution.py
+Remarks: the agent `super` is designed to resolve complex tasks that involve multiple steps, tools and agents. It fully automates task plan, tool selection, execution and quality control. Read more at https://github.com/eliranwong/agentmake/blob/main/examples/automate_task_execution.py and https://github.com/eliranwong/agentmake/blob/main/examples/automate_task_execution_tools_specified.md
 
 To specify an AI backend:
 
@@ -265,7 +277,7 @@ The available CLI options use the same parameter names as the `agentmake` functi
 
 > ai -a auto_tool_selection "Send an email to Eliran Wong at eliran.wong@domain.com to express my gratitude for his work"
 
-> ai -a auto_task_execution -b azure "Write brief introductions to the Gospels of Mark, Luke, and John, and save each introduction in a separate file, placing them in three different folders named after the respective Gospel book."
+> ai -a super -b azure "Write brief introductions to the Gospels of Mark, Luke, and John, and save each introduction in a separate file, placing them in three different folders named after the respective Gospel book."
 
 ## More Examples
 
@@ -284,6 +296,16 @@ A setup example on macOS: https://github.com/eliranwong/agentmake/blob/main/docs
 CLI options are handy for testing, e.g. simply use a newly developed `tool` file with `-t` option and run:
 
 > ai What is AgentMake AI? -t ~/my_folder/perplexica.py
+
+# Interactive Mode
+
+AgentMake AI offers a simple interactive mode, run:
+
+> ai -i
+
+![Image](https://github.com/user-attachments/assets/e4872498-0cef-48e7-a550-55c0c4234929)
+
+It works with selected or copied text for desktop integration, read https://github.com/eliranwong/agentmake/blob/main/docs/work_with_text_selection.md
 
 # AI Backends Configurations
 

@@ -2,7 +2,7 @@ Compared with the example in https://github.com/eliranwong/agentmake/blob/main/e
 
 # Run the following command:
 
-> aic -n -a auto_task_execution -b azure "Write brief introductions to the Gospels of Mark, Luke, and John, and save each introduction in a separate file, placing them in three different folders named after the respective Gospel book. @chat @magic @improve_writing "
+> aic -n -a super -b azure "Write brief introductions to the Gospels of Mark, Luke, and John, and save each introduction in a separate file, placing them in three different folders named after the respective Gospel book. @chat @magic @improve_writing "
 
 # Terminal Output:
 

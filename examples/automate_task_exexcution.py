@@ -17,11 +17,11 @@ task = "Write brief introductions to the Gospels of Mark, Luke, and John, and sa
 agentmake(
     task,
     backend="azure",
-    agent="auto_task_execution",
+    agent="super",
 )
 
 # Equivalent CLI command:
-# > ai -a auto_task_execution -b azure "Write brief introductions to the Gospels of Mark, Luke, and John, and save each introduction in a separate file, placing them in three different folders named after the respective Gospel book."
+# > ai -a super -b azure "Write brief introductions to the Gospels of Mark, Luke, and John, and save each introduction in a separate file, placing them in three different folders named after the respective Gospel book."
 
 # Result verified: Three requested files were created in three separate folders.
 

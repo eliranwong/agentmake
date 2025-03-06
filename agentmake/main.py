@@ -1,4 +1,4 @@
-from agentmake import AGENTMAKE_ASSISTANT_NAME, AGENTMAKE_USERNAME, AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand, listResources, getMultipleTools, override_DEFAULT_SYSTEM_MESSAGE, override_DEFAULT_FOLLOW_UP_PROMPT
+from agentmake import AGENTMAKE_ASSISTANT_NAME, AGENTMAKE_USERNAME, AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand, listResources, getMultipleTools, override_DEFAULT_SYSTEM_MESSAGE, override_DEFAULT_FOLLOW_UP_PROMPT, exportPlainConversation
 from agentmake.etextedit import launch
 from agentmake.utils.handle_text import readTextFile, writeTextFile
 from agentmake.utils.files import searchFolder
@@ -13,7 +13,7 @@ def chat():
 
 def main(keep_chat_record=False):
     # Create the parser
-    parser = argparse.ArgumentParser(description = """ToolMate AI API client `tm` cli options""")
+    parser = argparse.ArgumentParser(description = """AgentMake AI cli options""")
     # Add arguments for running `agentmake` function
     parser.add_argument("default", nargs="*", default=None, help="user prompt")
     parser.add_argument("-b", "--backend", action="store", dest="backend", help="AI backend")
@@ -409,18 +409,7 @@ def main(keep_chat_record=False):
             except Exception as e:
                 raise ValueError("An error occurred: {e}" if e else f"Error! Failed to save conversation to '{args.save_conversation}'!")
         if args.export_conversation:
-            export_content = []
-            for i in config.messages:
-                role = i.get("role", "")
-                content = i.get("content", "")
-                if role in ("user", "assistant") and content.strip():
-                    content = f"```{role}\n{content}\n```"
-                    export_content.append(content)
-            try:
-                writeTextFile(args.export_conversation, "\n".join(export_content))
-                os.system(f'''{getOpenCommand()} "{args.export_conversation}"''')
-            except Exception as e:
-                raise ValueError("An error occurred: {e}" if e else f"Error! Failed to export conversation to '{args.export_conversation}'!")
+            exportPlainConversation(config.messages, args.export_conversation)
 
 def getInput(prompt="Instruction: "):
     from prompt_toolkit import PromptSession

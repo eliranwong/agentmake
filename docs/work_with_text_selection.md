@@ -2,9 +2,11 @@
 
 CLI options allow you to work with selected or copied text easily.
 
+![Image](https://github.com/user-attachments/assets/e4872498-0cef-48e7-a550-55c0c4234929)
+
 # Linux Setup
 
-A setup example on Linux: https://github.com/eliranwong/AMD_iGPU_AI_Setup#test-with-selected-or-copied-text
+A setup example on Linux: https://github.com/eliranwong/AMD_iGPU_AI_Setup#test-with-selected-text-in-any-applicaitons
 
 # macOS Setup
 

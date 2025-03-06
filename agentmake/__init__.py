@@ -1531,6 +1531,20 @@ def getMultipleTools(content, info=False):
         tools_description.append(getToolInfo(tool_path))
     return (tools, tools_description)
 
+def exportPlainConversation(messages: list, filepath: str):
+    export_content = []
+    for i in messages:
+        role = i.get("role", "")
+        content = i.get("content", "")
+        if role in ("user", "assistant") and content.strip():
+            content = f"```{role}\n{content}\n```"
+            export_content.append(content)
+    try:
+        writeTextFile(filepath, "\n".join(export_content))
+        os.system(f'''{getOpenCommand()} "{filepath}"''')
+    except Exception as e:
+        raise ValueError("An error occurred: {e}" if e else f"Error! Failed to export conversation to '{filepath}'!")
+
 # fabric integration
 def isFabricPattern(item):
     return True if item.startswith("fabric.") and os.path.isfile(os.path.join(os.path.expanduser(DEFAULT_FABRIC_PATTERNS_PATH), item[7:], "system.md")) else False

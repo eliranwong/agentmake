@@ -87,7 +87,7 @@ def recommend_tool(
 
     return agentmake(
         messages=messages,
-        system=RAW_SYSTEM_MESSAGE,
+        system=RAW_SYSTEM_MESSAGE if selected_tool and not selected_tool == "chat" else "reasoning",
         tool=selected_tool,
         backend=backend,
         model=model,
