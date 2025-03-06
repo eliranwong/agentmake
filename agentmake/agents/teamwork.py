@@ -106,6 +106,7 @@ def teamwork(
     messages_copy = agentmake(
         messages_copy,
         system="create_agents",
+        input_content_plugin="improve_prompt",
         backend=backend,
         model=model,
         model_keep_alive=model_keep_alive,

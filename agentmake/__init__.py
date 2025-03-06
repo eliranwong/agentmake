@@ -236,7 +236,7 @@ def agentmake(
                 1. file name, without extension, of a python file, placed in folder `tools` under package directory, i.e. the value of PACKAGE_PATH
                 2. file name, without extension, of a python file, placed in folder `tools` under agentmake user directory, i.e. the value of AGENTMAKE_USER_DIR
                 3. a valid plain text file path
-                4. a python script containing at two or three variables:
+                4. a python script containing two to four variables:
                     I. TOOL_SCHEMA - the json schema that describes the parameters for function calling
                         Remarks: It is allowed to provide an empty dictionary as a TOOL_SCHEMA. In this case, the `agentmake` function passes the parameter `messages` to the TOOL_FUNCTION.
                     II. TOOL_FUNCTION - the funciton object being called with the tool
@@ -252,6 +252,7 @@ def agentmake(
                         i. specifie the system message for running the tool.
                         ii. assign an empty string to it if you do not want to use a tool system message.
                         iii. omit this parameter to use `agentmake` default tool system message.
+                    IV. TOOL_DESCRIPTION - the tool description. This is optional if tool description is specified in the `TOOL_SCHEMA` variable.
             remarks: parameters of both `schema` and `func` are ignored for a single turn when `tool` parameter is given
 
         schema:

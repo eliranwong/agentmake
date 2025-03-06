@@ -102,9 +102,13 @@ If you organize the custom agentic components in this way, you only need to spec
 
 In cases where a built-in tool and a custom tool have the same name, the custom tool takes priority over the built-in one. This allows for flexibility, enabling users to copy a built-in tool, modify its content, and retain the same name, thereby effectively overriding the built-in tool.
 
-# Examples: Agentic Application Built with AgentMake AI
+# Agentic Application that Built on AgentMake AI
 
-[ToolMate AI version 2.0](https://github.com/eliranwong/toolmate) is completely built on AgentMake AI based on the following two agentic workflows.
+Below are a few examples to illustrate how easy to build agentic applications with AgentMake AI.
+
+## Example 1 - ToolMate AI
+
+[ToolMate AI version 2.0](https://github.com/eliranwong/toolmate) is completely built on AgentMake AI based on the following two agentic workflows, to reolve both complex and simple tasks.
 
 To resolve complex tasks:
 
@@ -113,6 +117,12 @@ To resolve complex tasks:
 To resolve simple tasks:
 
 <img width="881" alt="Image" src="https://github.com/user-attachments/assets/7809fa98-83e1-4a82-af80-2706895d4985" />
+
+## Example 2 - TeamGen AI
+
+[TeamGenAI AI version 2.0](https://github.com/eliranwong/teamgenai) is completely built on AgentMake AI based on the following agentic workflow, to create multi-agents for collaboration on resolving user requests.
+
+<img width="832" alt="Image" src="https://github.com/user-attachments/assets/cf27cf97-ea7a-42bd-a050-3663064dc07d" />
 
 # Installation
 

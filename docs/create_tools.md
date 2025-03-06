@@ -4,9 +4,9 @@ You may create custom tools, to work with the `tool` parameter of the `agentmake
 
 A `agentmake` tool takes actions to resolve user requests with function calling.
 
-It is a simple to create a tool to meet your own needs. Each tool is written as a python file, in which two or three parameters are specified:
+It is a simple to create a tool to meet your own needs. Each tool is written as a python file, in which two to four parameters are specified:
 
-1. `TOOL_SCHEMA` - It is the json schema that describes the parameters for function calling. This is a required parameter.
+1. `TOOL_SCHEMA` - It is the json schema that describes the parameters for function calling. This is a required parameter. IF you want pass the whole conversation for a particular tool to process within the tool execution, assign an empty dictionary to the `TOOL_SCHEMA`
 
 Remarks: It is allowed to provide an empty dictionary as a TOOL_SCHEMA. In this case, the `agentmake` function passes the parameter `messages` to the TOOL_FUNCTION.
 
@@ -32,3 +32,5 @@ ii. assign an empty string to it if you do not want to use a tool system message
 iii. omit this parameter to use `agentmake` default tool system message.
 
 For practical examples, check our built-in tools at https://github.com/eliranwong/agentmake/tree/main/agentmake/tools
+
+4. `TOOL_DESCRIPTION` - This is optional if you have the tool description specified in the `TOOL_SCHEMA`.
