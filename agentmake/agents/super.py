@@ -80,11 +80,13 @@ Each tool name listed below is prefixed with "@" followed by their descriptions.
         **kwargs,
     )
     updateSystemMessage(messages_copy, RAW_SYSTEM_MESSAGE)
-    messages_copy[-2]["content"] = f"""Below is my request, please provide me with a preliminary action plan first:
+    ask_for_plan = """Below is my request, please provide me with a preliminary action plan first:
 
 # My Request
 
-{user_request}"""
+"""
+    improved_prompt = messages_copy[-2].get("content")
+    messages_copy[-2]["content"] = f"""{ask_for_plan}{improved_prompt}"""
 
     progress_schema = {
         "name": "quality_control",
@@ -299,9 +301,14 @@ Each tool name listed below is prefixed with "@" followed by their descriptions.
         num_round += 1
 
     # Save conversation record
-    storagePath = os.path.join(AGENTMAKE_USER_DIR, "toolmate", "history")
+    storagePath = os.path.join(AGENTMAKE_USER_DIR, "super", "history")
     Path(storagePath).mkdir(parents=True, exist_ok=True)
     filepath = os.path.join(storagePath, f"{getCurrentDateTime()}.md")
+    for i in messages_copy:
+        content = i.get("content")
+        if content.startswith(ask_for_plan):
+            i["content"] = i["content"][len(ask_for_plan):]
+            break
     exportPlainConversation(messages_copy, filepath)
     if print_on_terminal:
         print(f"Saving conversation in '{filepath}' ...")
