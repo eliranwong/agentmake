@@ -108,7 +108,7 @@ Below are a few examples to illustrate how easy to build agentic applications wi
 
 ## Example 1 - ToolMate AI
 
-[ToolMate AI version 2.0](https://github.com/eliranwong/toolmate) is completely built on AgentMake AI based on the following two agentic workflows, to reolve both complex and simple tasks.
+[ToolMate AI version 2.0](https://github.com/eliranwong/toolmate) is completely built on AgentMake AI, based on the following two agentic workflows, to reolve both complex and simple tasks.
 
 To resolve complex tasks:
 
@@ -120,9 +120,15 @@ To resolve simple tasks:
 
 ## Example 2 - TeamGen AI
 
-[TeamGenAI AI version 2.0](https://github.com/eliranwong/teamgenai) is completely built on AgentMake AI based on the following agentic workflow, to create multi-agents for collaboration on resolving user requests.
+[TeamGenAI AI version 2.0](https://github.com/eliranwong/teamgenai) is completely built on AgentMake AI, based on the following agentic workflow, to create multi-agents for collaboration on resolving user requests.
 
 <img width="832" alt="Image" src="https://github.com/user-attachments/assets/cf27cf97-ea7a-42bd-a050-3663064dc07d" />
+
+## Example 3 - LetMeDoIt AI
+
+[LetMeDoIt AI version 3.0](https://github.com/eliranwong/letmedoit) is completely built on AgentMake AI, based on the following agentic workflow, to resolve tasks with default and custom tools.
+
+<img width="708" alt="Image" src="https://github.com/user-attachments/assets/5a7240ae-dd17-48a6-b4e2-712309b4b130" />
 
 # Installation
 

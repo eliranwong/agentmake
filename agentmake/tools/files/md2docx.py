@@ -7,7 +7,7 @@ except:
     for i in REQUIREMENTS:
         installPipPackage(i)
     import pypandoc
-if not shutil.which("ffmpeg"):
+if not shutil.which("pandoc"):
     raise ValueError("Tool 'pandoc' is not found on your system! Read https://pandoc.org/installing.html for installation.")
 
 TOOL_SCHEMA = {

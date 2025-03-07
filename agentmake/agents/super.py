@@ -1,7 +1,7 @@
 from agentmake import DEFAULT_AI_BACKEND
 from typing import Optional, Union, Any, List, Dict
 
-def super(
+def super_agent(
         messages: Union[List[Dict[str, str]], str],
         backend: Optional[str]=DEFAULT_AI_BACKEND,
         model: Optional[str]=None,
@@ -19,6 +19,8 @@ def super(
         api_timeout: Optional[Union[int, float]]=None,
         print_on_terminal: Optional[bool]=True,
         word_wrap: Optional[bool]=True,
+        default_tools: str="",
+        agent_directory: str="super",
         **kwargs,
 ) -> Union[List[Dict[str, str]], Any]:
     from agentmake import AGENTMAKE_USER_DIR, RAW_SYSTEM_MESSAGE, agentmake, getMultipleTools, updateSystemMessage, exportPlainConversation, getCurrentDateTime
@@ -31,7 +33,7 @@ def super(
     if print_on_terminal:
         print(f"# User request\n{user_request}\n")
 
-    tools, tools_description = getMultipleTools(user_request, info=True)
+    tools, tools_description = getMultipleTools(f"{default_tools+' ' if default_tools else ''}{user_request}", info=True)
     tools_description_string = "\n\n".join(tools_description)
 
     # remove tools from user_request
@@ -301,7 +303,7 @@ Each tool name listed below is prefixed with "@" followed by their descriptions.
         num_round += 1
 
     # Save conversation record
-    storagePath = os.path.join(AGENTMAKE_USER_DIR, "super", "history")
+    storagePath = os.path.join(AGENTMAKE_USER_DIR, agent_directory, "history")
     Path(storagePath).mkdir(parents=True, exist_ok=True)
     filepath = os.path.join(storagePath, f"{getCurrentDateTime()}.md")
     for i in messages_copy:
@@ -315,4 +317,4 @@ Each tool name listed below is prefixed with "@" followed by their descriptions.
     
     return messages_copy
 
-AGENT_FUNCTION = super
+AGENT_FUNCTION = super_agent

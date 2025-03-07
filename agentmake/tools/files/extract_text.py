@@ -2,7 +2,7 @@ TOOL_SYSTEM = """You are an good at identifying a file path or an url from user 
 
 TOOL_SCHEMA = {
     "name": "extract_text",
-    "description": "Extract text from an a file or an url.",
+    "description": "Extract the text content from a file with a specified filepath or from a webpage with a given URL.",
     "parameters": {
         "type": "object",
         "properties": {
