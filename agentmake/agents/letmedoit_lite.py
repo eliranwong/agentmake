@@ -1,7 +1,7 @@
 from agentmake import DEFAULT_AI_BACKEND
 from typing import Optional, Union, Any, List, Dict
 
-def letmedoit(
+def letmedoit_lite(
         messages: Union[List[Dict[str, str]], str],
         backend: Optional[str]=DEFAULT_AI_BACKEND,
         model: Optional[str]=None,
@@ -21,9 +21,9 @@ def letmedoit(
         word_wrap: Optional[bool]=True,
         **kwargs,
 ) -> Union[List[Dict[str, str]], Any]:
-    from agentmake.agents.super import super_agent
+    from agentmake.agents.auto_tool_selection import auto_tool_selection
     import os
-    return super_agent(
+    return auto_tool_selection(
         messages=messages,
         backend=backend,
         model=model,
@@ -42,8 +42,7 @@ def letmedoit(
         print_on_terminal=print_on_terminal,
         word_wrap=word_wrap,
         default_tools=os.getenv("CUSTOM_DEFAULT_TOOLS") if os.getenv("CUSTOM_DEFAULT_TOOLS") else "@chat @search/google @files/extract_text @install_python_package @magic",
-        agent_directory="super",
         **kwargs,
     )
 
-AGENT_FUNCTION = letmedoit
+AGENT_FUNCTION = letmedoit_lite

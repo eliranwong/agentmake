@@ -132,13 +132,17 @@ To resolve simple tasks:
 
 # Installation
 
-Basic:
+## Disclaimer
+
+In response to your instructions, ToolMate AI is capable of applying tools to generate files or make changes on your devices. Please use it with your sound judgment and at your own risk. We will not take any responsibility for any negative impacts, such as data loss or other issues.
+
+## Basic:
 
 > pip install --upgrade agentmake
 
 Basic installation supports all AI backends mentioned above, except for `vertexai`.
 
-Extras:
+## Extras:
 
 We support Vertex AI via [Google GenAI SDK](https://pypi.org/project/google-genai/).  As this package supports most platforms, except for Android Termux, we separate this package `google-genai` as an extra.  To support Vertex AI with `agentmake`, install with running:
 

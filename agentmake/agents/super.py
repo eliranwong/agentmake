@@ -56,7 +56,7 @@ Each tool name listed below is prefixed with "@" followed by their descriptions.
 {user_request}"""
 
     if print_on_terminal:
-        print("# Running Task Resolution Agent ...\n")
+        print("\n# Running Task Resolution Agent ...\n")
     messages_copy = deepcopy(messages)
     messages_copy[-1]["content"] = prompt
     messages_copy = agentmake(
@@ -129,7 +129,7 @@ Each tool name listed below is prefixed with "@" followed by their descriptions.
         """
         # 1. check progress
         if print_on_terminal:
-            print("# Running Quality Control Agent ...\n")
+            print("\n# Running Quality Control Agent ...\n")
         messages_copy = agentmake(
             messages=messages_copy,
             system="quality_control",
@@ -170,7 +170,7 @@ Each tool name listed below is prefixed with "@" followed by their descriptions.
 {instruction_for_next_step}"""
 
         if print_on_terminal:
-            print("# Running Tool Recommendation Agent ...\n")
+            print("\n# Running Tool Recommendation Agent ...\n")
         messages_copy = agentmake(
             messages=messages_copy[:-2],
             system="recommend_tool",
@@ -213,7 +213,7 @@ Each tool name listed below is prefixed with "@" followed by their descriptions.
         if selected_tool:
 
             if print_on_terminal:
-                print("# Running Instruction Refinement Agent ...\n")
+                print("\n# Running Instruction Refinement Agent ...\n")
             tool_instruction_schema = {
                 "name": "quality_control",
                 "description": "Improve tool instruction",
@@ -275,7 +275,7 @@ Each tool name listed below is prefixed with "@" followed by their descriptions.
 
         # 4. execute the next step
         if print_on_terminal:
-            print("# Executing tool instruction ...\n")
+            print("\n# Executing tool instruction ...\n")
         messages_copy = agentmake(
             messages=messages_copy,
             system=RAW_SYSTEM_MESSAGE if selected_tool and not selected_tool == "chat" else "reasoning",

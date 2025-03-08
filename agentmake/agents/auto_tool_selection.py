@@ -1,7 +1,7 @@
 from agentmake import DEFAULT_AI_BACKEND
 from typing import Optional, Union, Any, List, Dict
 
-def recommend_tool(
+def auto_tool_selection(
         messages: Union[List[Dict[str, str]], str],
         backend: Optional[str]=DEFAULT_AI_BACKEND,
         model: Optional[str]=None,
@@ -19,6 +19,7 @@ def recommend_tool(
         api_timeout: Optional[Union[int, float]]=None,
         print_on_terminal: Optional[bool]=True,
         word_wrap: Optional[bool]=True,
+        default_tools: str="",
         **kwargs,
 ) -> Union[List[Dict[str, str]], Any]:
     from agentmake import RAW_SYSTEM_MESSAGE, agentmake, getMultipleTools
@@ -26,7 +27,7 @@ def recommend_tool(
     import re
 
     user_request = messages[-1].get("content", "")
-    tools, tools_description = getMultipleTools(user_request, info=True)
+    tools, tools_description = getMultipleTools(f"{default_tools+' ' if default_tools else ''}{user_request}", info=True)
 
     prompt = f"""Recommend which is the best `Tool` that can resolve `My Requests`. Each tool name listed below is prefixed with "@" followed by their descriptions.
 
@@ -108,4 +109,4 @@ def recommend_tool(
         **kwargs,
     )
 
-AGENT_FUNCTION = recommend_tool
+AGENT_FUNCTION = auto_tool_selection
