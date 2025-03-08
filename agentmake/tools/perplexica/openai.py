@@ -1,7 +1,7 @@
 def perplexica_openai(messages, **kwargs):
 
     import requests, json, os
-
+    from agentmake import OpenaiAI
     from agentmake.utils.online import get_local_ip
     PERPLEXICA_HOST = os.getenv("PERPLEXICA_HOST") if os.getenv("PERPLEXICA_HOST") else f"http://{get_local_ip()}"
     #PERPLEXICA_FRONTEND_PORT = int(os.getenv("PERPLEXICA_FRONTEND_PORT")) if os.getenv("PERPLEXICA_FRONTEND_PORT") else 3000
