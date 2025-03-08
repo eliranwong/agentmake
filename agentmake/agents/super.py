@@ -1,5 +1,6 @@
 from agentmake import DEFAULT_AI_BACKEND
 from typing import Optional, Union, Any, List, Dict
+import os
 
 def super_agent(
         messages: Union[List[Dict[str, str]], str],
@@ -19,7 +20,7 @@ def super_agent(
         api_timeout: Optional[Union[int, float]]=None,
         print_on_terminal: Optional[bool]=True,
         word_wrap: Optional[bool]=True,
-        default_tools: str="",
+        default_tool_choices: str="",
         agent_directory: str="super",
         **kwargs,
 ) -> Union[List[Dict[str, str]], Any]:
@@ -33,7 +34,7 @@ def super_agent(
     if print_on_terminal:
         print(f"# User request\n{user_request}\n")
 
-    tools, tools_description = getMultipleTools(f"{default_tools+' ' if default_tools else ''}{user_request}", info=True)
+    tools, tools_description = getMultipleTools(f"{default_tool_choices+' ' if default_tool_choices else ''}{user_request}", info=True)
     tools_description_string = "\n\n".join(tools_description)
 
     # remove tools from user_request
