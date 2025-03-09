@@ -1,4 +1,4 @@
-from agentmake import AGENTMAKE_ASSISTANT_NAME, AGENTMAKE_USERNAME, AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand, listResources, getMultipleTools, override_DEFAULT_SYSTEM_MESSAGE, override_DEFAULT_FOLLOW_UP_PROMPT, exportPlainConversation
+from agentmake import USER_OS, AGENTMAKE_ASSISTANT_NAME, AGENTMAKE_USERNAME, AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand, listResources, getMultipleTools, override_DEFAULT_SYSTEM_MESSAGE, override_DEFAULT_FOLLOW_UP_PROMPT, exportPlainConversation
 from agentmake.etextedit import launch
 from agentmake.utils.handle_text import readTextFile, writeTextFile
 from agentmake.utils.files import searchFolder
@@ -245,6 +245,8 @@ def main(keep_chat_record=False):
         instruction_pattern = rf"""\+({instruction_pattern}) """
 
         def checkComponents(user_prompt, tools, follow_up_prompt, instruction_prefix):
+            if USER_OS == "Windows":
+                return user_prompt
             # multiple tools in a single instruction
             if not args.agent and (user_prompt.startswith("@") or re.search("[\n ]@", user_prompt)):
                 tool_pattern = "|".join(listResources("tools", ext="py"))

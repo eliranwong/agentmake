@@ -1,0 +1,1 @@
+powershell.exe -NoExit -Command "C:\\Users\\username\\ai\\Scripts\\python.EXE C:\\Users\\username\\ai\\Lib\\site-packages\\agentmake\\main.py -pa -py -i -eo"
