@@ -373,6 +373,8 @@ def agentmake(
             input_content_plugin_name = input_content_plugin_object[:20]
 
             # check if it is a predefined plugin message built-in with this SDK
+            if USER_OS == "Windows":
+                input_content_plugin_object = os.path.join(*input_content_plugin_object.split("/"))
             possible_input_content_plugin_file_path_2 = os.path.join(PACKAGE_PATH, "plugins", f"{input_content_plugin_object}.py")
             possible_input_content_plugin_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "plugins", f"{input_content_plugin_object}.py")
             if input_content_plugin_object is None:
@@ -433,6 +435,8 @@ def agentmake(
             agent = []
         agent_name = agent_object[:20]
         # check if it is a predefined plugin message built-in with this SDK
+        if USER_OS == "Windows":
+            agent_object = os.path.join(*agent_object.split("/"))
         possible_agent_file_path_2 = os.path.join(PACKAGE_PATH, "agents", f"{agent_object}.py")
         possible_agent_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "agents", f"{agent_object}.py")
         if agent_object is None:
@@ -546,6 +550,8 @@ def agentmake(
             instruction_content = instruction
             instruction = []
         # check if it is a predefined instruction built-in with this SDK
+        if USER_OS == "Windows":
+            instruction_content = os.path.join(*instruction_content.split("/"))
         possible_instruction_file_path_2 = os.path.join(PACKAGE_PATH, "instructions", f"{instruction_content}.md")
         possible_instruction_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "instructions", f"{instruction_content}.md")
         if instruction_content is None:
@@ -584,6 +590,8 @@ def agentmake(
             tool = []
         tool_name = tool_object[:20]
         # check if it is a predefined tool built-in with this SDK
+        if USER_OS == "Windows":
+            tool_object = os.path.join(*tool_object.split("/"))
         possible_tool_file_path_2 = os.path.join(PACKAGE_PATH, "tools", f"{tool_object}.py")
         possible_tool_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "tools", f"{tool_object}.py")
         if tool_object is None:
@@ -934,6 +942,8 @@ def agentmake(
             output_content_plugin_name = output_content_plugin_object[:20]
 
             # check if it is a predefined plugin message built-in with this SDK
+            if USER_OS == "Windows":
+                output_content_plugin_object = os.path.join(*output_content_plugin_object.split("/"))
             possible_output_content_plugin_file_path_2 = os.path.join(PACKAGE_PATH, "plugins", f"{output_content_plugin_object}.py")
             possible_output_content_plugin_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "plugins", f"{output_content_plugin_object}.py")
             if output_content_plugin_object is None:
@@ -1051,6 +1061,8 @@ def refine_system_instruction(
     **kwargs, # pass extra options supported by individual backends
 ) -> str:
     # check if it is a predefined system message built-in with this SDK
+    if USER_OS == "Windows":
+        system_instruction = os.path.join(*system_instruction.split("/"))
     possible_system_file_path_2 = os.path.join(PACKAGE_PATH, "systems", f"{system_instruction}.md")
     possible_system_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "systems", f"{system_instruction}.md")
 
@@ -1149,6 +1161,8 @@ def refine_system_instruction(
 
 def refine_follow_up_prompt_content(follow_up_prompt_content):
     # check if it is a predefined follow_up_prompt built-in with this SDK
+    if USER_OS == "Windows":
+        follow_up_prompt_content = os.path.join(*follow_up_prompt_content.split("/"))
     possible_follow_up_prompt_file_path_2 = os.path.join(PACKAGE_PATH, "prompts", f"{follow_up_prompt_content}.md")
     possible_follow_up_prompt_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "prompts", f"{follow_up_prompt_content}.md")
     if os.path.isfile(possible_follow_up_prompt_file_path_1):
@@ -1474,6 +1488,8 @@ def getToolInfo(tool_path):
     exec(content, glob, loc)
     schema = loc.get("TOOL_SCHEMA")
     tool = re.sub(r"^.*?tools[/\\](.*?)\.[^.]+?$", r"\1", tool_path)
+    if USER_OS == "Windows":
+        tool = tool.replace("\\", "/")
     if not schema:
         description = loc.get("TOOL_DESCRIPTION", "")
         return f"`@{tool}` {description}"
@@ -1508,6 +1524,8 @@ def listResources(folder: str, ext: str="md", info: bool=False, display_func: Op
                             pass
                     else:
                         item = re.sub(r"^.*?[/\\]", "", component)[:-(len(ext)+1)]
+                        if USER_OS == "Windows":
+                            item = item.replace("\\", "/")
                         items.append(item)
                         if display_func:
                             display_func(item)
@@ -1523,9 +1541,12 @@ def getMultipleTools(content, info=False):
     if not info:
         return tools if tools else all_tools
     if not tools:
+        # all tools if not specified
         return (all_tools, listResources("tools", ext="py", info=True))
     tools_description = []
     for tool in tools:
+        if USER_OS == "Windows":
+            tool = os.path.join(*tool.split("/"))
         possible_tool_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "tools", f"{tool}.py")
         possible_tool_file_path_2 = os.path.join(PACKAGE_PATH, "tools", f"{tool}.py")
         tool_path = possible_tool_file_path_1 if os.path.isfile(possible_tool_file_path_1) else possible_tool_file_path_2

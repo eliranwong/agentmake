@@ -184,17 +184,13 @@ To work with parameter `tool`, e.g.:
 
 > agentmake("Send an email to Eliran Wong at eliran.wong@domain.com to express my gratitude for his work.", tool="email/gmail")
 
-A cross-platform solution to work with a `tool` that is placed in a sub-folder, e.g.:
-
-> agentmake("Extract text from image file 'sample.png'.", tool=os.path.join("perplexica", "github"))
-
 To work with parameters `input_content_plugin` and `output_content_plugin`, e.g.:
 
-> agentmake("what AI model best", input_content_plugin=os.path.join("styles", "british_english"), output_content_plugin=os.path.join("chinese", "translate_tc_deepseek"), stream=True)
+> agentmake("what AI model best", input_content_plugin="styles/british_english", output_content_plugin="chinese/translate_tc_deepseek", stream=True)
 
 To work with `plugin` that is placed in a sub-folder, e.g.:
 
-> agentmake("你好吗？", output_content_plugin=os.path.join("chinese", "convert_simplified"))
+> agentmake("你好吗？", output_content_plugin="chinese/convert_simplified")
 
 To automate prompt engineering:
 
@@ -220,7 +216,7 @@ Remarks: the agent `super` is designed to resolve complex tasks that involve mul
 
 To specify an AI backend:
 
-> agentmake("What is Microsoft stock price today?", tool=os.path.join("search", "finance"), backend="azure")
+> agentmake("What is Microsoft stock price today?", tool="search/finance", backend="azure")
 
 To work collaboratively with different backends, e.g.
 

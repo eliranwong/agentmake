@@ -156,6 +156,9 @@ Each tool name listed below is prefixed with "@" followed by their descriptions.
         )
         progress_response = json.loads(messages_copy[-1].get("content", ""))
         if (progress_response.get("resolved_or_not", "no").lower() == "yes"):
+            comment_on_progress = progress_response.get("comment_on_progress", "")
+            suggestions_for_next_step = progress_response.get("suggestions_for_next_step", "")
+            messages_copy[-1]["content"] = f"""# Resolved\n\n{comment_on_progress}\n\n{suggestions_for_next_step}"""
             break
         # 2. select a tool for the next step
         instruction_for_next_step = progress_response.get("instruction_for_next_step", "")

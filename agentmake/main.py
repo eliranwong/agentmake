@@ -245,8 +245,6 @@ def main(keep_chat_record=False):
         instruction_pattern = rf"""\+({instruction_pattern}) """
 
         def checkComponents(user_prompt, tools, follow_up_prompt, instruction_prefix):
-            if USER_OS == "Windows":
-                return user_prompt
             # multiple tools in a single instruction
             if not args.agent and (user_prompt.startswith("@") or re.search("[\n ]@", user_prompt)):
                 tool_pattern = "|".join(listResources("tools", ext="py"))
