@@ -11,7 +11,7 @@ def examine_images_ollama(query: str, image_filepath: Union[str, list], **kwargs
     import urllib.request
     from typing import cast
 
-    OLLAMA_VISUAL_MODEL = os.getenv("OLLAMA_VISUAL_MODEL") if os.getenv("OLLAMA_VISUAL_MODEL") else "llava-phi3"
+    OLLAMA_VISUAL_MODEL = os.getenv("OLLAMA_VISUAL_MODEL") if os.getenv("OLLAMA_VISUAL_MODEL") else "granite3.2-vision"
     OllamaAI.downloadModel(OLLAMA_VISUAL_MODEL)
 
     if isinstance(image_filepath, str):

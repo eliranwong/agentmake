@@ -1439,9 +1439,16 @@ def getOpenCommand():
         return "start"
     return "open"
 
-def extractText(item: Any, image_backend: str=""):
+def extractText(item: Any, image_backend: str="", llm_model: str=""):
     def getBackendClient(image_backend):
-        if image_backend == "openai":
+        if image_backend == "ollama":
+            from openai import OpenAI
+            return OpenAI(base_url=f"{OllamaAI.DEFAULT_ENDPOINT}/v1")
+        elif image_backend == "googleai":
+            return GoogleaiAI.getClient()
+        elif image_backend == "xai":
+            return XaiAI.getClient()
+        elif image_backend == "openai":
             return OpenaiAI.getClient()
         elif image_backend == "github":
             return GithubAI.getClient()
@@ -1454,7 +1461,7 @@ def extractText(item: Any, image_backend: str=""):
         else:
             return OpenaiAI.getClient()
     try:
-        md = MarkItDown(llm_client=getBackendClient(image_backend), llm_model="gpt-4o") if re.search(r"(\.jpg|\.jpeg|\.png)$", item.lower()) else MarkItDown()
+        md = MarkItDown(llm_client=getBackendClient(image_backend), llm_model=llm_model if llm_model else "gpt-4o") if re.search(r"(\.jpg|\.jpeg|\.png)$", item.lower()) else MarkItDown()
         text_content = md.convert(item).text_content
     except Exception as e:
         showErrors(e)
