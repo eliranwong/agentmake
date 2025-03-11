@@ -23,6 +23,7 @@ def letmedoit(
 ) -> Union[List[Dict[str, str]], Any]:
     from agentmake.agents.super import super_agent
     import os
+    DEFAULT_ONLINE_SEARCH_TOOL=os.getenv("DEFAULT_ONLINE_SEARCH_TOOL") if os.getenv("DEFAULT_ONLINE_SEARCH_TOOL") else "search/google"
     return super_agent(
         messages=messages,
         backend=backend,
@@ -41,7 +42,7 @@ def letmedoit(
         api_timeout=api_timeout,
         print_on_terminal=print_on_terminal,
         word_wrap=word_wrap,
-        default_tool_choices=os.getenv("DEFAULT_TOOL_CHOICES") if os.getenv("DEFAULT_TOOL_CHOICES") else "@chat @search/google @files/extract_text @install_python_package @magic",
+        default_tool_choices=os.getenv("DEFAULT_TOOL_CHOICES") if os.getenv("DEFAULT_TOOL_CHOICES") else f"@{DEFAULT_ONLINE_SEARCH_TOOL} @chat @files/extract_text @install_python_package @magic",
         agent_directory="super",
         **kwargs,
     )

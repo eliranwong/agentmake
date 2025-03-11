@@ -4,7 +4,7 @@ TeamGen AI, developed by [Eliran Wong](https://github.com/eliranwong), automates
 Modify from source: https://github.com/eliranwong/teamgenai
 """
 
-from agentmake import DEFAULT_AI_BACKEND
+from agentmake import DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR
 from typing import Optional, Union, Any, List, Dict
 
 def teamwork(
@@ -80,7 +80,7 @@ def teamwork(
         writeTextFile(plain_record_file, plain_record)
         print("Done!")
         try:
-            os.system(f'''{getOpenCommand()} "{plain_record_file}"''')
+            os.system(f'''{DEFAULT_TEXT_EDITOR} "{plain_record_file}"''')
         except:
             pass
 

@@ -81,6 +81,7 @@ def main(keep_chat_record=False):
     parser.add_argument("-ih", "--image_height", action='store', dest="image_height", type=int, help="image height for image creation")
     parser.add_argument("-iss", "--image_sample_steps", action='store', dest="image_sample_steps", type=int, help="sample steps for image creation")
     # others
+    parser.add_argument("-v", "--version", action="store_true", dest="version", help="show version information")
     parser.add_argument("-u", "--upgrade", action="store_true", dest="upgrade", help="upgrade `agentmake` pip package")
     parser.add_argument("-gm", "--get_model", action="append", dest="get_model", help=f"download ollama models if they do not exist; export downloaded ollama models to `{os.path.join(AGENTMAKE_USER_DIR, 'models', 'gguf')}`")
     parser.add_argument("-ed", "--editor", action="store", dest="editor", help="specify the text editor used for editing features; use default text editor if not specified")
@@ -90,6 +91,11 @@ def main(keep_chat_record=False):
     parser.add_argument("-mh", "--markdown_highlights", action="store_true", dest="markdown_highlights", help="highlight markdown syntax")
     # Parse arguments
     args = parser.parse_args()
+
+    # show version
+    if args.version:
+        info_file = os.path.join(PACKAGE_PATH, "version.txt")
+        print("AgentMake AI v" + readTextFile(info_file))
 
     # upgrade
     if args.upgrade:

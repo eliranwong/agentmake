@@ -1570,7 +1570,7 @@ def exportPlainConversation(messages: list, filepath: str):
             export_content.append(content)
     try:
         writeTextFile(filepath, "\n".join(export_content))
-        os.system(f'''{getOpenCommand()} "{filepath}"''')
+        os.system(f'''{DEFAULT_TEXT_EDITOR} "{filepath}"''')
     except Exception as e:
         raise ValueError("An error occurred: {e}" if e else f"Error! Failed to export conversation to '{filepath}'!")
 
