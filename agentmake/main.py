@@ -102,7 +102,7 @@ def main(keep_chat_record=False):
 
     # upgrade
     if args.upgrade:
-        if pip := shutil.which("pip"):
+        if pip := os.getenv("PIP_PATH") if os.getenv("PIP_PATH") else shutil.which("pip"):
             try:
                 from google.genai.types import Content
                 genai_installed = True

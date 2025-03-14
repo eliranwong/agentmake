@@ -49,8 +49,8 @@ def installPipPackage(module, update=False):
     #pip3path = os.path.join(executablePath, "pip3")
     #pip3 = pip3path if os.path.isfile(pip3path) else "pip3"
 
-    if isCommandInstalled("pip"):
-        pipInstallCommand = f"{sys.executable} -m pip install"
+    if os.getenv("PIP_PATH") or isCommandInstalled("pip"):
+        pipInstallCommand = f"{os.getenv("PIP_PATH")} install" if os.getenv("PIP_PATH") else f"{sys.executable} -m pip install"
 
         if update:
             updatePip()
