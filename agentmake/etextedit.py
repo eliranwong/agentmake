@@ -983,7 +983,7 @@ def main():
     else:
         text = launch()
     #print(text)
-    return text
+    #return text
 
 if __name__ == "__main__":
     main()

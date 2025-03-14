@@ -52,6 +52,9 @@ def main(keep_chat_record=False):
     parser.add_argument("-n", "--new_conversation", action="store_true", dest="new_conversation", help="new conversation; applicable when chat feature is enabled")
     parser.add_argument("-s", "--save_conversation", action="store", dest="save_conversation", help="save conversation in a chat file; specify the file path for saving the file; applicable when chat feature is enabled")
     parser.add_argument("-e", "--export_conversation", action="store", dest="export_conversation", help="export conversation in plain text format; specify the file path for the export; applicable when chat feature is enabled")
+    parser.add_argument("-show", "--show_conversation", action="store_true", dest="show_conversation", help="show conversation")
+    parser.add_argument("-edit", "--edit_conversation", action="store_true", dest="edit_conversation", help="edit conversation")
+    parser.add_argument("-trim", "--trim_conversation", action="store_true", dest="trim_conversation", help="trim conversation")
     # clipboard
     parser.add_argument("-pa", "--paste", action="store_true", dest="paste", help="paste the clipboard text as a suffix to the user prompt")
     parser.add_argument("-py", "--copy", action="store_true", dest="copy", help="copy assistant response to the clipboard")
@@ -148,6 +151,16 @@ def main(keep_chat_record=False):
     if args.chat:
         keep_chat_record = True
 
+    # edit conversation
+    if keep_chat_record and args.edit_conversation:
+        from agentmake.utils.messages import editMessages
+        editMessages()
+
+    # trim conversation
+    if keep_chat_record and args.trim_conversation:
+        from agentmake.utils.messages import trimMessages
+        trimMessages()
+
     # image creation
     if args.image_width:
         config.image_width = args.image_width
@@ -228,15 +241,7 @@ def main(keep_chat_record=False):
             user_prompt = readTextFile(tempTextFile)
     # new
     if args.new_conversation:
-        if config.messages:
-            # save current conversation record
-            from agentmake import getCurrentDateTime
-            from pathlib import Path
-            timestamp = getCurrentDateTime()
-            folderPath = os.path.join(AGENTMAKE_USER_DIR, "chats", re.sub("^([0-9]+?-[0-9]+?)-.*?$", r"\1", timestamp))
-            Path(folderPath).mkdir(parents=True, exist_ok=True)
-            chatFile = os.path.join(folderPath, f"{timestamp}.chat")
-            writeTextFile(chatFile, pformat(config.messages))
+        saveMessages()
         config.messages = []
     # run
     last_response = ""
@@ -288,6 +293,9 @@ def main(keep_chat_record=False):
         if keep_chat_record:
             if args.open_conversation:
                 if os.path.isfile(args.open_conversation):
+                    # back up conversation first
+                    saveMessages()
+                    # open conversation
                     glob = {}
                     loc = {}
                     try:
@@ -361,7 +369,7 @@ def main(keep_chat_record=False):
     elif keep_chat_record and config.messages:
         # display the last assistant response when chat feature is enabled and there is no new user prompt
         last_response = config.messages[-1].get("content", "")
-        if last_response:
+        if last_response and not args.show_conversation:
             if args.markdown_highlights:
                 highlightMarkdownSyntax(last_response)
             else:
@@ -419,6 +427,27 @@ def main(keep_chat_record=False):
                 raise ValueError("An error occurred: {e}" if e else f"Error! Failed to save conversation to '{args.save_conversation}'!")
         if args.export_conversation:
             exportPlainConversation(config.messages, args.export_conversation)
+    
+    # show conversation
+    if keep_chat_record and args.show_conversation:
+        for i in config.messages:
+            role = i.get("role", "")
+            content = i.get("content", "")
+            if role in ("user", "assistant") and content.strip():
+                print(f"```{role}")
+                highlightMarkdownSyntax(content) if args.markdown_highlights else print(content)
+                print("```")
+
+def saveMessages():
+    if config.messages:
+        # save current conversation record
+        from agentmake import getCurrentDateTime
+        from pathlib import Path
+        timestamp = getCurrentDateTime()
+        folderPath = os.path.join(AGENTMAKE_USER_DIR, "chats", re.sub("^([0-9]+?-[0-9]+?)-.*?$", r"\1", timestamp))
+        Path(folderPath).mkdir(parents=True, exist_ok=True)
+        chatFile = os.path.join(folderPath, f"{timestamp}.chat")
+        writeTextFile(chatFile, pformat(config.messages))
 
 def getInput(prompt="Instruction: "):
     from prompt_toolkit import PromptSession
