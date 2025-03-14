@@ -1,6 +1,6 @@
 from packaging import version
 from importlib_metadata import version as lib_version
-import requests, shutil, sys, subprocess, re
+import requests, shutil, sys, subprocess, re, os
 
 
 def isCommandInstalled(package):
@@ -28,8 +28,8 @@ def list_installed_packages():
         print(f"{package.metadata['Name']} {package.version}")
 
 def updatePip():
-    if isCommandInstalled("pip"):
-        pipInstallCommand = f"{sys.executable} -m pip install"
+    if os.getenv("PIP_PATH") or isCommandInstalled("pip"):
+        pipInstallCommand = f"{os.getenv("PIP_PATH")} install" if os.getenv("PIP_PATH") else f"{sys.executable} -m pip install"
         pipFailedUpdated = "pip tool failed to be updated!"
         try:
             # Update pip tool in case it is too old
