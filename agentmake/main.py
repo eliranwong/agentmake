@@ -294,6 +294,31 @@ def main(keep_chat_record=False):
     if args.new_conversation:
         saveMessages()
         config.messages = []
+    # open
+    if keep_chat_record and args.open_conversation:
+        if os.path.isfile(args.open_conversation):
+            # back up conversation first
+            saveMessages()
+            # open conversation
+            glob = {}
+            loc = {}
+            try:
+                content = "chat_file_messages = " + readTextFile(args.open_conversation)
+                exec(content, glob, loc)
+                chat_file_messages = loc.get("chat_file_messages")
+                if not isinstance(chat_file_messages, list):
+                    raise ValueError("Error! Chat file format is invalid!")
+                config.messages = []
+                for i in chat_file_messages:
+                    if isinstance(i, dict):
+                        try:
+                            config.messages.append({"role": i.get("role"), "content": i.get("content")})
+                        except:
+                            pass
+            except Exception as e:
+                raise ValueError("An error occurred: {e}" if e else "Error! Chat file format is invalid!")
+        else:
+            raise ValueError("Error! Given chat file path does not exist!")
     # run
     last_response = ""
     if not user_prompt and args.prompts:
@@ -341,30 +366,6 @@ def main(keep_chat_record=False):
                 user_prompt = re.sub(instruction_pattern, "", user_prompt)
             return user_prompt
 
-        if keep_chat_record:
-            if args.open_conversation:
-                if os.path.isfile(args.open_conversation):
-                    # back up conversation first
-                    saveMessages()
-                    # open conversation
-                    glob = {}
-                    loc = {}
-                    try:
-                        content = "chat_file_messages = " + readTextFile(args.open_conversation)
-                        exec(content, glob, loc)
-                        chat_file_messages = loc.get("chat_file_messages")
-                        if not isinstance(chat_file_messages, dict):
-                            raise ValueError("Error! Chat file format is invalid!")
-                        config.messages = []
-                        for i in chat_file_messages:
-                            try:
-                                config.messages({"role", i.get("role"), "content", i.get("content")})
-                            except:
-                                pass
-                    except Exception as e:
-                        raise ValueError("An error occurred: {e}" if e else "Error! Chat file format is invalid!")
-                else:
-                    raise ValueError("Error! Given chat file path does not exist!")
         if keep_chat_record and config.messages:
             follow_up_prompt.insert(0, user_prompt)
 
