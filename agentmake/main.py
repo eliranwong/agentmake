@@ -1,4 +1,4 @@
-from agentmake import USER_OS, AGENTMAKE_ASSISTANT_NAME, AGENTMAKE_USERNAME, AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand, listResources, getMultipleTools, override_DEFAULT_SYSTEM_MESSAGE, override_DEFAULT_FOLLOW_UP_PROMPT, exportPlainConversation
+from agentmake import AGENTMAKE_ASSISTANT_NAME, AGENTMAKE_USERNAME, AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand, listResources, getMultipleTools, override_DEFAULT_SYSTEM_MESSAGE, override_DEFAULT_FOLLOW_UP_PROMPT, exportPlainConversation
 from agentmake.etextedit import launch
 from agentmake.utils.handle_text import readTextFile, writeTextFile
 from agentmake.utils.files import searchFolder
@@ -72,6 +72,13 @@ def main(keep_chat_record=False):
     parser.add_argument("-lt", "--list_tools", action="store_true", dest="list_tools", help="list tools")
     parser.add_argument("-lti", "--list_tools_info", action="store_true", dest="list_tools_info", help="list tools information")
     parser.add_argument("-lm", "--list_models", action="store_true", dest="list_models", help="list downloaded gguf models")
+    # read
+    parser.add_argument("-ra", "--read_agent", action="store", dest="read_agent", help="read agents")
+    parser.add_argument("-ri", "--read_instruction", action="store", dest="read_instruction", help="read instructions")
+    parser.add_argument("-rpl", "--read_plugin", action="store", dest="read_plugin", help="read plugins")
+    parser.add_argument("-rpr", "--read_prompt", action="store", dest="read_prompt", help="read prompts")
+    parser.add_argument("-rs", "--read_system", action="store", dest="read_system", help="read systems")
+    parser.add_argument("-rt", "--read_tool", action="store", dest="read_tool", help="read tools")
     # find
     parser.add_argument("-fa", "--find_agents", action="store", dest="find_agents", help="find agents")
     parser.add_argument("-fi", "--find_instructions", action="store", dest="find_instructions", help="find instructions")
@@ -186,6 +193,50 @@ def main(keep_chat_record=False):
         listResources("tools", ext="py", info=True, display_func=highlightMarkdownSyntax)
     if args.list_models:
         listResources("models", ext="gguf", display_func=print)
+
+    # read
+    if args.read_agent:
+        user_agent = os.path.join(AGENTMAKE_USER_DIR, "agents", args.read_agent+".py")
+        builtin_agent = os.path.join(PACKAGE_PATH, "agents", args.read_agent+".py")
+        if os.path.isfile(user_agent):
+            highlightPythonSyntax(readTextFile(user_agent))
+        elif os.path.isfile(builtin_agent):
+            highlightPythonSyntax(readTextFile(builtin_agent))
+    if args.read_instruction:
+        user_instruction = os.path.join(AGENTMAKE_USER_DIR, "instructions", args.read_instruction+".md")
+        builtin_instruction = os.path.join(PACKAGE_PATH, "instructions", args.read_instruction+".md")
+        if os.path.isfile(user_instruction):
+            highlightMarkdownSyntax(readTextFile(user_instruction))
+        elif os.path.isfile(builtin_instruction):
+            highlightMarkdownSyntax(readTextFile(builtin_instruction))
+    if args.read_plugin:
+        user_plugin = os.path.join(AGENTMAKE_USER_DIR, "plugins", args.read_plugin+".py")
+        builtin_plugin = os.path.join(PACKAGE_PATH, "plugins", args.read_plugin+".py")
+        if os.path.isfile(user_plugin):
+            highlightPythonSyntax(readTextFile(user_plugin))
+        elif os.path.isfile(builtin_plugin):
+            highlightPythonSyntax(readTextFile(builtin_plugin))
+    if args.read_prompt:
+        user_prompt = os.path.join(AGENTMAKE_USER_DIR, "prompts", args.read_prompt+".md")
+        builtin_prompt = os.path.join(PACKAGE_PATH, "prompts", args.read_prompt+".md")
+        if os.path.isfile(user_prompt):
+            highlightMarkdownSyntax(readTextFile(user_prompt))
+        elif os.path.isfile(builtin_prompt):
+            highlightMarkdownSyntax(readTextFile(builtin_prompt))
+    if args.read_system:
+        user_system = os.path.join(AGENTMAKE_USER_DIR, "systems", args.read_system+".md")
+        builtin_system = os.path.join(PACKAGE_PATH, "systems", args.read_system+".md")
+        if os.path.isfile(user_system):
+            highlightMarkdownSyntax(readTextFile(user_system))
+        elif os.path.isfile(builtin_system):
+            highlightMarkdownSyntax(readTextFile(builtin_system))
+    if args.read_tool:
+        user_tool = os.path.join(AGENTMAKE_USER_DIR, "tools", args.read_tool+".py")
+        builtin_tool = os.path.join(PACKAGE_PATH, "tools", args.read_tool+".py")
+        if os.path.isfile(user_tool):
+            highlightPythonSyntax(readTextFile(user_tool))
+        elif os.path.isfile(builtin_tool):
+            highlightPythonSyntax(readTextFile(builtin_tool))
 
     # find
     if args.find_agents:
@@ -455,13 +506,39 @@ def getInput(prompt="Instruction: "):
     from prompt_toolkit.completion import WordCompleter, FuzzyCompleter
     from prompt_toolkit.key_binding import KeyBindings
     bindings = KeyBindings()
+    # exit when `c-q` is pressed
     @bindings.add("c-q")
     def _(event):
-        " Exit when `c-x` is pressed. "
         event.app.exit()
+    # insert new line
     @bindings.add("c-i")
     def _(event):
         event.app.current_buffer.newline()
+    # reset buffer
+    @bindings.add("c-z")
+    def _(event):
+        event.app.current_buffer.reset()
+    # go to the end of the text
+    @bindings.add("escape", "z")
+    def _(event):
+        buffer = event.app.current_buffer
+        buffer.cursor_position = len(buffer.text)
+    # go to the beginning of the text
+    @bindings.add("escape", "a")
+    def _(event):
+        event.app.current_buffer.cursor_position = 0
+    # go to current line starting position
+    @bindings.add("home")
+    @bindings.add("escape", "b")
+    def _(event):
+        buffer = event.app.current_buffer
+        buffer.cursor_position = buffer.cursor_position - buffer.document.cursor_position_col
+    # go to current line ending position
+    @bindings.add("end")
+    @bindings.add("escape", "e")
+    def _(event):
+        buffer = event.app.current_buffer
+        buffer.cursor_position = buffer.cursor_position + buffer.document.get_end_of_line_position()
 
     history_dir = os.path.join(AGENTMAKE_USER_DIR, "history")
     if not os.path.isdir(history_dir):
@@ -536,6 +613,34 @@ def selectInstruction():
         instruction += input_text
         return instruction + "\n\n" if instruction else ""
     return ""
+
+def highlightPythonSyntax(content, theme=""):
+
+    from pygments import highlight
+    from pygments.lexers.python import PythonLexer
+    from pygments.formatters import Terminal256Formatter
+    from pygments.styles import get_style_by_name
+
+    """
+    Highlight Markdown content using Pygments and print it to the terminal.
+    ```
+    from pygments.styles import get_all_styles
+    styles = list(get_all_styles())
+    print(styles)
+    ['abap', 'algol', 'algol_nu', 'arduino', 'autumn', 'bw', 'borland', 'coffee', 'colorful', 'default', 'dracula', 'emacs', 'friendly_grayscale', 'friendly', 'fruity', 'github-dark', 'gruvbox-dark', 'gruvbox-light', 'igor', 'inkpot', 'lightbulb', 'lilypond', 'lovelace', 'manni', 'material', 'monokai', 'murphy', 'native', 'nord-darker', 'nord', 'one-dark', 'paraiso-dark', 'paraiso-light', 'pastie', 'perldoc', 'rainbow_dash', 'rrt', 'sas', 'solarized-dark', 'solarized-light', 'staroffice', 'stata-dark', 'stata-light', 'tango', 'trac', 'vim', 'vs', 'xcode', 'zenburn']    
+    ```
+    """
+    try:
+        # Get the Pygments style by name.
+        style = get_style_by_name(theme if theme else DEFAULT_MARKDOWN_THEME)
+        # Create a terminal formatter that uses the specified style.
+        formatter = Terminal256Formatter(style=style)
+        # Highlight the content.
+        highlighted_content = highlight(content, PythonLexer(), formatter)
+        print(highlighted_content)
+    except Exception as e:
+        # Fallback: simply print the content if something goes wrong.
+        print(content)
 
 def highlightMarkdownSyntax(content, theme=""):
 

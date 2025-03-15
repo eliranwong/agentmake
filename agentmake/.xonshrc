@@ -1,0 +1,25 @@
+# Copy this file as `~/.xonshrc`
+# XONSH WEBCONFIG START
+$XONSH_COLOR_STYLE = 'material'
+xontrib load coreutils
+# XONSH WEBCONFIG END
+
+# aliases
+aliases["micro"]="micro -softwrap true -wordwrap true"
+
+# completers
+from xonsh.completers.tools import *
+from agentmake import listResources
+
+agentmake_tools = listResources("tools", ext="py")
+agentmake_instructions = listResources("instructions", ext="md")
+
+@non_exclusive_completer
+@contextual_completer
+def agentmake_completer(context):
+    if context.command and context.command.args and context.command.args[0].value in ('agentmake', 'ai', 'aic') and context.command.prefix:
+        if context.command.prefix == "@":
+            return set([f"@{i}" for i in agentmake_tools])
+        elif context.command.prefix == "+":
+            return set([f"+{i}" for i in agentmake_instructions])
+completer add "agentmake_completer" agentmake_completer "start"

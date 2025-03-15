@@ -33,3 +33,4 @@ pypandoc
 markdown
 python-docx
 edge-tts
+xonsh[full]
