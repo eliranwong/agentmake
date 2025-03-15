@@ -134,7 +134,7 @@ To resolve simple tasks:
 
 ## Disclaimer
 
-In response to your instructions, ToolMate AI is capable of applying tools to generate files or make changes on your devices. Please use it with your sound judgment and at your own risk. We will not take any responsibility for any negative impacts, such as data loss or other issues.
+In response to your instructions, AgentMake AI is capable of applying tools to generate files or make changes on your devices. Please use it with your sound judgment and at your own risk. We will not take any responsibility for any negative impacts, such as data loss or other issues.
 
 ## Basic:
 
@@ -147,6 +147,12 @@ Basic installation supports all AI backends mentioned above, except for `vertexa
 We support Vertex AI via [Google GenAI SDK](https://pypi.org/project/google-genai/).  As this package supports most platforms, except for Android Termux, we separate this package `google-genai` as an extra.  To support Vertex AI with `agentmake`, install with running:
 
 > pip install --upgrade "agentmake[genai]"
+
+## Virtual Environment and PATH Setup
+
+It is recommended to set up a virtual environment for running AgentMake AI, read:
+
+Read https://github.com/eliranwong/agentmake/blob/main/docs/add_path.md
 
 ## Remarks
 
@@ -259,6 +265,8 @@ You may take a look at out our built-in components for more ideas:
 # CLI Options
 
 Command CLI are designed for quick run of AI features.
+
+To work with CLI options without activating virtual environment, read https://github.com/eliranwong/agentmake/blob/main/docs/add_path.md
 
 Check for CLI options, run:
 
@@ -418,6 +426,8 @@ VERTEXAI_API_KEY=~/agentmake/google_application_credentials.json
 VERTEXAI_API_PROJECT_ID=my_project_id
 VERTEXAI_API_SERVICE_LOCATION=us-central1
 ```
+
+Remarks: If `VERTEXAI_API_KEY` is blank, `~/agentmake/google_application_credentials.json` is used by default.
 
 To test Gemini 2.0 with Vertex AI, e.g.:
 

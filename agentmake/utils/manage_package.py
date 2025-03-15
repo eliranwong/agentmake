@@ -29,7 +29,10 @@ def list_installed_packages():
 
 def updatePip():
     if os.getenv("PIP_PATH") or isCommandInstalled("pip"):
-        pipInstallCommand = f"{os.getenv("PIP_PATH")} install" if os.getenv("PIP_PATH") else f"{sys.executable} -m pip install"
+        if os.getenv("PIP_PATH"):
+            pipInstallCommand = os.getenv("PIP_PATH")+" install"
+        else:
+            pipInstallCommand = sys.executable+" -m pip install"
         pipFailedUpdated = "pip tool failed to be updated!"
         try:
             # Update pip tool in case it is too old
@@ -50,7 +53,10 @@ def installPipPackage(module, update=False):
     #pip3 = pip3path if os.path.isfile(pip3path) else "pip3"
 
     if os.getenv("PIP_PATH") or isCommandInstalled("pip"):
-        pipInstallCommand = f"{os.getenv("PIP_PATH")} install" if os.getenv("PIP_PATH") else f"{sys.executable} -m pip install"
+        if os.getenv("PIP_PATH"):
+            pipInstallCommand = os.getenv("PIP_PATH")+" install"
+        else:
+            pipInstallCommand = sys.executable+" -m pip install"
 
         if update:
             updatePip()

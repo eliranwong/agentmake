@@ -3,7 +3,7 @@ def install_python_package(python_package_name: str, **kwargs):
     
     if python_package_name:
         install = installPipPackage(f"--upgrade {python_package_name}")
-        return "Installed!" if install else f"Failed to install '{python_package_name}'!"
+        print("Installed!" if install else f"Failed to install '{python_package_name}'!")
     return ""
 
 # Function Signature

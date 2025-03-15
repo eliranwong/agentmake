@@ -115,7 +115,7 @@ def main(keep_chat_record=False):
                 genai_installed = True
             except:
                 genai_installed = False
-            cmd = f'''{pip} install --upgrade "agentmake[genai]"''' if genai_installed else f"{pip} install --upgrade agentmake"
+            cmd = pip+''' install --upgrade "agentmake[genai]"''' if genai_installed else pip+" install --upgrade agentmake"
             print(f"Upgrading ...\nRunning `{cmd}` ...")
             os.system(cmd)
             print("Done! Closing ...")
