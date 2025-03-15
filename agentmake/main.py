@@ -43,6 +43,7 @@ def main(keep_chat_record=False):
     parser.add_argument("-dsys", "--default_system_message", action="store", dest="default_system_message", help="override default system message without changing the configuration")
     parser.add_argument("-dfup", "--default_follow_up_prompt", action="store", dest="default_follow_up_prompt", help="override default follow-up prompt without changing the configuration")
     parser.add_argument("-dtc", "--default_tool_choices", action="store", dest="default_tool_choices", help="override the default tool choices for agents to select, e.g. '@chat @magic'")
+    parser.add_argument("-doc", "--default_open_command", action="store", dest="default_open_command", help="override the default open command, e.g. 'open'")
     # prompts
     parser.add_argument("-i", "--interactive", action="store_true", dest="interactive", help="interactive mode to select an instruction to work on selected or copied text")
     parser.add_argument("-p", "--prompts", action="store_true", dest="prompts", help="enable mult-turn prompts for the user interface")
@@ -137,6 +138,8 @@ def main(keep_chat_record=False):
         override_DEFAULT_FOLLOW_UP_PROMPT(args.default_follow_up_prompt)
     if args.default_tool_choices:
         os.environ["DEFAULT_TOOL_CHOICES"] = args.default_tool_choices
+    if args.default_open_command:
+        os.environ["DEFAULT_OPEN_COMMAND"] = args.default_open_command
 
     # export ollama models
     if args.get_model:

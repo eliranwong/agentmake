@@ -1429,7 +1429,9 @@ def showErrors(e=None, message=""):
     return trace
 
 def getOpenCommand():
-    if shutil.which("termux-share"):
+    if os.getenv("DEFAULT_OPEN_COMMAND"):
+        return os.getenv("DEFAULT_OPEN_COMMAND")
+    elif shutil.which("termux-share"):
         return "termux-share"
     elif USER_OS == "Linux":
         return "xdg-open"
