@@ -124,7 +124,7 @@ class TextWrapper:
                     elif hasattr(event, "choices") and not event.choices: # in case of the 1st event of azure's completion
                         continue
                     else:
-                        answer = event.choices[0].delta.content
+                        answer = event.choices[0].delta.content or ""
                 elif hasattr(event, "type") and event.type == "content-delta" and hasattr(event, "delta"): # cohere
                     answer = event.delta.message.content.text
                 elif hasattr(event, "delta") and hasattr(event.delta, "text"): # anthropic

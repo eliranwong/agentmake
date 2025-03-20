@@ -409,6 +409,8 @@ To configure AgentMake AI, run:
 
 > ai -ec
 
+You can check the configurable variables at https://github.com/eliranwong/agentmake/blob/main/agentmake/agentmake.env
+
 ## Note about Vertex AI Setup
 
 Make sure the extra package `genai` is installed with the command mentioned above:

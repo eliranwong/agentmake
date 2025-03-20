@@ -5,8 +5,7 @@ from typing import Optional
 from tqdm import tqdm
 from ollama import Options, ResponseError
 from ollama._types import ChatResponse
-from ollama import pull, Client
-from ollama import list as ollama_ls
+from ollama import Client
 import re, os, json
 
 class OllamaAI:
@@ -106,12 +105,12 @@ class OllamaAI:
     def downloadModel(model: str, force: bool=False) -> bool:
         if not ":" in model:
             model = f"{model}:latest"
-        if force or not model in [i.model for i in ollama_ls().models]:
+        if force or not model in [i.model for i in OllamaAI.getClient().list().models]:
             print(f"Downloading model '{model}' ...")
             try:
                 #https://github.com/ollama/ollama-python/blob/main/examples/pull-progress/main.py
                 current_digest, bars = '', {}
-                for progress in pull(model, stream=True):
+                for progress in OllamaAI.getClient().pull(model, stream=True):
                     digest = progress.get('digest', '')
                     if digest != current_digest and current_digest in bars:
                         bars[current_digest].close()

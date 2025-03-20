@@ -14,22 +14,22 @@ TOOL_SCHEMA = {
                 "type": "string",
                 "description": "Give a title to the email.",
             },
-            "eamil_content": {
+            "email_content": {
                 "type": "string",
                 "description": "The body or content of the email.",
             },
         },
-        "required": ["email_title", "eamil_content"],
+        "required": ["email_title", "email_content"],
     },
 }
 
-def send_outlook(email_title: str, eamil_content: str, email_address: str="", **kwargs):
+def send_outlook(email_title: str, email_content: str, email_address: str="", **kwargs):
 
     from agentmake.utils.online import openURL
     import urllib.parse
 
     subject = urllib.parse.quote(email_title)
-    body = urllib.parse.quote(eamil_content)
+    body = urllib.parse.quote(email_content)
 
     def getOutlookLink():
         link = "https://outlook.office.com/owa/?path=/mail/action/compose"
