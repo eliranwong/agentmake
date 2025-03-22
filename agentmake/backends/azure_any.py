@@ -1,32 +1,27 @@
 from agentmake import config
-from openai import AzureOpenAI
-from openai.types.chat import ChatCompletion
 from typing import Optional
 import json
-import os
-
-
 import os
 from azure.ai.inference import ChatCompletionsClient
 from azure.ai.inference.models import SystemMessage, UserMessage, AssistantMessage, ChatCompletionsToolDefinition, FunctionDefinition
 from azure.core.credentials import AzureKeyCredential
 
-class AzureDeepSeekAI:
+class AzureAnyAI:
 
-    DEFAULT_API_KEY = os.getenv("AZURE_DEEPSEEK_API_KEY") if os.getenv("AZURE_DEEPSEEK_API_KEY") else ""
-    DEFAULT_API_ENDPOINT = os.getenv("AZURE_DEEPSEEK_API_ENDPOINT") if os.getenv("AZURE_DEEPSEEK_API_ENDPOINT") else ""
-    DEFAULT_MODEL = os.getenv("AZURE_DEEPSEEK_MODEL") if os.getenv("AZURE_DEEPSEEK_MODEL") else "DeepSeek-V3"
-    DEFAULT_TEMPERATURE = float(os.getenv("AZURE_DEEPSEEK_TEMPERATURE")) if os.getenv("AZURE_DEEPSEEK_TEMPERATURE") else 0.3
-    DEFAULT_MAX_TOKENS = int(os.getenv("AZURE_DEEPSEEK_MAX_TOKENS")) if os.getenv("AZURE_DEEPSEEK_MAX_TOKENS") else 8000
+    DEFAULT_API_KEY = os.getenv("AZURE_ANY_API_KEY") if os.getenv("AZURE_ANY_API_KEY") else ""
+    DEFAULT_API_ENDPOINT = os.getenv("AZURE_ANY_API_ENDPOINT") if os.getenv("AZURE_ANY_API_ENDPOINT") else ""
+    DEFAULT_MODEL = os.getenv("AZURE_ANY_MODEL") if os.getenv("AZURE_ANY_MODEL") else "DeepSeek-V3"
+    DEFAULT_TEMPERATURE = float(os.getenv("AZURE_ANY_TEMPERATURE")) if os.getenv("AZURE_ANY_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("AZURE_ANY_MAX_TOKENS")) if os.getenv("AZURE_ANY_MAX_TOKENS") else 8000
 
     @staticmethod
     def getClient(api_key: Optional[str]=None, api_endpoint: Optional[str]=None):
-        if (api_key or AzureDeepSeekAI.DEFAULT_API_KEY) and (api_endpoint or AzureDeepSeekAI.DEFAULT_API_ENDPOINT):
-            config.azure_deepseek_client = ChatCompletionsClient(
-                endpoint=api_endpoint if api_endpoint else AzureDeepSeekAI.DEFAULT_API_ENDPOINT,
-                credential=AzureKeyCredential(api_key if api_key else AzureDeepSeekAI.DEFAULT_API_KEY),
+        if (api_key or AzureAnyAI.DEFAULT_API_KEY) and (api_endpoint or AzureAnyAI.DEFAULT_API_ENDPOINT):
+            config.azure_any_client = ChatCompletionsClient(
+                endpoint=api_endpoint if api_endpoint else AzureAnyAI.DEFAULT_API_ENDPOINT,
+                credential=AzureKeyCredential(api_key if api_key else AzureAnyAI.DEFAULT_API_KEY),
             )
-            return config.azure_deepseek_client
+            return config.azure_any_client
         return None
 
     @staticmethod
@@ -59,21 +54,21 @@ class AzureDeepSeekAI:
         api_endpoint: Optional[str]=None,
         #api_project_id: Optional[str]=None, # applicable to Vertex AI only
         #api_service_location: Optional[str]=None, # applicable to Vertex AI only
-        api_timeout: Optional[float]=None,
+        #api_timeout: Optional[float]=None,
         **kwargs,
-    ) -> ChatCompletion:
-        if not api_key and not AzureDeepSeekAI.DEFAULT_API_KEY:
-            raise ValueError("Azure DeepSeek API key is required.")
-        if not api_endpoint and not AzureDeepSeekAI.DEFAULT_API_ENDPOINT:
-            raise ValueError("Azure DeepSeek API endpoint is required.")
+    ):
+        if not api_key and not AzureAnyAI.DEFAULT_API_KEY:
+            raise ValueError("Azure API key is required.")
+        if not api_endpoint and not AzureAnyAI.DEFAULT_API_ENDPOINT:
+            raise ValueError("Azure API endpoint is required.")
         #if prefill:
         #    messages.append({'role': 'assistant', 'content': prefill})
-        return AzureDeepSeekAI.getClient().complete(
+        return AzureAnyAI.getClient(api_key=api_key, api_endpoint=api_endpoint).complete(
             stream=stream,
-            messages=AzureDeepSeekAI.toAzureMessages(messages),
-            model=model if model else AzureDeepSeekAI.DEFAULT_MODEL,
-            temperature=temperature if temperature is not None else AzureDeepSeekAI.DEFAULT_TEMPERATURE,
-            max_tokens=max_tokens if max_tokens else AzureDeepSeekAI.DEFAULT_MAX_TOKENS,
+            messages=AzureAnyAI.toAzureMessages(messages),
+            model=model if model else AzureAnyAI.DEFAULT_MODEL,
+            temperature=temperature if temperature is not None else AzureAnyAI.DEFAULT_TEMPERATURE,
+            max_tokens=max_tokens if max_tokens else AzureAnyAI.DEFAULT_MAX_TOKENS,
             stop=stop,
             #response_format='json_object',
             tools=[ChatCompletionsToolDefinition(function=FunctionDefinition(**schema))] if schema else None,
@@ -96,10 +91,10 @@ class AzureDeepSeekAI:
         api_endpoint: Optional[str]=None,
         #api_project_id: Optional[str]=None, # applicable to Vertex AI only
         #api_service_location: Optional[str]=None, # applicable to Vertex AI only
-        api_timeout: Optional[float]=None,
+        #api_timeout: Optional[float]=None,
         **kwargs,
     ) -> dict:
-        completion = AzureDeepSeekAI.getChatCompletion(
+        completion = AzureAnyAI.getChatCompletion(
             messages,
             model=model,
             schema=schema,
@@ -109,7 +104,10 @@ class AzureDeepSeekAI:
             stop=stop,
             api_key=api_key,
             api_endpoint=api_endpoint,
-            api_timeout=api_timeout,
+            #api_timeout=api_timeout,
             **kwargs
         )
+        if not completion.choices[0].message.tool_calls:
+            print(f"```error\nNo tool calls found. Check if the model '{model}' supports tools.\n```")
+            return {}
         return json.loads(completion.choices[0].message.tool_calls[0].function.arguments.replace("'", '"'))

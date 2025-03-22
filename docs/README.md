@@ -30,7 +30,7 @@ Args:
     backend:
         type: Optional[str]="ollama"
         AI backend
-        supported backends: "anthropic", "azure", "cohere", "custom", "deepseek", "genai", "github", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"
+        supported backends: "anthropic", "azure", "azure_any", "cohere", "custom", "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"
 
     model:
         type: Optional[str]=None
@@ -196,12 +196,12 @@ Args:
     api_key:
         type: Optional[str]=None
         API key or credentials json file path in case of using Vertex AI as backend
-        applicable to anthropic, cohere, custom, deepseek, genai, github, googleai, groq, mistral, openai, xai
+        applicable to anthropic, azure, azure_any cohere, custom, deepseek, genai, github, github_any, googleai, groq, mistral, openai, xai
 
     api_endpoint:
         type: Optional[str]=None
         API endpoint
-        applicable to azure, custom, llamacpp, ollama
+        applicable to azure, azure_any, custom, llamacpp, ollama
 
     api_project_id:
         type: Optional[str]=None
@@ -216,7 +216,7 @@ Args:
     api_timeout:
         type: Optional[Union[int, float]]=None
         timeout for API request
-        applicable to all backends, execept for ollama
+        applicable to all backends, execept for azure_any, github_any, ollama
 
     print_on_terminal:
         type: Optional[bool]=True

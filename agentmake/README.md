@@ -1,6 +1,6 @@
 # AgentMake AI
 
-AgentMake AI: a software developement kit for developing agentic AI applications that support 14 AI backends and work with 7 agentic components, such as tools and agents. (Developer: Eliran Wong)
+AgentMake AI: a software developement kit for developing agentic AI applications that support 16 AI backends and work with 7 agentic components, such as tools and agents. (Developer: Eliran Wong)
 
 Supported backends: anthropic, azure, cohere, custom, deepseek, genai, github, googleai, groq, llamacpp, mistral, ollama, openai, vertexai, xai
 
@@ -22,7 +22,9 @@ Windows, macOS, Linux, ChromeOS, [Android](https://github.com/eliranwong/agentma
 
 `anthropic` - [Anthropic API](https://console.anthropic.com/) [[docs](https://docs.anthropic.com/en/home)]
 
-`azure` - [Azure OpenAI API](https://ai.azure.com/github) [[docs](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)]
+`azure` - [Azure OpenAI Service API](https://ai.azure.com/github) [[docs](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)]
+
+`azure_any` - [Azure AI Inference API](https://ai.azure.com/github) [[docs](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)]
 
 `cohere` - [Cohere API](https://cohere.com/) [[docs](https://docs.cohere.com/docs/the-cohere-platform)]
 
@@ -32,7 +34,9 @@ Windows, macOS, Linux, ChromeOS, [Android](https://github.com/eliranwong/agentma
 
 `genai` - [Vertex AI](https://cloud.google.com/vertex-ai) or [Google AI](https://ai.google.dev/) [[docs](https://github.com/googleapis/python-genai)]
 
-`github` - [Github API](https://docs.github.com/en/github-models/prototyping-with-ai-models#experimenting-with-ai-models-using-the-api) [[docs](https://github.com/marketplace/models/azure-openai/gpt-4o)]
+`github` - [Azure OpenAI Service via Github Token](https://docs.github.com/en/github-models/prototyping-with-ai-models#experimenting-with-ai-models-using-the-api) [[docs](https://github.com/marketplace/models/azure-openai/gpt-4o)]
+
+`github_any` - [Azure AI Inference via Github Token](https://ai.azure.com/github) [[docs](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)]
 
 `googleai` - [Google AI](https://ai.google.dev/) [[docs](https://ai.google.dev/gemini-api/docs/openai)]
 
@@ -408,6 +412,8 @@ An easy way to deploy AI models via Azure service:
 To configure AgentMake AI, run:
 
 > ai -ec
+
+You can check the configurable variables at https://github.com/eliranwong/agentmake/blob/main/agentmake/agentmake.env
 
 ## Note about Vertex AI Setup
 

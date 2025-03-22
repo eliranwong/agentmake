@@ -21,12 +21,13 @@ load_configurations()
 
 from .backends.anthropic import AnthropicAI
 from .backends.azure import AzureAI
-from .backends.azure_deepseek import AzureDeepSeekAI
+from .backends.azure_any import AzureAnyAI
 from .backends.cohere import CohereAI
 from .backends.custom import OpenaiCompatibleAI
 from .backends.deepseek import DeepseekAI
 from .backends.genai import GenaiAI
 from .backends.github import GithubAI
+from .backends.github_any import GithubAnyAI
 from .backends.googleai import GoogleaiAI
 from .backends.groq import GroqAI
 from .backends.llamacpp import LlamacppAI
@@ -51,7 +52,7 @@ AGENTMAKE_ASSISTANT_NAME = os.getenv("AGENTMAKE_ASSISTANT_NAME") if os.getenv("A
 AGENTMAKE_USERNAME = os.getenv("AGENTMAKE_USERNAME") if os.getenv("AGENTMAKE_USERNAME") else getpass.getuser().capitalize()
 USER_OS = platform.system()
 DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
-SUPPORTED_AI_BACKENDS = ["anthropic", "azure", "azure_deepseek", "cohere", "custom", "deepseek", "genai", "github", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"]
+SUPPORTED_AI_BACKENDS = ["anthropic", "azure", "azure_any", "cohere", "custom", "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"]
 DEFAULT_AI_BACKEND = os.getenv("DEFAULT_AI_BACKEND") if os.getenv("DEFAULT_AI_BACKEND") else "ollama"
 RAW_SYSTEM_MESSAGE = f"You are my personal AI assistant. I am your user, {AGENTMAKE_USERNAME}. I will give you both text-based and non-text-based tasks, and the necessary tools to resolve my requests. Therefore, do not tell me that you are only a text-based language model. Try your best to resolve my requests. Do not address my name more than once in a single conversation unless I request it."
 DEFAULT_SYSTEM_MESSAGE = os.getenv("DEFAULT_SYSTEM_MESSAGE") if os.getenv("DEFAULT_SYSTEM_MESSAGE") else RAW_SYSTEM_MESSAGE
@@ -100,7 +101,7 @@ def agentmake(
     stop: Optional[list]=None, # stop sequences
     stream: Optional[bool]=False, # stream partial message deltas as they are available
     stream_events_only: Optional[bool]=False, # return streaming events object only
-    api_key: Optional[str]=None, # API key or credentials json file path in case of using Vertex AI as backend; applicable to anthropic, custom, deepseek, genai, github, googleai, groq, mistral, openai, xai
+    api_key: Optional[str]=None, # API key or credentials json file path in case of using Vertex AI as backend; applicable to anthropic, azure, azure_any, custom, deepseek, genai, github, github_any, googleai, groq, mistral, openai, xai
     api_endpoint: Optional[str]=None, # API endpoint; applicable to azure, custom, llamacpp, ollama
     api_project_id: Optional[str]=None, # project id; applicable to Vertex AI only, i.e., vertexai or genai
     api_service_location: Optional[str]=None, # cloud service location; applicable to Vertex AI only, i.e., vertexai or genai
@@ -137,7 +138,7 @@ def agentmake(
         backend:
             type: Optional[str]="ollama"
             AI backend
-            supported backends: "anthropic", "azure", "azure_deepseek", "cohere", "custom", "deepseek", "genai", "github", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"
+            supported backends: "anthropic", "azure", "azure_any", "cohere", "custom", "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"
 
         model:
             type: Optional[str]=None
@@ -304,12 +305,12 @@ def agentmake(
         api_key:
             type: Optional[str]=None
             API key or credentials json file path in case of using Vertex AI as backend
-            applicable to anthropic, cohere, custom, deepseek, genai, github, googleai, groq, mistral, openai, xai
+            applicable to anthropic, azure, azure_any, cohere, custom, deepseek, genai, github_azure, googleai, groq, mistral, openai, xai
 
         api_endpoint:
             type: Optional[str]=None
             API endpoint
-            applicable to azure, custom, llamacpp, ollama
+            applicable to azure, azure_any custom, llamacpp, ollama
 
         api_project_id:
             type: Optional[str]=None
@@ -324,7 +325,7 @@ def agentmake(
         api_timeout:
             type: Optional[Union[int, float]]=None
             timeout for API request
-            applicable to all backends, execept for ollama
+            applicable to all backends, execept for azure_any, github_any, ollama
 
         print_on_terminal:
             type: Optional[bool]=True
@@ -701,10 +702,12 @@ def agentmake(
                 sys.stdout = old_stdout
             except Exception as e:
                 sys.stdout = old_stdout
+                print("```error")
                 function_name = re.sub("<function (.*?) .*?$", r"\1", str(func))
                 print(f"Failed to run tool function `{function_name}`! An error occurred: {e}")
                 if DEVELOPER_MODE:
                     print(traceback.format_exc())
+                print("```")
                 function_response = None # due to unexpected errors encountered in executing the function; fall back to regular completion
             # handle function response
             if function_response is None or function_response: # fall back to regular completion if function_response is None; chat extension if function_response
@@ -772,8 +775,8 @@ def agentmake(
                 api_timeout=api_timeout,
                 **kwargs
             )
-        elif backend == "azure_deepseek":
-            completion = AzureDeepSeekAI.getChatCompletion(
+        elif backend == "azure_any":
+            completion = AzureAnyAI.getChatCompletion(
                 messages_copy,
                 model=model,
                 temperature=temperature,
@@ -782,7 +785,7 @@ def agentmake(
                 stream=stream,
                 api_key=api_key,
                 api_endpoint=api_endpoint,
-                api_timeout=api_timeout,
+                #api_timeout=api_timeout,
                 **kwargs
             )
         elif backend == "cohere":
@@ -847,6 +850,18 @@ def agentmake(
                 stream=stream,
                 api_key=api_key,
                 api_timeout=api_timeout,
+                **kwargs
+            )
+        elif backend == "github_any":
+            completion = GithubAnyAI.getChatCompletion(
+                messages_copy,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stop=stop,
+                stream=stream,
+                api_key=api_key,
+                #api_timeout=api_timeout,
                 **kwargs
             )
         elif backend == "googleai":
@@ -1240,8 +1255,8 @@ def getDictionaryOutput(
             api_timeout=api_timeout,
             **kwargs
         )
-    elif backend == "azure_deepseek":
-        return AzureDeepSeekAI.getDictionaryOutput(
+    elif backend == "azure_any":
+        return AzureAnyAI.getDictionaryOutput(
             messages,
             schema,
             model=model,
@@ -1250,7 +1265,7 @@ def getDictionaryOutput(
             stop=stop,
             api_key=api_key,
             api_endpoint=api_endpoint,
-            api_timeout=api_timeout,
+            #api_timeout=api_timeout,
             **kwargs
         )
     elif backend == "cohere":
@@ -1315,6 +1330,18 @@ def getDictionaryOutput(
             stop=stop,
             api_key=api_key,
             api_timeout=api_timeout,
+            **kwargs
+        )
+    elif backend == "github_any":
+        return GithubAnyAI.getDictionaryOutput(
+            messages,
+            schema,
+            model=model,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            stop=stop,
+            api_key=api_key,
+            #api_timeout=api_timeout,
             **kwargs
         )
     elif backend == "googleai":

@@ -2,7 +2,7 @@ from setuptools import setup
 import os, shutil
 
 package = "agentmake"
-version="1.0.35"
+version="1.0.38"
 
 # update version info
 info_file = os.path.join(package, "version.txt") # package readme
@@ -32,7 +32,7 @@ setup(
     name="agentmake",
     version=version,
     python_requires=">=3.8, <3.13",
-    description="AgentMake AI: a software developement kit for developing agentic AI applications that support 14 AI backends and work with 7 agentic components, such as tools and agents. (Developer: Eliran Wong)",
+    description="AgentMake AI: a software developement kit for developing agentic AI applications that support 16 AI backends and work with 7 agentic components, such as tools and agents. (Developer: Eliran Wong)",
     long_description=long_description,
     author="Eliran Wong",
     author_email="support@toolmate.ai",

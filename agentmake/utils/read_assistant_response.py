@@ -22,7 +22,7 @@ def getChatCompletionText(
             text_output = completion.message.content[0].text
         elif backend == "ollama":
             text_output = completion.message.content
-        elif backend in ("azure_deepseek", "github_deepseek"):
+        elif backend in ("azure_any", "github_any"):
             text_output = completion.choices[0].message.content
         elif backend in ("genai", "vertexai"):
             text_output = completion.candidates[0].content.parts[0].text
@@ -83,7 +83,7 @@ def readStreamingChunks(
     if isinstance(completion, str):
         # in case of mistral
         return completion
-    openai_style = True if backend in ("azure", "azure_deepseek", "custom", "deepseek", "github", "github_deepseek", "googleai", "groq", "llamacpp", "mistral", "openai", "xai") else False
+    openai_style = True if backend in ("azure", "azure_any", "custom", "deepseek", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "openai", "xai") else False
     try:
         text_wrapper = TextWrapper(word_wrap)
         streaming_event = threading.Event()
