@@ -397,6 +397,30 @@ What does this command do?
 
 Remember to save your changes to make them effective.
 
+## Note about Ollama AI Setup on Linux
+
+Configure Ollama, run:
+
+> sudo nano /etc/systemd/system/ollama.service
+
+Add the following three lines at the end of the [Service] session:
+
+```
+Environment="OLLAMA_HOST=0.0.0.0"
+```
+
+Reload and restart Ollama service, run:
+
+> sudo systemctl daemon-reload
+
+> sudo systemctl restart ollama
+
+To work with AgentMake CLI option `--get_model`, add user to user group `ollama` for access of Ollama model directory:
+
+> sudo usermod -a -G ollama $LOGNAME
+
+> sudo reboot
+
 ## Note about Azure AI Setup
 
 An easy way to deploy AI models via Azure service:

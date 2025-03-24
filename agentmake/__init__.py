@@ -50,7 +50,7 @@ import sys, re, platform, atexit, json, traceback
 
 AGENTMAKE_ASSISTANT_NAME = os.getenv("AGENTMAKE_ASSISTANT_NAME") if os.getenv("AGENTMAKE_ASSISTANT_NAME") else "AI"
 AGENTMAKE_USERNAME = os.getenv("AGENTMAKE_USERNAME") if os.getenv("AGENTMAKE_USERNAME") else getpass.getuser().capitalize()
-USER_OS = platform.system()
+USER_OS = "macOS" if platform.system() == "Darwin" else platform.system()
 DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
 SUPPORTED_AI_BACKENDS = ["anthropic", "azure", "azure_any", "cohere", "custom", "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"]
 DEFAULT_AI_BACKEND = os.getenv("DEFAULT_AI_BACKEND") if os.getenv("DEFAULT_AI_BACKEND") else "ollama"
@@ -1489,7 +1489,7 @@ def getOpenCommand():
         return "termux-share"
     elif USER_OS == "Linux":
         return "xdg-open"
-    elif USER_OS == "Darwin":
+    elif USER_OS == "macOS":
         return "open"
     elif USER_OS == "Windows":
         return "start"

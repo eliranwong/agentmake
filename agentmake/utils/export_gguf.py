@@ -1,9 +1,8 @@
-from agentmake import AGENTMAKE_USER_DIR
+from agentmake import AGENTMAKE_USER_DIR, USER_OS
 from pathlib import Path
-import os, shutil, platform, json
+import os, shutil, json
 
 def getOllamaModelDir():
-    thisPlatform = platform.system()
     # read https://github.com/ollama/ollama/blob/main/docs/faq.md#where-are-models-stored
     OLLAMA_MODELS = os.getenv("OLLAMA_MODELS")
     if not OLLAMA_MODELS or (OLLAMA_MODELS and not os.path.isdir(OLLAMA_MODELS)):
@@ -11,11 +10,11 @@ def getOllamaModelDir():
 
     if os.environ['OLLAMA_MODELS']:
         return os.environ['OLLAMA_MODELS']
-    elif thisPlatform == "Windows":
+    elif USER_OS == "Windows":
         modelDir = os.path.expanduser(r"~\.ollama\models")
-    elif thisPlatform == "macOS":
+    elif USER_OS == "macOS":
         modelDir = os.path.expanduser("~/.ollama/models")
-    elif thisPlatform == "Linux":
+    elif USER_OS == "Linux":
         modelDir = "/usr/share/ollama/.ollama/models"
         modelDir2 = os.path.expanduser("~/.ollama/models")
         if not os.path.isdir(modelDir) and os.path.isdir(modelDir2):
@@ -25,10 +24,10 @@ def getOllamaModelDir():
         return modelDir
     return ""
 
-def getDownloadedOllamaModels() -> dict:
+def getDownloadedOllamaModels(library:str="library") -> dict:
     models = {}
     if modelDir := getOllamaModelDir():
-        library = os.path.join(modelDir, "manifests", "registry.ollama.ai", "library")
+        library = os.path.join(modelDir, "manifests", "registry.ollama.ai", library)
         if os.path.isdir(library):
             for d in os.listdir(library):
                 model_dir = os.path.join(library, d)
@@ -56,17 +55,29 @@ def exportOllamaModels(selection: list=[]) -> list:
     print("# Exporting Ollama models ...")
     gguf_directory = os.path.join(AGENTMAKE_USER_DIR, "models", "gguf")
     Path(gguf_directory).mkdir(parents=True, exist_ok=True)
-    models = getDownloadedOllamaModels()
+    if not selection:
+        # get all models if no selection specified
+        selection = list(getDownloadedOllamaModels().keys())
+    selection = [i.replace(":latest", "") if i.endswith(":latest") else i for i in selection]
     exportedFiles = []
-    for model, originalpath in models.items():
-        filename = model.replace(":", "_")
-        exportpath = os.path.join(gguf_directory, f"{filename}.gguf")
-        if not os.path.isfile(exportpath) and not model.endswith(":latest") and ((not selection) or (model in selection)):
-            print(f"Model: {model}")
-            shutil.copy2(originalpath, exportpath)
-            print(f"Exported: {exportpath}")
-        if os.path.isfile(exportpath):
-            exportedFiles.append(exportpath)
+    for i in selection:
+        if "/" in i:
+            library, model = i.split("/", 1)
+            exported_filename = library + "_" + model.replace(":", "_")
+        else:
+            library, model = "library", i
+            exported_filename = model.replace(":", "_")
+        exported_path = os.path.join(gguf_directory, f"{exported_filename}.gguf")
+        if not os.path.isfile(exported_path):
+            models = getDownloadedOllamaModels(library)
+            if model in models:
+                shutil.copy2(models[model], exported_path)
+                if os.path.isfile(exported_path):
+                    print(f"Model: {model}")
+                    print(f"Exported: {exported_path}")
+                    exportedFiles.append(exported_path)
+            else:
+                print(f"Model '{model}' not found!")
     return exportedFiles
 
 if __name__ == "__main__":
