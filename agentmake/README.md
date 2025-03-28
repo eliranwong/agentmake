@@ -252,6 +252,10 @@ Therefore, it is very simple to create a chatbot application, you can do it as f
 
 >     user_input = input("Enter your query:\n(enter a blank entry to exit)\n>>> ")
 
+Read our [web UI chatbot example](https://github.com/eliranwong/agentmake/blob/main/examples/webui_with_mesop.py) at:
+
+https://github.com/eliranwong/agentmake/blob/main/examples/webui_with_mesop.py
+
 You may take a look at out our built-in components for more ideas:
 
 [systems](https://github.com/eliranwong/agentmake/tree/main/agentmake/systems)

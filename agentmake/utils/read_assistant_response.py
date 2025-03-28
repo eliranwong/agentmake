@@ -40,8 +40,11 @@ def closeConnections(backend: str):
     if backend == "azure" and hasattr(config, "azure_client") and config.azure_client is not None:
         config.azure_client.close()
         config.azure_client = None
+    elif backend == "anthropic" and hasattr(config, "anthropic_client") and config.anthropic_client is not None:
+        config.anthropic_client.close()
+        config.anthropic_client = None
     elif backend == "cohere" and hasattr(config, "cohere_client") and config.cohere_client is not None:
-        #config.cohere_client.close()
+        config.cohere_client._client_wrapper.httpx_client.httpx_client.close()
         config.cohere_client = None
     elif backend == "custom" and hasattr(config, "custom_client") and config.custom_client is not None:
         config.custom_client.close()

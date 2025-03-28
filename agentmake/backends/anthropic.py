@@ -1,3 +1,4 @@
+from agentmake import config
 from anthropic import Anthropic, NOT_GIVEN
 from anthropic.types import Message
 from typing import Optional
@@ -12,6 +13,13 @@ class AnthropicAI:
     DEFAULT_MODEL = os.getenv("ANTHROPIC_MODEL") if os.getenv("ANTHROPIC_MODEL") else "claude-3-5-sonnet-latest"
     DEFAULT_TEMPERATURE = float(os.getenv("ANTHROPIC_TEMPERATURE")) if os.getenv("ANTHROPIC_TEMPERATURE") else 0.3
     DEFAULT_MAX_TOKENS = int(os.getenv("ANTHROPIC_MAX_TOKENS")) if os.getenv("ANTHROPIC_MAX_TOKENS") else 8192 # https://docs.mistral.ai/getting-started/models/models_overview/
+
+    @staticmethod
+    def getClient(api_key: Optional[str]=None):
+        if api_key or AnthropicAI.DEFAULT_API_KEY:
+            config.anthropic_client = Anthropic(api_key=api_key if api_key else AnthropicAI.DEFAULT_API_KEY)
+            return config.anthropic_client
+        return None
 
     @staticmethod
     def removeSystemMessage(messages: list) -> str:
@@ -47,7 +55,7 @@ class AnthropicAI:
             schema["input_schema"] = schema.pop("parameters")
         messagesCopy = deepcopy(messages)
         systemMessage = AnthropicAI.removeSystemMessage(messagesCopy)
-        return Anthropic(api_key=api_key if api_key else AnthropicAI.DEFAULT_API_KEY).messages.create(
+        return AnthropicAI.getClient(api_key=api_key).messages.create(
             model=model if model else AnthropicAI.DEFAULT_MODEL,
             messages=messagesCopy,
             system=systemMessage,

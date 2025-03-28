@@ -1643,8 +1643,8 @@ def getFabricPatternSystem(pattern, instruction=False):
             system = re.sub(r'# INPUT.*', '', system, flags=re.DOTALL).rstrip()
     return system
 
-def ignore_warnings():
+"""def ignore_warnings():
     from warnings import filterwarnings
-    #filterwarnings("ignore", category=ResourceWarning, message=r"unclosed <socket.socket.*, 11434\)") # ollama # resolved
+    filterwarnings("ignore", category=ResourceWarning, message=r"unclosed <socket.socket.*, 11434\)") # ollama # resolved
     filterwarnings("ignore", category=ResourceWarning, message="unclosed <ssl.SSLSocket.*'34.96.76.122'") # cohere # https://github.com/cohere-ai/cohere-python/issues/650
-atexit.register(ignore_warnings)
+atexit.register(ignore_warnings)"""

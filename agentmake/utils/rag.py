@@ -1,6 +1,7 @@
 import numpy as np
 import sqlite3, apsw
-import json, re, ollama, os, datetime
+import json, re, os, datetime
+from agentmake import OllamaAI
 from typing import Union
 from openai import OpenAI
 from openai import AzureOpenAI
@@ -102,7 +103,7 @@ def get_embeddings(texts: list, model: str=RAG_EMBEDDING_MODEL, backend: str="")
 
 def embed_texts_with_ollama(texts: list, model: str=RAG_EMBEDDING_MODEL):
     try:
-        response = ollama.embed(model=model, input=texts)
+        response = OllamaAI.getClient().embed(model=model, input=texts)
         embeddings = response.embeddings
         if not embeddings or len(embeddings) != len(texts):
             raise ValueError("Mismatch between texts and embeddings.")
