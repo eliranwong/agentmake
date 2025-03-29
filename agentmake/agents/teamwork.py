@@ -4,7 +4,7 @@ TeamGen AI, developed by [Eliran Wong](https://github.com/eliranwong), automates
 Modify from source: https://github.com/eliranwong/teamgenai
 """
 
-from agentmake import DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR
+from agentmake import DEFAULT_AI_BACKEND
 from typing import Optional, Union, Any, List, Dict
 
 def teamwork(
@@ -28,7 +28,7 @@ def teamwork(
         **kwargs,
 ) -> Union[List[Dict[str, str]], Any]:
 
-    from agentmake import AGENTMAKE_USER_DIR, DEFAULT_FOLLOW_UP_PROMPT, DEVELOPER_MODE, agentmake, getOpenCommand, writeTextFile, getCurrentDateTime
+    from agentmake import DEFAULT_TEXT_EDITOR, PACKAGE_PATH, AGENTMAKE_USER_DIR, DEFAULT_FOLLOW_UP_PROMPT, DEVELOPER_MODE, agentmake, readTextFile, showErrors, writeTextFile, getCurrentDateTime
     from pathlib import Path
     from copy import deepcopy
     import re, os
@@ -81,8 +81,8 @@ def teamwork(
         print("Done!")
         try:
             os.system(f'''{DEFAULT_TEXT_EDITOR} "{plain_record_file}"''')
-        except:
-            pass
+        except Exception as e:
+            showErrors(e)
 
     # set initial message chain
     if isinstance(messages, str):
@@ -124,7 +124,11 @@ def teamwork(
         word_wrap=word_wrap,
         **kwargs,
     )
-
+    
+    # update user request with improved prompt
+    userRequest = messages_copy[-2].get("content", "")
+    
+    # extract agent information
     create_agents_response = messages_copy[-1].get("content", "")
     create_agents_response = re.sub("```\n[Aa]gent", "```agent", create_agents_response)
     create_agents_response = re.sub("^[#]+? [Aa]gent", "```agent", create_agents_response, flags=re.M)
@@ -136,10 +140,9 @@ def teamwork(
             print("Agents not found!")
         return messages
     notCalled = [i for i in range(1, len(agents)+1)] # a list of agents that haven't been called
-    messages_copy.append({
-        "role": "assistant",
-        "content": "# Progress\nA team of AI agents has been created to resolve your requests, and they are waiting for your call to contribute in turn.",
-    })
+    
+    # update the last message
+    messages_copy[-1]["content"] = "# Progress\n\nA team of AI agents has been created to resolve your requests, and they are waiting for your call to contribute in turn."
 
     # agent description
     agents_description = "```" + "\n```\n\n```".join(agents) + "\n```"
@@ -148,13 +151,17 @@ def teamwork(
         print(agents_description, "\n")
 
     # Agent assignment
+    possible_system_file_path_2 = os.path.join(PACKAGE_PATH, "systems", "assign_agents.md")
+    possible_system_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "systems", "assign_agents.md")
+    assign_agents_system = readTextFile(possible_system_file_path_2 if os.path.isfile(possible_system_file_path_2) else possible_system_file_path_1).format(userRequest, agents_description)
+
     agent = 1
 
     while len(agents) >= agent > 0:
 
         messages_copy = agentmake(
             messages_copy,
-            system="assign_agents",
+            system=assign_agents_system,
             follow_up_prompt="Who is the best agent to contribute next?",
             backend=backend,
             model=model,

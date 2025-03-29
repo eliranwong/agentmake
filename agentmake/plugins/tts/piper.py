@@ -35,6 +35,6 @@ def run_piper_tts(content: str, **kwargs):
     pydoc.pipepager(content, cmd=cmd)
     if not shutil.which("cvlc") and not shutil.which("aplay"):
         playAudioFile(audioFile)
-    return ""
+    return content
 
 CONTENT_PLUGIN = run_piper_tts

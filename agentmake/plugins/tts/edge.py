@@ -11,6 +11,6 @@ def run_edge_tts(content: str, **kwargs):
     from agentmake.utils.media import generate_edge_tts_audio, playAudioFile
     audioFile = generate_edge_tts_audio(content)
     playAudioFile(audioFile)
-    return ""
+    return content
 
 CONTENT_PLUGIN = run_edge_tts

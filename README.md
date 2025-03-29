@@ -148,6 +148,10 @@ Basic installation supports all AI backends mentioned above, except for `vertexa
 
 ## Extras:
 
+To install the web UI `AgentMake Studio`:
+
+> pip install --upgrade "agentmake[studio]"
+
 We support Vertex AI via [Google GenAI SDK](https://pypi.org/project/google-genai/).  As this package supports most platforms, except for Android Termux, we separate this package `google-genai` as an extra.  To support Vertex AI with `agentmake`, install with running:
 
 > pip install --upgrade "agentmake[genai]"
@@ -269,6 +273,22 @@ You may take a look at out our built-in components for more ideas:
 [agents](https://github.com/eliranwong/agentmake/tree/main/agentmake/agents).
 
 [prompts](https://github.com/eliranwong/agentmake/tree/main/agentmake/prompts).
+
+# Web UI Studio
+
+![Image](https://github.com/user-attachments/assets/3e8dbe05-855d-4c0a-a581-bc262443b452)
+
+To install:
+
+> pip install --upgrade "agentmake[studio]"
+
+To run the AgentMake Studio:
+
+> agentmakestudio
+
+Then, open `http://localhost:32123` in a web browser.
+
+Read more at: https://github.com/eliranwong/agentmakestudio
 
 # CLI Options
 

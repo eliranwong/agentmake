@@ -2,7 +2,7 @@ from setuptools import setup
 import os, shutil
 
 package = "agentmake"
-version="1.0.40"
+version="1.0.42"
 
 # update version info
 info_file = os.path.join(package, "version.txt") # package readme
@@ -130,6 +130,7 @@ setup(
     install_requires=install_requires,
     extras_require={
         'genai': ["google-genai>=1.1.0"],  # Dependencies for running Vertex AI
+        'studio': ["agentmakestudio>=0.0.2"],  # Dependencies for running Vertex AI
     },
     entry_points={
         "console_scripts": [
@@ -139,7 +140,7 @@ setup(
             f"etextedit={package}.etextedit:main",
         ],
     },
-    keywords="toolmate ai sdk anthropic azure chatgpt cohere deepseek genai github googleai groq llamacpp mistral ollama openai vertexai xai",
+    keywords="toolmate ai sdk anthropic azure chatgpt cohere deepseek genai github googleai groq llamacpp mistral ollama openai vertexai xai mesop",
     url="https://github.com/eliranwong/agentmake",
     project_urls={
         "Source": "https://github.com/eliranwong/agentmake",
