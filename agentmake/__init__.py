@@ -1594,7 +1594,7 @@ def listResources(folder: str, ext: str="md", info: bool=False, display_func: Op
                             display_func(item)
                 elif os.path.isdir(fullPath) and not os.path.basename(fullPath) == "lib":
                     items += listResources(os.path.join(folder, ii), ext=ext, info=info, display_func=display_func)
-    return items
+    return sorted(items)
 
 def getMultipleTools(content, info=False):
     all_tools = listResources("tools", ext="py")
@@ -1634,6 +1634,12 @@ def exportPlainConversation(messages: list, filepath: str):
 def isFabricPattern(item):
     return True if item.startswith("fabric.") and os.path.isfile(os.path.join(os.path.expanduser(DEFAULT_FABRIC_PATTERNS_PATH), item[7:], "system.md")) else False
 
+def listFabricSystems():
+    fabric_patterns_path = os.path.expanduser(DEFAULT_FABRIC_PATTERNS_PATH)
+    if not os.path.isdir(fabric_patterns_path):
+        return []
+    return sorted([i for i in os.listdir(fabric_patterns_path) if os.path.isdir(os.path.join(fabric_patterns_path, i)) and os.path.isfile(os.path.join(fabric_patterns_path, i, "system.md"))])
+
 def getFabricPatternSystem(pattern, instruction=False):
     system = None
     fabricPattern = os.path.join(os.path.expanduser(DEFAULT_FABRIC_PATTERNS_PATH), pattern, "system.md")
@@ -1642,9 +1648,3 @@ def getFabricPatternSystem(pattern, instruction=False):
         if not instruction:
             system = re.sub(r'# INPUT.*', '', system, flags=re.DOTALL).rstrip()
     return system
-
-"""def ignore_warnings():
-    from warnings import filterwarnings
-    filterwarnings("ignore", category=ResourceWarning, message=r"unclosed <socket.socket.*, 11434\)") # ollama # resolved
-    filterwarnings("ignore", category=ResourceWarning, message="unclosed <ssl.SSLSocket.*'34.96.76.122'") # cohere # https://github.com/cohere-ai/cohere-python/issues/650
-atexit.register(ignore_warnings)"""

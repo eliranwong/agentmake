@@ -1,4 +1,4 @@
-from agentmake import AGENTMAKE_ASSISTANT_NAME, AGENTMAKE_USERNAME, AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand, listResources, getMultipleTools, override_DEFAULT_SYSTEM_MESSAGE, override_DEFAULT_FOLLOW_UP_PROMPT, exportPlainConversation
+from agentmake import AGENTMAKE_ASSISTANT_NAME, AGENTMAKE_USERNAME, AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand, listResources, getMultipleTools, override_DEFAULT_SYSTEM_MESSAGE, override_DEFAULT_FOLLOW_UP_PROMPT, exportPlainConversation, listFabricSystems
 from agentmake.etextedit import launch
 from agentmake.utils.handle_text import readTextFile, writeTextFile
 from agentmake.utils.files import searchFolder
@@ -70,6 +70,7 @@ def main(keep_chat_record=False):
     parser.add_argument("-lpl", "--list_plugins", action="store_true", dest="list_plugins", help="list plugins")
     parser.add_argument("-lpr", "--list_prompts", action="store_true", dest="list_prompts", help="list prompts")
     parser.add_argument("-ls", "--list_systems", action="store_true", dest="list_systems", help="list systems")
+    parser.add_argument("-lfs", "--list_fabric_systems", action="store_true", dest="list_fabric_systems", help="list fabric systems")
     parser.add_argument("-lt", "--list_tools", action="store_true", dest="list_tools", help="list tools")
     parser.add_argument("-lti", "--list_tools_info", action="store_true", dest="list_tools_info", help="list tools information")
     parser.add_argument("-lm", "--list_models", action="store_true", dest="list_models", help="list downloaded gguf models")
@@ -190,6 +191,9 @@ def main(keep_chat_record=False):
         listResources("prompts", display_func=print)
     if args.list_systems:
         listResources("systems", display_func=print)
+    if args.list_fabric_systems:
+        for i in listFabricSystems():
+            print(f"fabric.{i}")
     if args.list_tools:
         listResources("tools", ext="py", display_func=print)
     if args.list_tools_info:
