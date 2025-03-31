@@ -1,3 +1,7 @@
+"""
+Convert relative dates and times, if any, into absolute ones.
+"""
+
 def convert_relative_datetime(
     content,
     **kwargs,

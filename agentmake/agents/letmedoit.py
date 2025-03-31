@@ -1,3 +1,11 @@
+"""
+LetMeDoIt Lite - automates action plan, tool selection, tool use, multiple-step actions, and quality control, for resolving complex tasks.
+Default tool choice: @chat @search/google @files/extract_text @install_python_package @magic
+Users can specify additional tool options, by declaring additional tools in the prompt.
+Use `@` followed by a tool nmae to declare a tool in the prompt.
+Read more at https://github.com/eliranwong/letmedoit
+"""
+
 from agentmake import DEFAULT_AI_BACKEND
 from typing import Optional, Union, Any, List, Dict
 

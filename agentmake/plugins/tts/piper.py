@@ -1,3 +1,7 @@
+"""
+Read content alound using Piper TTS utilities
+"""
+
 from agentmake.utils.manage_package import installPipPackage
 import shutil
 if not shutil.which("piper"):

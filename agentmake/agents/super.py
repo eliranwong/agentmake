@@ -1,3 +1,11 @@
+"""
+automates action plan, tool selection, tool use, multiple-step actions, and quality control, for resolving complex tasks.
+All available tools are used as the default tool choice.
+Users can limit tool options, by declaring selected tools in the prompt.
+Use `@` followed by a tool nmae to declare a tool in the prompt.
+Read more at https://github.com/eliranwong/letmedoit
+"""
+
 from agentmake import DEFAULT_AI_BACKEND
 from typing import Optional, Union, Any, List, Dict
 import os

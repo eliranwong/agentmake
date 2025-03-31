@@ -1,3 +1,7 @@
+"""
+Extra bible references from the given content
+"""
+
 def extract_bible_references(
     content,
     **kwargs,

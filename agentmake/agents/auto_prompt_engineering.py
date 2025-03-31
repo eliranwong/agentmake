@@ -1,3 +1,5 @@
+"""automate prompt engineering"""
+
 from agentmake import DEFAULT_AI_BACKEND
 from typing import Optional, Union, Any, List, Dict
 

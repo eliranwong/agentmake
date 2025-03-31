@@ -1,3 +1,7 @@
+"""
+Review and refine written content to ensure it adheres to standard British English conventions.
+"""
+
 def improve_british_english(
     content: str,
     **kwargs,

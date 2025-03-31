@@ -1,3 +1,7 @@
+"""
+Translate content into traditional Chinese characters, using DeepSeek AI model via Azure service.
+"""
+
 def translate_into_simplified_chinese_azure_deepseeek(content, **kwargs):
     import os
     from azure.ai.inference import ChatCompletionsClient

@@ -1,6 +1,4 @@
-"""
-Enhance any AI models with reasoning features
-"""
+"""automate reasoning workflow"""
 
 from agentmake import DEFAULT_AI_BACKEND
 from typing import Optional, Union, Any, List, Dict
@@ -30,6 +28,7 @@ def reasoning(
         messages=messages,
         system=["reasoning", "simple_reasoning", "simple_reasoning"],
         follow_up_prompt=["review", "refine"],
+        input_content_plugin="improve_prompt",
         backend=backend,
         model=model,
         model_keep_alive=model_keep_alive,

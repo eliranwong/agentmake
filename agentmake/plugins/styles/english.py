@@ -1,3 +1,7 @@
+"""
+Refine and enhance written content to align with standard English conventions."
+"""
+
 def improve_english(
     content: str,
     **kwargs,

@@ -1,3 +1,7 @@
+"""
+Paste the text content from the system clipboard
+"""
+
 def paste_text(content, **kwargs):
     import pyperclip, shutil
     from agentmake.utils.system import getCliOutput

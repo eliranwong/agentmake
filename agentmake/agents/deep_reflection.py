@@ -1,3 +1,5 @@
+"""automate in-depth reflection workflow"""
+
 from agentmake import DEFAULT_AI_BACKEND
 from typing import Optional, Union, Any, List, Dict
 
@@ -26,6 +28,7 @@ def deep_reflection(
         messages=messages,
         instruction="think",
         follow_up_prompt=["review", "refine"],
+        input_content_plugin="improve_prompt",
         backend=backend,
         model=model,
         model_keep_alive=model_keep_alive,

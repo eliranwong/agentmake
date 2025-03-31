@@ -1,5 +1,5 @@
 """
-TeamGen AI, developed by [Eliran Wong](https://github.com/eliranwong), automates the creation of AI agent teams to address user requests.
+TeamGen AI, developed by [Eliran Wong](https://github.com/eliranwong), automates creation of a team of AI agents that work collaborately to address user requests.
 
 Modify from source: https://github.com/eliranwong/teamgenai
 """

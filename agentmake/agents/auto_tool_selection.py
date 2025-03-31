@@ -1,6 +1,12 @@
+"""
+automate single tool selection for resolving a simple task.
+All available tools are used as the default tool choice.
+Users can limit tool options, by declaring selected tools in the prompt.
+Use `@` followed by a tool nmae to declare a tool in the prompt.
+"""
+
 from agentmake import DEFAULT_AI_BACKEND
 from typing import Optional, Union, Any, List, Dict
-import os
 
 def auto_tool_selection(
         messages: Union[List[Dict[str, str]], str],

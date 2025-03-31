@@ -1,3 +1,7 @@
+"""
+Read content alound using Android TTS utilities
+"""
+
 def run_termux_tts(content: str, **kwargs):
     import os
     TTS_TERMUX_LANGUAGE = os.getenv("TTS_TERMUX_LANGUAGE") if os.getenv("TTS_TERMUX_LANGUAGE") else "en-US"

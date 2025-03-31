@@ -1,3 +1,7 @@
+"""
+Translate content into traditional Chinese characters, using ChatGPT AI model via Github Tokens.
+"""
+
 def translate_traditional_chinese_deepseek(content, **kwargs):
     from agentmake import agentmake
     

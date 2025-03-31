@@ -1,3 +1,7 @@
+"""
+Read content alound in default text-to-speech voice
+"""
+
 from agentmake.utils.manage_package import installPipPackage
 REQUIREMENTS = ["edge-tts"]
 try:

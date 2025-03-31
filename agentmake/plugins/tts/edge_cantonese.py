@@ -1,3 +1,7 @@
+"""
+Read content alound in Cantonese
+"""
+
 from agentmake.utils.manage_package import installPipPackage
 REQUIREMENTS = ["edge-tts"]
 try:

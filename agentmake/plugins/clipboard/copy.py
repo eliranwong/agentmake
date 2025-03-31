@@ -1,3 +1,7 @@
+"""
+Copy the text content into the system clipboard
+"""
+
 def copy_text(content, **kwargs):
     import pyperclip, shutil, pydoc
     pydoc.pipepager(content, cmd="termux-clipboard-set") if shutil.which("termux-clipboard-set") else pyperclip.copy(content)

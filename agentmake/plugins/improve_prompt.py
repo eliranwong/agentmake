@@ -1,3 +1,7 @@
+"""
+Refine and optimize user requests to achieve more effective and efficient task resolution.
+"""
+
 def improve_prompt(
     content: str,
     **kwargs,

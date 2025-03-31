@@ -1,3 +1,7 @@
+"""
+Convert Simplified Chinese characters into Traditional Chinese characters
+"""
+
 try:
     from opencc import OpenCC
 except:
