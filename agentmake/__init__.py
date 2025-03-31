@@ -61,6 +61,11 @@ DEFAULT_TEXT_EDITOR = os.getenv("DEFAULT_TEXT_EDITOR") if os.getenv("DEFAULT_TEX
 DEFAULT_MARKDOWN_THEME = os.getenv("DEFAULT_MARKDOWN_THEME") if os.getenv("DEFAULT_MARKDOWN_THEME") else "github-dark"
 DEFAULT_FABRIC_PATTERNS_PATH = os.getenv("DEFAULT_FABRIC_PATTERNS_PATH") if os.getenv("DEFAULT_FABRIC_PATTERNS_PATH") else os.path.join(os.path.expanduser("~"), ".config", "fabric", "patterns")
 
+def override_DEFAULT_TEXT_EDITOR(text_editor):
+    # override default text editor without changing the environment variable
+    global DEFAULT_TEXT_EDITOR
+    DEFAULT_TEXT_EDITOR = text_editor
+
 def override_DEFAULT_SYSTEM_MESSAGE(system_instruction):
     # override default system message without changing the environment variable
     global DEFAULT_SYSTEM_MESSAGE
