@@ -107,7 +107,7 @@ docker compose up -d
 
 ## Port Control
 
-Grant port access for related services.
+Grant port access for related services. For example, grant port access for running `agentmakestudio`.
 
 ![Image](https://github.com/user-attachments/assets/048065ab-da49-47f3-9c44-ad5f3ab2d278)
 
