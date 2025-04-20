@@ -92,9 +92,16 @@ echo "export PATH=\$PATH:\$HOME/ai/bin" >> .bashrc
 source ~/.bashrc
 ```
 
-## Perplexica Downloads
+## Perplexica Setup
 
-A screenshot
+First, make sure you have resized the disk for Linux devlopement to its maximum supported size, as instructed above.
+
+```
+git clone https://github.com/ItzCrazyKns/Perplexica
+cd Perplexica
+cp sample.config.toml config.toml
+docker compose up -d
+```
 
 ![Image](https://github.com/user-attachments/assets/fe141dce-d2f4-4c7f-b078-9bd6057706f3)
 
