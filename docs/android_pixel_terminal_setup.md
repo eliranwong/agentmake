@@ -111,6 +111,16 @@ EOF
 source ~/.bashrc
 ```
 
+# Test AgentMake AI on Terminal
+
+> ai Hello
+
+# Launch AgentMake Studio
+
+Open `http://localhost:32123` on a mobile web browser.
+
+![Image](https://github.com/user-attachments/assets/f941728b-3933-4b8a-a0be-e72d279d7524)
+
 ## Perplexica Setup
 
 First, make sure you have increased the disk size for Linux devlopement to at least 10GB, as instructed above.
