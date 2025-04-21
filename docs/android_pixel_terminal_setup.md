@@ -1,6 +1,6 @@
 # Pixel Terminal Setup
 
-Tested device: Pixel 8 Pro
+Tested devices: Pixel 8 Pro & Pixel 8
 
 1. Enable `Developer Mode`
 
@@ -18,7 +18,9 @@ To enable Developer Mode on an Android device, navigate to Settings > About phon
 
 ![Image](https://github.com/user-attachments/assets/ee88344d-252c-421e-83e8-6bee8c982d78)
 
-5. Resize the disk for Linux development to maximum supported size
+5. Resize the disk for Linux development to at least 10GB
+
+Remarks: We've managed to increased the disk size to 16GB on Pixel 8 Pro and 10GB on Pixel 8.
 
 ![Image](https://github.com/user-attachments/assets/2b62a928-df71-4745-9d6a-4661949175df)
 
@@ -94,7 +96,7 @@ source ~/.bashrc
 
 ## Perplexica Setup
 
-First, make sure you have resized the disk for Linux devlopement to its maximum supported size, as instructed above.
+First, make sure you have increased the disk size for Linux devlopement to at least 10GB, as instructed above.
 
 ```
 git clone https://github.com/ItzCrazyKns/Perplexica
@@ -116,3 +118,10 @@ Grant port access for related services. For example, grant port access for runni
 For example, use `Total Commander` app to organise files in the `Downloaded` folder, which are accessible in the Pixel Terminal's `/mnt/shared`
 
 ![Image](https://github.com/user-attachments/assets/18c01635-fc10-47d8-ada7-f37ae7b1744f)
+
+Remarks: You need to grant file access to the Total Commander app, like below.
+
+![Image](https://github.com/user-attachments/assets/05b1b901-d1f1-4801-bbbf-0d5ccf000a80)
+
+![Image](https://github.com/user-attachments/assets/ca40182c-9337-4a7d-8606-f9ac4db8748c)
+
