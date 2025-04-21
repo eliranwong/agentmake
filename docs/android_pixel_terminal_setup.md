@@ -54,7 +54,7 @@ curl -L https://github.com/danielmiessler/fabric/releases/latest/download/fabric
 # install docker
 # Add Docker's official GPG key:
 sudo apt-get update
-sudo apt-get install ca-certificates curl
+sudo apt-get install -y ca-certificates curl
 sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc
@@ -90,6 +90,23 @@ source ai/bin/activate
 pip install --upgrade agentmake[studio,genai]
 echo "export PATH=\$PATH:\$HOME/ai/bin" >> .bashrc
 
+# auto-run AgentMake Studio
+tee -a ~/.bashrc <<EOF
+# Function to start AgentMake Studio
+start_agentmakestudio() {
+  echo "Starting AgentMake Studio ..."
+  nohup agentmakestudio &
+  echo "AgentMake Studio started."
+}
+
+# Check if AgentMake Studio is already running
+if ! pgrep -f "agentmakestudio/main.py" > /dev/null; then
+  start_agentmakestudio
+else
+  echo "AgentMake Studio is already running."
+fi
+EOF
+
 # reload .bashrc
 source ~/.bashrc
 ```
@@ -109,7 +126,7 @@ docker compose up -d
 
 ## Port Control
 
-Grant port access for related services. For example, grant port access for running `agentmakestudio`.
+Grant port access for related services. For example, grant port access of `32123` for running `agentmakestudio`.
 
 ![Image](https://github.com/user-attachments/assets/048065ab-da49-47f3-9c44-ad5f3ab2d278)
 
