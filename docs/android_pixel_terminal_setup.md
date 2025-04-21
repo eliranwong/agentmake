@@ -117,6 +117,8 @@ source ~/.bashrc
 
 # Launch AgentMake Studio
 
+Go to Pixel Terminal Settings > Port Control and grant access to port `32123`.
+
 Open `http://localhost:32123` on a mobile web browser.
 
 ![Image](https://github.com/user-attachments/assets/f941728b-3933-4b8a-a0be-e72d279d7524)
