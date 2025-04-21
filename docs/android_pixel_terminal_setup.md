@@ -27,6 +27,9 @@ Remarks: We've managed to increased the disk size to 16GB on Pixel 8 Pro and 10G
 6. Preparations
 
 ```
+sudo apt update
+sudo apt -y full-upgrade
+
 sudo apt install -y bash-completion
 sudo apt install -y python3
 sudo apt install -y python3-setuptools python3-pip python3-dev python3-venv portaudio19-dev ffmpeg wget curl git wget nano micro sqlite3 libsqlite3-dev net-tools
