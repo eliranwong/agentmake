@@ -1,4 +1,4 @@
-# Android Version
+# Android Version via Termux Terminal
 
 You can run AgentMake AI on Android via Termux.
 
