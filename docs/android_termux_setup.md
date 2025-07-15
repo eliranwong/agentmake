@@ -188,8 +188,7 @@ cd
 python3 -m venv ai
 source ai/bin/activate
 pip install -U agentmake
-echo ". /home/$USER/ai/bin/activate" >> ~/.bashrc
-echo 'alias ai="/home/$USER/ai/bin/ai -eo" >> ~/.bashrc
+echo "export PATH=\$PATH:\$HOME/ai/bin" >> .bashrc
 ```
 
 To configure:
