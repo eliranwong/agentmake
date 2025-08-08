@@ -1653,3 +1653,8 @@ def getFabricPatternSystem(pattern, instruction=False):
         if not instruction:
             system = re.sub(r'# INPUT.*', '', system, flags=re.DOTALL).rstrip()
     return system
+
+# Suppress ResourceWarnings for Ollama connections
+# This is a workaround for the issue with Ollama connections not being closed properly
+import warnings
+warnings.filterwarnings("ignore", category=ResourceWarning, message=r"unclosed <socket.socket.*11434\)>")
