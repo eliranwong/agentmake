@@ -19,7 +19,7 @@ TOOL_SYSTEM = f"""You are an good at identifying a YouTube url from user request
 
 TOOL_SCHEMA = {
     "name": "download_youtube_video",
-    "description": "Download Youtube audio into mp3 file",
+    "description": "Download Youtube audio into mp4 video file",
     "parameters": {
         "type": "object",
         "properties": {
