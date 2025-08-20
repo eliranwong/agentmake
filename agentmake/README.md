@@ -14,6 +14,12 @@ Supported backends: anthropic, azure, cohere, custom, deepseek, genai, github, g
 
 This SDK incorporates the best aspects of our favorite projects, [LetMeDoIt AI](https://github.com/eliranwong/letmedoit), [Toolmate AI](https://github.com/eliranwong/toolmate) and [TeamGen AI](https://github.com/eliranwong/teamgenai), to create a library aimed at further advancing the development of agentic AI applications.
 
+The `agentmake` ecosystem is further extended by two companion projects:
+
+WebUI - [agentmakestudio](https://github.com/eliranwong/agentmakestudio)
+
+MCP Servers - [agentmake_mcp](https://github.com/eliranwong/agentmake_mcp)
+
 # Supported Platforms
 
 Windows, macOS, Linux, ChromeOS, Android via [Termux Terminal](https://github.com/eliranwong/agentmake/blob/main/docs/android_termux_setup.md) and [Pixel Terminal](https://github.com/eliranwong/agentmake/blob/main/docs/android_pixel_terminal_setup.md)
@@ -148,9 +154,13 @@ Basic installation supports all AI backends mentioned above, except for `vertexa
 
 ## Extras:
 
-To install the web UI `AgentMake Studio`:
+To install the web UI `AgentMake Studio` (https://github.com/eliranwong/agentmakestudio):
 
 > pip install --upgrade "agentmake[studio]"
+
+To support running MCP servers via [agentmakemcp](https://github.com/eliranwong/agentmake_mcp):
+
+> pip install --upgrade "agentmake[mcp]"
 
 We support Vertex AI via [Google GenAI SDK](https://pypi.org/project/google-genai/).  As this package supports most platforms, except for Android Termux, we separate this package `google-genai` as an extra.  To support Vertex AI with `agentmake`, install with running:
 

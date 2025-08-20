@@ -2,7 +2,7 @@ from setuptools import setup
 import os, shutil
 
 package = "agentmake"
-version="1.0.48"
+version="1.0.51"
 
 # update version info
 info_file = os.path.join(package, "version.txt") # package readme
@@ -59,7 +59,7 @@ setup(
         f"{package}.systems.roles",
         f"{package}.systems.styles",
         f"{package}.tools",
-        f"{package}.tools.android",
+        f"{package}.tools.termux",
         f"{package}.tools.audio",
         f"{package}.tools.azure",
         f"{package}.tools.calendar",
@@ -104,7 +104,7 @@ setup(
         f"{package}.systems.roles": ["*.*"],
         f"{package}.systems.styles": ["*.*"],
         f"{package}.tools": ["*.*"],
-        f"{package}.tools.android": ["*.*"],
+        f"{package}.tools.termux": ["*.*"],
         f"{package}.tools.audio": ["*.*"],
         f"{package}.tools.azure": ["*.*"],
         f"{package}.tools.calendar": ["*.*"],
@@ -131,6 +131,7 @@ setup(
     extras_require={
         'genai': ["google-genai>=1.25.0"],  # Dependencies for running Vertex AI
         'studio': ["agentmakestudio>=0.0.10"],  # Dependencies for AgentMake Studio
+        'mcp': ["agentmakemcp>=0.0.4"],  # Dependencies for AgentMake Studio
     },
     entry_points={
         "console_scripts": [
@@ -140,7 +141,7 @@ setup(
             f"etextedit={package}.etextedit:main",
         ],
     },
-    keywords="toolmate ai sdk anthropic azure chatgpt cohere deepseek genai github googleai groq llamacpp mistral ollama openai vertexai xai mesop",
+    keywords="toolmate ai sdk adk anthropic azure chatgpt cohere deepseek genai github googleai groq llamacpp mistral ollama openai vertexai xai mesop",
     url="https://github.com/eliranwong/agentmake",
     project_urls={
         "Source": "https://github.com/eliranwong/agentmake",

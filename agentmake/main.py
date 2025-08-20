@@ -152,7 +152,7 @@ def main(keep_chat_record=False):
 
     # interactive mode
     if args.interactive:
-        instruction = selectInstruction()
+        instruction = selectInstruction(args.paste)
         if instruction:
             args.default.insert(0, instruction)
             if instruction.startswith("Rewrite the following content in markdown format"):
@@ -563,11 +563,11 @@ def getInput(prompt="Instruction: "):
     print()
     return instruction.strip() if instruction else ""
 
-def selectInstruction():
+def selectInstruction(paste_enabled=False):
     import subprocess
     from prompt_toolkit.shortcuts import radiolist_dialog
     
-    input_text = subprocess.run("""echo "$(xsel -o)" | sed 's/"/\"/g'""", shell=True, capture_output=True, text=True).stdout if shutil.which("xsel") else ""
+    input_text = subprocess.run("""echo "$(xsel -o)" | sed 's/"/\"/g'""", shell=True, capture_output=True, text=True).stdout if shutil.which("xsel") and not paste_enabled else ""
 
     # support custom menu
     custom_instructions = os.path.join(AGENTMAKE_USER_DIR, "menu.py")
