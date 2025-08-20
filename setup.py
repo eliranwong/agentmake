@@ -32,7 +32,7 @@ setup(
     name="agentmake",
     version=version,
     python_requires=">=3.8, <3.13",
-    description="AgentMake AI: a software developement kit for developing agentic AI applications that support 16 AI backends and work with 7 agentic components, such as tools and agents. (Developer: Eliran Wong)",
+    description="AgentMake AI: an agent developement kit (ADK) for developing agentic AI applications that support 16 AI backends and work with 7 agentic components, such as tools and agents. (Developer: Eliran Wong)",
     long_description=long_description,
     author="Eliran Wong",
     author_email="support@toolmate.ai",
