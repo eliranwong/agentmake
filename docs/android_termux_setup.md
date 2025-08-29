@@ -20,6 +20,16 @@ We will describe how to install the Termux apk file via Chrome app, but first yo
 
 <b>Remarks:</b> You may disable this feature after you install Termux app.
 
+# Pause Play Protect
+
+1. Open the ˋGoogle Play Storeˋ app
+
+2. Play Protect > Play Protect Settings
+
+3. Pause ˋScan apps with Play Protectˋ
+
+Remarks: Remember to resume when you finish Termux setup.
+
 # Install Termux App
 
 1. Launch Chrome on your Android device.
