@@ -195,6 +195,10 @@ To acess a machine on the same network with port forwarding, e.g.
 
 ```
 cd
+
+mkdir ~/storage/shared/Documents/agentmake
+ln -s ~/storage/shared/Documents/agentmake agentmake
+
 python3 -m venv ai
 source ai/bin/activate
 pip install -U agentmake
