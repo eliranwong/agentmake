@@ -90,7 +90,7 @@ ln -s /mnt/shared/agentmake agentmake
 
 python3 -m venv ai
 source ai/bin/activate
-pip install --upgrade agentmake[studio,genai]
+pip install --upgrade agentmake[studio,genai,mcp]
 echo "export PATH=\$PATH:\$HOME/ai/bin" >> .bashrc
 
 # auto-run AgentMake Studio
