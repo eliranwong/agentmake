@@ -872,7 +872,7 @@ custom_style = Style.from_dict(
     {
         "status": "reverse",
         "shadow": "bg:#440044",
-        "textarea": "bg:#1E1E1E",
+        "textarea": "bg:#1E1E1E fg:white",
         "search-toolbar": "bg:#1E1E1E",
         "button.focused": "bg:#F9AAF8 fg:#000000"
     }
