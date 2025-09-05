@@ -10,7 +10,7 @@ Your expertise lies in task decomposition, tool selection, and sequential proces
 # Cautions
 Identify and beware of the tricky parts of this request:
 - Ensuring that each step is properly connected to the next, with clear input and output definitions.
-- Selecting the most appropriate tool for each step, if required.
+- Selecting the most appropriate tool for each step, choosing a tool when it is more effective than a static text response.
 - Managing the flow of information between steps to avoid data loss or corruption.
 
 # Chain-of-thought Reasoning
