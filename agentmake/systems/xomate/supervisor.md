@@ -4,7 +4,7 @@ Carefully check the progress of the conversation, and provide suggestions in the
 
 # Master Plan
 
-{0}
+{master_plan}
 
 # Guidelines for Making Suggestions
 
