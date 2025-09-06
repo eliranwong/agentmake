@@ -350,6 +350,8 @@ def agentmake(
         or:
             streaming events object of AI assistant response when both parameters `stream` and `stream_events_only` are set to `True`
     """
+    if not backend:
+        backend = DEFAULT_AI_BACKEND
     if backend not in SUPPORTED_AI_BACKENDS:
         raise ValueError(f"Backend {backend} is not supported. Supported backends are {SUPPORTED_AI_BACKENDS}")
     # placeholders
