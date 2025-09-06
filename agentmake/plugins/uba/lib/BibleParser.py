@@ -290,6 +290,32 @@ class BibleVerseParser:
         allReferences = [self.bcvToVerseReference(*i) for i in allReferences]
         return "; ".join(allReferences)
 
+    def extractExhaustiveReferencesReadable(self, text, tagged=False, splitInChunks=True) -> str:
+        allReferences = self.extractAllReferences(text=text, tagged=tagged, splitInChunks=splitInChunks)
+        exhaustiveReferences = []
+        for i in allReferences:
+            if len(i) == 5:
+                b, c1, v1, c2, v2 = i
+                if c2 == c1:
+                    for v in range(v1, v2+1):
+                        exhaustiveReferences.append((b, c1, v))
+                elif c2 > c1:
+                    # first chapter
+                    for v in range(v1, BibleBooks.verses[b][c1]+1):
+                        exhaustiveReferences.append((b, c1, v))
+                    # middle chapters
+                    if c2 - c1 > 1:
+                        for c in range(c1+1, c2):
+                            lastChapterVerse = BibleBooks.verses[b][c]
+                            for v in range(v1, lastChapterVerse+1):
+                                exhaustiveReferences.append((b, c, v))
+                    # last chapter
+                    for v in range(1, v2+1):
+                        exhaustiveReferences.append((b, c2, v))           
+            else:
+                exhaustiveReferences.append(i)
+        allReferences = [self.bcvToVerseReference(*i) for i in exhaustiveReferences]
+        return "; ".join(allReferences)
 
     def runExtractAllReferences(self, text, tagged=False):
         if re.search(r"^[0-9]+?\.[0-9]+?\.[0-9]+?$", text.strip()):

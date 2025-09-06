@@ -18,7 +18,7 @@ The `agentmake` ecosystem is further extended by two companion projects:
 
 WebUI - [agentmakestudio](https://github.com/eliranwong/agentmakestudio)
 
-MCP Servers - [agentmake_mcp](https://github.com/eliranwong/agentmake_mcp)
+MCP Servers - [agentmakemcp](https://github.com/eliranwong/agentmakemcp)
 
 # Supported Platforms
 
@@ -158,7 +158,7 @@ To install the web UI `AgentMake Studio` (https://github.com/eliranwong/agentmak
 
 > pip install --upgrade "agentmake[studio]"
 
-To support running MCP servers via [agentmakemcp](https://github.com/eliranwong/agentmake_mcp):
+To support running MCP servers via [agentmakemcp](https://github.com/eliranwong/agentmakemcp):
 
 > pip install --upgrade "agentmake[mcp]"
 
