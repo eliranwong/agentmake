@@ -290,7 +290,7 @@ class BibleVerseParser:
         allReferences = [self.bcvToVerseReference(*i) for i in allReferences]
         return "; ".join(allReferences)
 
-    def extractExhaustiveReferencesReadable(self, text, tagged=False, splitInChunks=True) -> str:
+    def extractExhaustiveReferences(self, text, tagged=False, splitInChunks=True) -> str:
         allReferences = self.extractAllReferences(text=text, tagged=tagged, splitInChunks=splitInChunks)
         exhaustiveReferences = []
         for i in allReferences:
@@ -314,7 +314,11 @@ class BibleVerseParser:
                         exhaustiveReferences.append((b, c2, v))           
             else:
                 exhaustiveReferences.append(i)
-        allReferences = [self.bcvToVerseReference(*i) for i in exhaustiveReferences]
+        return exhaustiveReferences
+
+    def extractExhaustiveReferencesReadable(self, text, tagged=False, splitInChunks=True) -> str:
+        allReferences = self.extractExhaustiveReferences(text=text, tagged=tagged, splitInChunks=splitInChunks)
+        allReferences = [self.bcvToVerseReference(*i) for i in allReferences]
         return "; ".join(allReferences)
 
     def runExtractAllReferences(self, text, tagged=False):
