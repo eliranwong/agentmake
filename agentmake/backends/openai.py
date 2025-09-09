@@ -46,7 +46,7 @@ class OpenaiAI:
         model = model if model else OpenaiAI.DEFAULT_MODEL
         extras = {"stream": stream,} if re.search("^o[0-9]", model) else {
             "temperature": temperature if temperature is not None else OpenaiAI.DEFAULT_TEMPERATURE,
-            "max_tokens": max_tokens if max_tokens else OpenaiAI.DEFAULT_MAX_TOKENS,
+            "max_completion_tokens": max_tokens if max_tokens else OpenaiAI.DEFAULT_MAX_TOKENS,
             "stream": stream,
         }
         return OpenaiAI.getClient(api_key=api_key).chat.completions.create(

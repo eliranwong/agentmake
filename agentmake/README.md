@@ -70,6 +70,10 @@ Windows, macOS, Linux, ChromeOS, Android via [Termux Terminal](https://github.co
 
 For simplicity, `agentmake` uses `ollama` as the default backend, if parameter `backend` is not specified. Ollama models are automatically downloaded if they have not already been downloaded. Users can change the default backend by modifying environment variable `DEFAULT_AI_BACKEND`.
 
+## Backends Comparison
+
+In our latest AI agent project, [BibleMate AI](https://github.com/eliranwong/biblemate), we have tested some of the supported backends and videotaped them for comparison. Please refer to https://github.com/eliranwong/biblemate/blob/main/README.md#supported-backends for more information.
+
 # Introducing Agentic Components
 
 `agentmake` is designed to work with seven kinds of components for building agentic applications:
