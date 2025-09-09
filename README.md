@@ -10,6 +10,14 @@ Supported backends: anthropic, azure, cohere, custom, deepseek, genai, github, g
 
 [9-min introduction](https://youtu.be/JyJxrvrJyqM) [24-min introduction](https://youtu.be/NMmuuWm2ixY)
 
+# Latest projects
+
+The following two projects are in active development. Both are powered by AgentMake AI:
+
+[XoMate AI](https://github.com/eliranwong/xomate)
+
+[BibleMate AI](https://github.com/eliranwong/biblemate)
+
 # Sibling Projects
 
 This SDK incorporates the best aspects of our favorite projects, [LetMeDoIt AI](https://github.com/eliranwong/letmedoit), [Toolmate AI](https://github.com/eliranwong/toolmate) and [TeamGen AI](https://github.com/eliranwong/teamgenai), to create a library aimed at further advancing the development of agentic AI applications.
