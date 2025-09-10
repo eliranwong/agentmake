@@ -1,12 +1,12 @@
 TOOL_SYSTEM = ""
 TOOL_SCHEMA = {}
-TOOL_DESCRIPTION = """Retrieve cross-references of bible verses."""
+TOOL_DESCRIPTION = """Read NET bible verses."""
 
-def xref(messages, **kwargs):
+def ohgb_bible(messages, **kwargs):
     from agentmake.utils.online import get_local_ip
-    import requests, os, re
+    import requests, os
 
-    command = "CROSSREFERENCE:::NET:::" + messages[-1].get("content", "")
+    command = "BIBLE:::OHGB:::" + messages[-1].get("content", "")
 
     UBA_API_LOCAL_PORT = int(os.getenv("UBA_API_LOCAL_PORT")) if os.getenv("UBA_API_LOCAL_PORT") else 8080
     UBA_API_ENDPOINT = os.getenv("UBA_API_ENDPOINT") if os.getenv("UBA_API_ENDPOINT") else f"http://{get_local_ip()}:{UBA_API_LOCAL_PORT}/plain" # use dynamic local ip if endpoint is not specified
@@ -19,10 +19,10 @@ def xref(messages, **kwargs):
     try:
         response = requests.get(url, timeout=UBA_API_TIMEOUT)
         response.encoding = "utf-8"
-        print(re.sub(r"\n\(", "\n- (", response.text.strip()))
+        print(response.text.strip())
     except Exception as err:
         print(f"An error occurred: {err}")
     
     return ""
 
-TOOL_FUNCTION = xref
+TOOL_FUNCTION = ohgb_bible
