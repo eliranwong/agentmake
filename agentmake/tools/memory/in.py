@@ -45,5 +45,7 @@ def save_memory(content: str, title: str, category: str, **kwargs):
     memory_store = os.path.join(db_dir, "memory_store.sqlite")
     db = MemoryVectorDatabase(memory_store)
     db.add(title=title, text=content, vector=vector, category=category)
+    print("Memory saved!")
+    return ""
 
 TOOL_FUNCTION = save_memory

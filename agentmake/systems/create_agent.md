@@ -28,6 +28,7 @@ For examples:
 - ...
 
 # Note
+Please note that your output should *be* an answer to the user's original query, not the system instruction for the AI assistant.
 Please note that ...
 ```
 
