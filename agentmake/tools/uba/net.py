@@ -4,7 +4,7 @@ TOOL_DESCRIPTION = """Read NET bible verses."""
 
 def net_bible(messages, **kwargs):
     from agentmake.utils.online import get_local_ip
-    import requests, os
+    import requests, os, re
 
     command = "BIBLE:::NET:::" + messages[-1].get("content", "")
 
@@ -19,7 +19,8 @@ def net_bible(messages, **kwargs):
     try:
         response = requests.get(url, timeout=UBA_API_TIMEOUT)
         response.encoding = "utf-8"
-        print(response.text.strip())
+        #print(response.text.strip())
+        print("- "+re.sub(r"\n\(", "\n- (", response.text.strip()))
     except Exception as err:
         print(f"An error occurred: {err}")
     
