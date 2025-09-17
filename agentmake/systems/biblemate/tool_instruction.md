@@ -11,5 +11,6 @@ Formate your response as a direct request to the AI assistant, specifying inform
 * Do not mention the tool name in your instruction.
 * Do not mention further steps or tools to be used after this instruction.
 * Only provide the instruction for the specified tool `{tool}`.
+* Pay attention to the information the tool requires and provide the necessary details in your instruction.
 
 You provide the converted instruction directly, without any additional commentary or explanation.
