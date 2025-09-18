@@ -32,7 +32,7 @@ def commentary(messages, **kwargs):
             command = f"AIC:::NET:::{b}.{c}.{v}"
             get_ai_comment(command, b, c, v)
     else:
-        print("No valid Bible references found in the input.")
+        print("Please provide a valid Bible reference to complete your request.")
         return ""
     
     return ""

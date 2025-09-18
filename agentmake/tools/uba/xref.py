@@ -5,8 +5,17 @@ TOOL_DESCRIPTION = """Retrieve cross-references of bible verses."""
 def xref(messages, **kwargs):
     from agentmake.utils.online import get_local_ip
     import requests, os, re
+    import urllib.parse
+    import urllib.parse
+    from agentmake.plugins.uba.lib.BibleParser import BibleVerseParser
 
-    command = "CROSSREFERENCE:::NET:::" + messages[-1].get("content", "")
+    command = messages[-1].get("content", "")
+    command = BibleVerseParser(False).extractAllReferencesReadable(command)
+    if not command:
+        print("Please provide a valid Bible reference to complete your request.")
+        return ""
+    command = urllib.parse.quote_plus(command)
+    command = f"CROSSREFERENCE:::NET:::{command}"
 
     UBA_API_LOCAL_PORT = int(os.getenv("UBA_API_LOCAL_PORT")) if os.getenv("UBA_API_LOCAL_PORT") else 8080
     UBA_API_ENDPOINT = os.getenv("UBA_API_ENDPOINT") if os.getenv("UBA_API_ENDPOINT") else f"http://{get_local_ip()}:{UBA_API_LOCAL_PORT}/plain" # use dynamic local ip if endpoint is not specified

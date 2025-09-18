@@ -5,8 +5,10 @@ TOOL_DESCRIPTION = """Run Unique Bible App UBA commands"""
 def uba_api(messages, **kwargs):
     from agentmake.utils.online import get_local_ip
     import requests, os
+    import urllib.parse
 
     command = messages[-1].get("content", "")
+    command = urllib.parse.quote(command)
 
     UBA_API_LOCAL_PORT = int(os.getenv("UBA_API_LOCAL_PORT")) if os.getenv("UBA_API_LOCAL_PORT") else 8080
     UBA_API_ENDPOINT = os.getenv("UBA_API_ENDPOINT") if os.getenv("UBA_API_ENDPOINT") else f"http://{get_local_ip()}:{UBA_API_LOCAL_PORT}/plain" # use dynamic local ip if endpoint is not specified
