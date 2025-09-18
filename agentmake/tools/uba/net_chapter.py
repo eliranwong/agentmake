@@ -4,11 +4,12 @@ TOOL_DESCRIPTION = """Read NET bible chapter."""
 
 def net_bible_chapter(messages, **kwargs):
     from agentmake.utils.online import get_local_ip
-    import requests, os
+    import requests, os, re
     import urllib.parse
     from agentmake.plugins.uba.lib.BibleParser import BibleVerseParser
 
     command = messages[-1].get("content", "")
+    command = re.sub("[Cc]hapter ([0-9])", r"\1", command)
     command = BibleVerseParser(False).extractAllReferencesReadable(command)
     if not command:
         print("Please provide a valid Bible reference to complete your request.")
