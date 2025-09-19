@@ -84,3 +84,21 @@ def markdownToDocx(markdown_text, output_file):
 
     # Save the document
     document.save(output_file)
+
+def set_log_file_max_lines(log_file, max_lines):
+    if os.path.isfile(log_file):
+        # Read the contents of the log file
+        with open(log_file, "r", encoding="utf-8") as fileObj:
+            lines = fileObj.readlines()
+        # Count the number of lines in the file
+        num_lines = len(lines)
+        if num_lines > max_lines:
+            # Calculate the number of lines to be deleted
+            num_lines_to_delete = num_lines - max_lines
+            if num_lines_to_delete > 0:
+                # Open the log file in write mode and truncate it
+                with open(log_file, "w", encoding="utf-8") as fileObj:
+                    # Write the remaining lines back to the log file
+                    fileObj.writelines(lines[num_lines_to_delete:])
+            filename = os.path.basename(log_file)
+            print(f"{num_lines_to_delete} old lines deleted from log file '{filename}'.")
