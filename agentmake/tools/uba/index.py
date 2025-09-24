@@ -4,7 +4,7 @@ TOOL_DESCRIPTION = """Get bible verse smart indexes."""
 
 def index(messages, **kwargs):
     from agentmake.utils.online import get_local_ip
-    import requests, os
+    import requests, os, re
     import urllib.parse
     from agentmake.plugins.uba.lib.BibleParser import BibleVerseParser
 
@@ -27,7 +27,12 @@ def index(messages, **kwargs):
     try:
         response = requests.get(url, timeout=UBA_API_TIMEOUT)
         response.encoding = "utf-8"
-        print(response.text.strip())
+        content = response.text.strip()
+        content = content.replace("\nsearch for a location", "").replace("""\nBible Locations\n\n[not applicable]""", "")
+        content = content.replace("search for a character\nsearch for a name & its meaning", "")
+        content = re.sub(r"\[search a .*?\n", "", content)
+        content = re.sub(r"\[search an encyclope.*?$", "", content)
+        print("## "+content.replace("[", "- ["))
     except Exception as err:
         print(f"An error occurred: {err}")
     
