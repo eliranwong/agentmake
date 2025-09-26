@@ -1,5 +1,5 @@
 from agentmake import PACKAGE_PATH, USER_OS, getOpenCommand
-import shutil, os, subprocess
+import shutil, os, subprocess, warnings
 import edge_tts, asyncio
 from typing import Optional
 
@@ -23,7 +23,8 @@ def generate_edge_tts_audio(content: str, edgettsVoice: Optional[str] = None, ed
         rate = int(round(rate, 0))
         communicate = edge_tts.Communicate(content, edgettsVoice, rate=f"{'+' if rate >= 0 else ''}{rate}%")
         await communicate.save(audioFile)
-    asyncio.run(saveEdgeAudio())
+    with warnings.catch_warnings():
+        asyncio.run(saveEdgeAudio())
     #playAudioFile(audioFile)
     return audioFile
 

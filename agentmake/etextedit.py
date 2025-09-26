@@ -17,16 +17,24 @@ Modified and Enhanced by Eliran Wong:
 * support file argument, e.g. etextedit <filename>
 * support startup with clipboard text content, e.g. etextedit -p true
 * support printing
+* support plugins to extend the functionalities; place plugins in ~/etextedit/plugins
 
 eTextEdit repository:
 https://github.com/eliranwong/eTextEdit
 
-Remarks: This is a modified edition of etextedit that work with ToolMate AI
+Remarks: This is a modified edition of etextedit that work with AgentMake AI
 """
 import os
 startupPath = os.getcwd()
 
+try:
+    # support plugins that work with agentmake
+    from agentmake import agentmake
+except:
+    pass
+import subprocess, warnings
 import datetime, sys, os, re, webbrowser, shutil, wcwidth, argparse, pyperclip, platform, subprocess, pydoc
+from pathlib import Path
 from asyncio import Future, ensure_future
 from prompt_toolkit.clipboard.pyperclip import PyperclipClipboard
 from prompt_toolkit.input import create_input
@@ -66,8 +74,7 @@ from prompt_toolkit.widgets import (
     TextArea,
     Checkbox,
 )
-#from toolmate import config, voiceTyping
-#from toolmate.utils.tts_utils import TTSUtil
+
 
 class ApplicationState:
     """
@@ -567,17 +574,6 @@ def confirm_open_file():
 
     ensure_future(coroutine())
 
-def do_listen(event=None):
-    buffer = event.app.current_buffer if event is not None else text_field.buffer
-    content = voiceTyping()
-    buffer.insert_text(content)
-
-def do_speak(event=None):
-    buffer = event.app.current_buffer if event is not None else text_field.buffer
-    selectedText = buffer.copy_selection().text
-    content = selectedText if selectedText else buffer.text
-    TTSUtil.play(re.sub(config.tts_doNotReadPattern, "", content))
-
 def do_find_replace():
     async def coroutine():
         search_replace_dialog = SearchReplaceDialog(
@@ -617,7 +613,7 @@ def do_about():
 * support file argument, e.g. etextedit <filename>
 * support startup with clipboard text content, e.g. etextedit -p true
 * support printing
-* support plugins (forthcoming)"""
+* support plugins"""
     show_message("About", f"Text Editor\nOriginally created by Jonathan Slenders\nEnhanced by Eliran Wong:{enhancedFeatures}")
 
 def show_message(title, text):
@@ -798,6 +794,27 @@ def do_status_bar():
 # The menu container.
 #
 
+plugins = []
+
+#builtin_pluginFolder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "plugins")
+builtin_pluginFolder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "etextedit_plugins") # edit for AgentMake AI
+user_pluginFolder = os.path.join(os.path.expanduser("~"), "etextedit", "plugins")
+for pluginFolder in (builtin_pluginFolder, user_pluginFolder):
+    if not os.path.isdir(pluginFolder):
+        Path(pluginFolder).mkdir(parents=True, exist_ok=True)
+    for file in os.listdir(pluginFolder):
+        if file.endswith(".py"):
+            pluginPath = os.path.join(pluginFolder, file)
+            pluginName = os.path.splitext(file)[0]
+            try:
+                with open(pluginPath, "r", encoding="utf-8") as fileObj:
+                    pluginCode = fileObj.read()
+                exec(pluginCode, globals())
+                handler = pluginName.replace(" ", "_").lower()
+                exec(f'''plugins.append(MenuItem(pluginName, handler={handler}))''', globals())
+            except Exception as e:
+                print(f"Error loading plugin {pluginName}: {e}")
+
 root_container = MenuContainer(
     body=body,
     menu_items=[
@@ -838,20 +855,15 @@ root_container = MenuContainer(
                 MenuItem("Time / Date", handler=do_time_date),
             ],
         ),
-        #MenuItem(
-        #    "Tool",
-        #    children=[
-        #        MenuItem("Speech to Text", handler=do_listen),
-        #        MenuItem("Text to Speech", handler=do_speak),
-        #    ],
-        #),
         MenuItem(
-            "View",
-            children=[MenuItem("Status Bar", handler=do_status_bar)],
+            "Plugins",
+            children=plugins,
         ),
         MenuItem(
             "Info",
             children=[
+                MenuItem("Status Bar", handler=do_status_bar),
+                MenuItem("-", disabled=True),
                 MenuItem("About", handler=do_about),
                 MenuItem("Help", handler=do_help),
             ],

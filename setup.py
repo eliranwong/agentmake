@@ -2,7 +2,7 @@ from setuptools import setup
 import os, shutil
 
 package = "agentmake"
-version="1.0.85"
+version="1.0.89"
 
 # update version info
 info_file = os.path.join(package, "version.txt") # package readme
@@ -83,6 +83,7 @@ setup(
         f"{package}.tools.youtube",
         f"{package}.utils",
         f"{package}.temp",
+        f"{package}.etextedit_plugins",
     ],
     package_data={
         package: ["*.*"],
@@ -131,6 +132,7 @@ setup(
         f"{package}.tools.youtube": ["*.*"],
         f"{package}.utils": ["*.*"],
         f"{package}.temp": ["*.*"],
+        f"{package}.etextedit_plugins": ["*.*"],
     },
     license="GNU General Public License (GPL)",
     install_requires=install_requires,

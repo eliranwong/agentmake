@@ -76,6 +76,10 @@ def override_DEFAULT_FOLLOW_UP_PROMPT(prompt):
     global DEFAULT_FOLLOW_UP_PROMPT
     DEFAULT_FOLLOW_UP_PROMPT = refine_follow_up_prompt_content(prompt)
 
+def edit_file(file_path=""):
+    if file_path and os.path.isfile(file_path):
+        os.system(f'''{DEFAULT_TEXT_EDITOR if shutil.which(DEFAULT_TEXT_EDITOR) else shutil.which("etextedit")} "{file_path}"''')
+
 def edit_configurations(env_file=""):
     if not env_file:
         user_env = os.path.join(AGENTMAKE_USER_DIR, "agentmake.env")
@@ -1443,7 +1447,8 @@ def getDictionaryOutput(
 
 def saveUserSystemMessage(system: str, subfolder="", filename=""):
     user_systems_dir = os.path.join(AGENTMAKE_USER_DIR, "systems", subfolder) if subfolder else os.path.join(AGENTMAKE_USER_DIR, "systems")
-    Path(user_systems_dir).mkdir(parents=True, exist_ok=True)
+    if not os.path.isdir(user_systems_dir):
+        Path(user_systems_dir).mkdir(parents=True, exist_ok=True)
     if not filename:
         filename = system[:50]
     filename = filename.replace(" ", "_")
