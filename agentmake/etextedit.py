@@ -99,6 +99,7 @@ class ApplicationState:
     clipboard = PyperclipClipboard()
     exit_without_saving = False
     allow_go_to_end = True
+    auto_agent = False
 
 def format_assistant_content(content: str) -> str:
     return f"\n\n```assistant\n{content}\n```\n\n"
@@ -203,7 +204,7 @@ class TextInputDialog:
         return self.dialog
 
 class MultilineTextInputDialog:
-    def __init__(self, title="", label="", completer=None, accept_handler=None):
+    def __init__(self, title="", label="", default_text="", completer=None, accept_handler=None):
         self.future = Future()
 
         def submit():
@@ -212,9 +213,8 @@ class MultilineTextInputDialog:
         def cancel():
             self.future.set_result(None)
 
-        current_text_selection = text_field.buffer.copy_selection().text
         self.input_area = TextArea(
-            text=current_text_selection if current_text_selection else ApplicationState.search_pattern,
+            text=default_text,
             completer=completer,
             multiline=True,
             width=D(preferred=40),
@@ -649,6 +649,10 @@ def do_find_replace():
 
     ensure_future(coroutine())
 
+def do_toggle_auto_agent():
+    ApplicationState.auto_agent = not ApplicationState.auto_agent
+    show_message("Auto Agent System Message", f"Auto Agent System Message for AgentMake AI is {'enabled' if ApplicationState.auto_agent else 'disabled'}")
+
 def do_about():
     # source https://github.com/prompt-toolkit/python-prompt-toolkit/blob/master/examples/full-screen/text-editor.py
     enhancedFeatures = """
@@ -661,7 +665,8 @@ def do_about():
 * support file argument, e.g. etextedit <filename>
 * support startup with clipboard text content, e.g. etextedit -p true
 * support printing
-* support plugins"""
+* support plugins
+* support export options to DOCX and PDF when pandoc is installed"""
     show_message("About", f"Text Editor\nOriginally created by Jonathan Slenders\nEnhanced by Eliran Wong:{enhancedFeatures}")
 
 def show_message(title, text):
@@ -838,45 +843,94 @@ def do_select_all(event=None):
 def do_status_bar():
     ApplicationState.show_status_bar = not ApplicationState.show_status_bar
 
+def do_export_docx():
+    async def coroutine():
+        save_dialog = TextInputDialog(
+            title="Export to DOCX",
+            label_text="Enter the path of the exported file:",
+            completer=PathCompleter(),
+        )
+
+        path = await show_dialog_as_float(save_dialog)
+
+        if path is not None:
+            if path.endswith(".docx"):
+                path = path[:-5]
+            pydoc.pipepager(text_field.text, cmd=f'''pandoc -f markdown -t docx -o "{path}.docx"''')
+
+    ensure_future(coroutine())
+
+def do_export_pdf():
+    async def coroutine():
+        save_dialog = TextInputDialog(
+            title="Export to PDF",
+            label_text="Enter the path of the exported file:",
+            completer=PathCompleter(),
+        )
+
+        path = await show_dialog_as_float(save_dialog)
+
+        if path is not None:
+            if path.endswith(".pdf"):
+                path = path[:-4]
+            pydoc.pipepager(text_field.text, cmd=f'''pandoc -f markdown -t pdf -o "{path}.pdf"''')
+
+    ensure_future(coroutine())
+
 #
 # The menu container.
 #
 
-plugins = []
+file_items = [
+    MenuItem("[N] New", handler=do_new_file),
+    MenuItem("[O] Open", handler=do_open_file),
+    MenuItem("[S] Save", handler=do_save_file),
+    MenuItem("[W] Save as", handler=do_save_as_file),
+    MenuItem("-", disabled=True),
+    MenuItem("[P] Print", handler=do_print),
+    MenuItem("-", disabled=True),
+    MenuItem("[Q] Exit", handler=do_exit),
+]
+# Enable pandoc related features if pandoc is installed
+if shutil.which("pandoc"):
+    file_items.insert(4, MenuItem("Export to DOCX", handler=do_export_docx))
+# pdflatex is required to export to PDF
+# Install, e.g. sudo apt install texlive-full
+if shutil.which("pandoc") and shutil.which("pdflatex"):
+    file_items.insert(4, MenuItem("Export to PDF", handler=do_export_pdf))
+
+plugins = [
+    MenuItem("Toggle Auto Agent", handler=do_toggle_auto_agent),
+    MenuItem("-", disabled=True),
+]
 
 builtin_pluginFolder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "etextedit_plugins")
 user_pluginFolder = os.path.join(os.path.expanduser("~"), "etextedit", "plugins")
-for pluginFolder in (builtin_pluginFolder, user_pluginFolder):
+added_plugins = []
+for pluginFolder in (user_pluginFolder, builtin_pluginFolder):
     if not os.path.isdir(pluginFolder):
         Path(pluginFolder).mkdir(parents=True, exist_ok=True)
     for file in sorted(os.listdir(pluginFolder)):
         if file.endswith(".py"):
             pluginPath = os.path.join(pluginFolder, file)
             pluginName = os.path.splitext(file)[0]
-            try:
-                with open(pluginPath, "r", encoding="utf-8") as fileObj:
-                    pluginCode = fileObj.read()
-                exec(pluginCode, globals())
-                handler = pluginName.replace(" ", "_").lower()
-                exec(f'''plugins.append(MenuItem(pluginName, handler={handler}))''', globals())
-            except Exception as e:
-                print(f"Error loading plugin {pluginName}: {e}")
+            if not pluginName in added_plugins: # avoid loading duplicate plugins
+                try:
+                    with open(pluginPath, "r", encoding="utf-8") as fileObj:
+                        pluginCode = fileObj.read()
+                    exec(pluginCode, globals())
+                    handler = pluginName.replace(" ", "_").lower()
+                    exec(f'''plugins.append(MenuItem(pluginName, handler={handler}))''', globals())
+                    added_plugins.append(pluginName)
+                except Exception as e:
+                    print(f"Error loading plugin {pluginName}: {e}")
 
 root_container = MenuContainer(
     body=body,
     menu_items=[
         MenuItem(
             "File",
-            children=[
-                MenuItem("[N] New", handler=do_new_file),
-                MenuItem("[O] Open", handler=do_open_file),
-                MenuItem("[S] Save", handler=do_save_file),
-                MenuItem("[W] Save as", handler=do_save_as_file),
-                MenuItem("-", disabled=True),
-                MenuItem("[P] Print", handler=do_print),
-                MenuItem("-", disabled=True),
-                MenuItem("[Q] Exit", handler=do_exit),
-            ],
+            children=file_items,
         ),
         MenuItem(
             "Edit",

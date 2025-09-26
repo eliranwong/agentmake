@@ -11,7 +11,7 @@ def translate_into(event=None):
             buffer = event.app.current_buffer if event is not None else text_field.buffer
             selectedText = buffer.copy_selection().text
             content = selectedText if selectedText else buffer.text
-            content = agentmake(get_augment_instruction(f"Please translate the following content into {target_language}.", content), system="auto", **AGENTMAKE_CONFIG)[-1].get("content", "").strip()
+            content = agentmake(get_augment_instruction(f"Please translate the following content into {target_language}.", content), system="auto" if ApplicationState.auto_agent else None, **AGENTMAKE_CONFIG)[-1].get("content", "").strip()
             # insert the improved prompt as a code block
             buffer.insert_text(format_assistant_content(content))
             # Repaint the application; get_app().invalidate() does not work here
