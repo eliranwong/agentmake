@@ -1,0 +1,12 @@
+def friendly_tone(event=None):
+    custom_prompt = "Rewrite the following content in friendly tone."
+
+    if custom_prompt is not None:
+        buffer = event.app.current_buffer if event is not None else text_field.buffer
+        selectedText = buffer.copy_selection().text
+        content = selectedText if selectedText else buffer.text
+        content = agentmake(get_augment_instruction(custom_prompt, content), system="auto", **AGENTMAKE_CONFIG)[-1].get("content", "").strip()
+        # insert the improved prompt as a code block
+        buffer.insert_text(format_assistant_content(content))
+        # Repaint the application; get_app().invalidate() does not work here
+        get_app().reset()

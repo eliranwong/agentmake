@@ -30,6 +30,10 @@ startupPath = os.getcwd()
 try:
     # support plugins that work with agentmake
     from agentmake import agentmake
+    AGENTMAKE_CONFIG = {
+        "print_on_terminal": False,
+        "word_wrap": False,
+    }
 except:
     pass
 import subprocess, warnings
@@ -95,6 +99,12 @@ class ApplicationState:
     clipboard = PyperclipClipboard()
     exit_without_saving = False
     allow_go_to_end = True
+
+def format_assistant_content(content: str) -> str:
+    return f"\n\n```assistant\n{content}\n```\n\n"
+
+def get_augment_instruction(instruction: str, content: str) -> str:
+    return f"Apply the following instruction to the `User Content` in the `# User Content` section.\n\n# Instruction\n\n{instruction}\n\n# User Content\n\n{content}"
 
 def get_statusbar_text():
     return " [esc-m] menu [ctrl+k] help "
@@ -185,6 +195,44 @@ class TextInputDialog:
             title=formatDialogTitle(title),
             body=HSplit([Label(text=label_text), self.text_area]),
             buttons=[ok_button, cancel_button],
+            width=D(preferred=80),
+            modal=True,
+        )
+
+    def __pt_container__(self):
+        return self.dialog
+
+class MultilineTextInputDialog:
+    def __init__(self, title="", label="", completer=None, accept_handler=None):
+        self.future = Future()
+
+        def submit():
+            self.future.set_result(self.input_area.text)
+
+        def cancel():
+            self.future.set_result(None)
+
+        current_text_selection = text_field.buffer.copy_selection().text
+        self.input_area = TextArea(
+            text=current_text_selection if current_text_selection else ApplicationState.search_pattern,
+            completer=completer,
+            multiline=True,
+            width=D(preferred=40),
+            height=D(preferred=10),
+            focus_on_click=True,
+            accept_handler=accept_handler,
+        )
+
+        self.case_sensitivity = Checkbox(text="case-sensitive", checked=ApplicationState.enable_case_sensitive_search)
+        self.regex_search = Checkbox(text="regular expression", checked=ApplicationState.enable_regex_search)
+
+        submit_button = Button(text="Submit", handler=submit)
+        cancel_button = Button(text="Cancel", handler=cancel)
+
+        self.dialog = Dialog(
+            title=formatDialogTitle(title),
+            body=HSplit([Label(text=label), self.input_area]),
+            buttons=[submit_button, cancel_button],
             width=D(preferred=80),
             modal=True,
         )
@@ -796,13 +844,12 @@ def do_status_bar():
 
 plugins = []
 
-#builtin_pluginFolder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "plugins")
-builtin_pluginFolder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "etextedit_plugins") # edit for AgentMake AI
+builtin_pluginFolder = os.path.join(os.path.dirname(os.path.realpath(__file__)), "etextedit_plugins")
 user_pluginFolder = os.path.join(os.path.expanduser("~"), "etextedit", "plugins")
 for pluginFolder in (builtin_pluginFolder, user_pluginFolder):
     if not os.path.isdir(pluginFolder):
         Path(pluginFolder).mkdir(parents=True, exist_ok=True)
-    for file in os.listdir(pluginFolder):
+    for file in sorted(os.listdir(pluginFolder)):
         if file.endswith(".py"):
             pluginPath = os.path.join(pluginFolder, file)
             pluginName = os.path.splitext(file)[0]
