@@ -78,7 +78,7 @@ def override_DEFAULT_FOLLOW_UP_PROMPT(prompt):
 
 def edit_file(file_path=""):
     if file_path and os.path.isfile(file_path):
-        os.system(f'''{DEFAULT_TEXT_EDITOR if shutil.which(DEFAULT_TEXT_EDITOR) else shutil.which("etextedit")} "{file_path}"''')
+        os.system(f'''{DEFAULT_TEXT_EDITOR if shutil.which(DEFAULT_TEXT_EDITOR.split(" ", 1)[0]) else shutil.which("etextedit")} "{file_path}"''')
 
 def edit_configurations(env_file=""):
     if not env_file:
