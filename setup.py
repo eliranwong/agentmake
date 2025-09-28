@@ -2,7 +2,7 @@ from setuptools import setup
 import os, shutil
 
 package = "agentmake"
-version="1.0.98"
+version="1.0.99"
 
 # update version info
 info_file = os.path.join(package, "version.txt") # package readme
