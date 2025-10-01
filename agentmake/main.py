@@ -291,7 +291,7 @@ def main(keep_chat_record=False):
     # edit with text editor
     if args.edit_input and text_editor:
         if text_editor == "etextedit":
-            user_prompt = launch(input_text=user_prompt, filename=None, exitWithoutSaving=True, customTitle="Edit instruction below; exit when you finish", startAtEnd=True)
+            user_prompt = launch(input_text=user_prompt, filename=None, exitWithoutSaving=True, customTitle="Edit instruction below; exit when you finish", startAt=len(user_prompt))
         else:
             tempTextFile = os.path.join(PACKAGE_PATH, "temp", "edit_instruction")
             writeTextFile(tempTextFile, user_prompt)

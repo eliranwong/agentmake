@@ -740,9 +740,9 @@ def do_add_spaces(event=None):
     buffer = event.app.current_buffer if event is not None else text_field.buffer
     buffer.insert_text("    ")
 
-def do_go_to_end_once(_):
+def do_go_to_end_once(cursor_position):
     if ApplicationState.allow_go_to_end:
-        text_field.buffer.cursor_position = len(text_field.text)
+        text_field.buffer.cursor_position = cursor_position
         ApplicationState.allow_go_to_end = False
 
 def do_go_to():
@@ -1018,7 +1018,7 @@ layout = Layout(root_container, focused_element=text_field)
 def update_title(customTitle=None):
     set_title(customTitle if customTitle is not None else f'''eTextEdit - {os.path.basename(ApplicationState.current_path) if ApplicationState.current_path else "NEW"}''')
 
-def get_editor_app(input_text=None, filename=None, exitWithoutSaving=False, startAtEnd=False):
+def get_editor_app(input_text=None, filename=None, exitWithoutSaving=False, startAt=0):
     ApplicationState.exit_without_saving = exitWithoutSaving
     if filename and os.path.isfile(filename):
         try:
@@ -1048,19 +1048,19 @@ def get_editor_app(input_text=None, filename=None, exitWithoutSaving=False, star
         full_screen=True,
         input=input,
         clipboard=ApplicationState.clipboard,
-        before_render=do_go_to_end_once if startAtEnd else None,
+        before_render=lambda _: do_go_to_end_once(startAt) if startAt else None,
     )
 
-def launch(input_text=None, filename=None, exitWithoutSaving=False, customTitle=None, startAtEnd=False):
+def launch(input_text=None, filename=None, exitWithoutSaving=False, customTitle=None, startAt=0):
     update_title(customTitle)
-    application = get_editor_app(input_text=input_text, filename=filename, exitWithoutSaving=exitWithoutSaving, startAtEnd=startAtEnd)
+    application = get_editor_app(input_text=input_text, filename=filename, exitWithoutSaving=exitWithoutSaving, startAt=startAt)
     application.run()
     clear_title()
     return text_field.text
 
-async def launch_async(input_text=None, filename=None, exitWithoutSaving=False, customTitle=None, startAtEnd=False):
+async def launch_async(input_text=None, filename=None, exitWithoutSaving=False, customTitle=None, startAt=0):
     update_title(customTitle)
-    application = get_editor_app(input_text=input_text, filename=filename, exitWithoutSaving=exitWithoutSaving, startAtEnd=startAtEnd)
+    application = get_editor_app(input_text=input_text, filename=filename, exitWithoutSaving=exitWithoutSaving, startAt=startAt)
     await application.run_async()
     clear_title()
     return text_field.text
