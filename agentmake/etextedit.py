@@ -110,7 +110,7 @@ def get_augment_instruction(instruction: str, content: str) -> str:
     return f"Apply the following instruction to the `User Content` in the `# User Content` section.\n\n# Instruction\n\n{instruction}\n\n# User Content\n\n{content}"
 
 def get_statusbar_text():
-    return " [esc-m] menu [ctrl+k] help "
+    return " [esc-m] menu [ctrl+y] help "
 
 def get_statusbar_right_text():
     return " {}:{}  ".format(
@@ -388,7 +388,7 @@ def _(event):
 
 # Basic
 # help
-@bindings.add("c-k")
+@bindings.add("c-y")
 def _(_):
     do_help()
 # quit
@@ -479,13 +479,13 @@ def _(_):
 
 # Delete
 # backspace
-@bindings.add("c-h")
+"""@bindings.add("c-h")
 def _(event):
     do_backspace(event)
 # forward delete
 @bindings.add("c-d")
 def _(event):
-    do_delete(event)
+    do_delete(event)"""
 
 # selection
 @bindings.add("c-a")
@@ -570,16 +570,19 @@ def _(event):
 #
 
 def do_save_file():
-    if ApplicationState.current_path:
-        try:
-            with open(ApplicationState.current_path, "w", encoding="utf-8") as fileObj:
-                fileObj.write(text_field.text)
-            ApplicationState.saved_text = text_field.text
-        except OSError as e:
-            show_message("Error", f"{e}")
+    if ApplicationState.exit_without_saving:
+        get_app().exit()
     else:
-        do_save_as_file()
-    update_title()
+        if ApplicationState.current_path:
+            try:
+                with open(ApplicationState.current_path, "w", encoding="utf-8") as fileObj:
+                    fileObj.write(text_field.text)
+                ApplicationState.saved_text = text_field.text
+            except OSError as e:
+                show_message("Error", f"{e}")
+        else:
+            do_save_as_file()
+        update_title()
 
 def do_save_as_file():
     async def coroutine():
@@ -1015,7 +1018,7 @@ layout = Layout(root_container, focused_element=text_field)
 def update_title(customTitle=None):
     set_title(customTitle if customTitle is not None else f'''eTextEdit - {os.path.basename(ApplicationState.current_path) if ApplicationState.current_path else "NEW"}''')
 
-def launch(input_text=None, filename=None, exitWithoutSaving=False, customTitle=None, startAtEnd=False):
+def get_editor_app(input_text=None, filename=None, exitWithoutSaving=False, startAtEnd=False):
     ApplicationState.exit_without_saving = exitWithoutSaving
     if filename and os.path.isfile(filename):
         try:
@@ -1028,7 +1031,6 @@ def launch(input_text=None, filename=None, exitWithoutSaving=False, customTitle=
     if filename:
         ApplicationState.current_path = filename
         ApplicationState.saved_text = fileText
-    update_title(customTitle)
     if filename and input_text:
         # append file text with input text
         text_field.text = f"{fileText}\n{input_text}"
@@ -1038,7 +1040,7 @@ def launch(input_text=None, filename=None, exitWithoutSaving=False, customTitle=
         text_field.text = input_text
     # create a custom input to work with stdin without EOFError
     input = create_input(always_prefer_tty=True)
-    application = Application(
+    return Application(
         layout=layout,
         enable_page_navigation_bindings=True,
         style=combined_style,
@@ -1048,7 +1050,18 @@ def launch(input_text=None, filename=None, exitWithoutSaving=False, customTitle=
         clipboard=ApplicationState.clipboard,
         before_render=do_go_to_end_once if startAtEnd else None,
     )
+
+def launch(input_text=None, filename=None, exitWithoutSaving=False, customTitle=None, startAtEnd=False):
+    update_title(customTitle)
+    application = get_editor_app(input_text=input_text, filename=filename, exitWithoutSaving=exitWithoutSaving, startAtEnd=startAtEnd)
     application.run()
+    clear_title()
+    return text_field.text
+
+async def launch_async(input_text=None, filename=None, exitWithoutSaving=False, customTitle=None, startAtEnd=False):
+    update_title(customTitle)
+    application = get_editor_app(input_text=input_text, filename=filename, exitWithoutSaving=exitWithoutSaving, startAtEnd=startAtEnd)
+    await application.run_async()
     clear_title()
     return text_field.text
 
