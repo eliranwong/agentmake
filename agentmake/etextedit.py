@@ -479,13 +479,13 @@ def _(_):
 
 # Delete
 # backspace
-"""@bindings.add("c-h")
+@bindings.add("c-h")
 def _(event):
     do_backspace(event)
 # forward delete
 @bindings.add("c-d")
 def _(event):
-    do_delete(event)"""
+    do_delete(event)
 
 # selection
 @bindings.add("c-a")
