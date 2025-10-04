@@ -1,4 +1,5 @@
 from agentmake import AGENTMAKE_ASSISTANT_NAME, AGENTMAKE_USERNAME, AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand, listResources, getMultipleTools, override_DEFAULT_SYSTEM_MESSAGE, override_DEFAULT_FOLLOW_UP_PROMPT, exportPlainConversation, listFabricSystems
+from agentmake.utils.text_area import getTextArea
 from agentmake.etextedit import launch
 from agentmake.utils.handle_text import readTextFile, writeTextFile
 from agentmake.utils.files import searchFolder
@@ -329,7 +330,7 @@ def main(keep_chat_record=False):
     # run
     last_response = ""
     if not user_prompt and args.prompts:
-        user_prompt = getInput(prompt=f"{AGENTMAKE_USERNAME.capitalize()}: ")
+        user_prompt = getInput(prompt=f"{AGENTMAKE_USERNAME.capitalize()}")
     if user_prompt:
         tools = args.tool if args.tool else []
         follow_up_prompt = args.follow_up_prompt if args.follow_up_prompt else []
@@ -419,7 +420,7 @@ def main(keep_chat_record=False):
             tools = []
             follow_up_prompt = []
             # get user prompt
-            user_prompt = getInput(prompt=f"{AGENTMAKE_USERNAME.capitalize()}: ")
+            user_prompt = getInput(prompt=f"{AGENTMAKE_USERNAME.capitalize()}")
 
         last_response = config.messages[-1].get("content", "")
         if args.copy or args.markdown_highlights:
@@ -508,60 +509,8 @@ def saveMessages():
         chatFile = os.path.join(folderPath, f"{timestamp}.chat")
         writeTextFile(chatFile, pformat(config.messages))
 
-def getInput(prompt="Instruction: "):
-    from prompt_toolkit import PromptSession
-    from prompt_toolkit.history import FileHistory
-    from prompt_toolkit.completion import WordCompleter, FuzzyCompleter
-    from prompt_toolkit.key_binding import KeyBindings
-    bindings = KeyBindings()
-    # exit when `c-q` is pressed
-    @bindings.add("c-q")
-    def _(event):
-        event.app.exit()
-    # insert new line
-    @bindings.add("c-i")
-    def _(event):
-        event.app.current_buffer.newline()
-    # reset buffer
-    @bindings.add("c-z")
-    def _(event):
-        event.app.current_buffer.reset()
-    # go to the end of the text
-    @bindings.add("escape", "z")
-    def _(event):
-        buffer = event.app.current_buffer
-        buffer.cursor_position = len(buffer.text)
-    # go to the beginning of the text
-    @bindings.add("escape", "a")
-    def _(event):
-        event.app.current_buffer.cursor_position = 0
-    # go to current line starting position
-    @bindings.add("home")
-    @bindings.add("escape", "b")
-    def _(event):
-        buffer = event.app.current_buffer
-        buffer.cursor_position = buffer.cursor_position - buffer.document.cursor_position_col
-    # go to current line ending position
-    @bindings.add("end")
-    @bindings.add("escape", "e")
-    def _(event):
-        buffer = event.app.current_buffer
-        buffer.cursor_position = buffer.cursor_position + buffer.document.get_end_of_line_position()
-
-    history_dir = os.path.join(AGENTMAKE_USER_DIR, "history")
-    if not os.path.isdir(history_dir):
-        from pathlib import Path
-        Path(history_dir).mkdir(parents=True, exist_ok=True)
-    session = PromptSession(history=FileHistory(os.path.join(history_dir, "instruction_history")))
-    completer = FuzzyCompleter(WordCompleter([f"+{i}" for i in listResources("instructions", ext="md")]+[f"@{i}" for i in listResources("tools", ext="py")], ignore_case=True))
-    instruction = session.prompt(
-        prompt,
-        bottom_toolbar="Press <Enter> to submit <Tab> to start a new line <Ctrl+Q> to exit",
-        completer=completer,
-        key_bindings=bindings,
-    )
-    print()
-    return instruction.strip() if instruction else ""
+def getInput(prompt="Instruction"):
+    return getTextArea(title=prompt)
 
 def selectInstruction(paste_enabled=False):
     import subprocess
@@ -601,7 +550,7 @@ def selectInstruction(paste_enabled=False):
     ).run()
     if result:
         if result == "custom":
-            instruction = getInput(prompt="Custom instruction: ")
+            instruction = getInput(prompt="Custom instruction")
             if not instruction:
                 return ""
         else:
