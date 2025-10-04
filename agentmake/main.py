@@ -330,7 +330,7 @@ def main(keep_chat_record=False):
     # run
     last_response = ""
     if not user_prompt and args.prompts:
-        user_prompt = getInput(prompt=f"{AGENTMAKE_USERNAME.capitalize()}")
+        user_prompt = getTextArea(title=f"{AGENTMAKE_USERNAME.capitalize()}")
     if user_prompt:
         tools = args.tool if args.tool else []
         follow_up_prompt = args.follow_up_prompt if args.follow_up_prompt else []
@@ -383,8 +383,8 @@ def main(keep_chat_record=False):
         is_first_go = True
         while user_prompt:
             user_prompt = checkComponents(user_prompt, tools, follow_up_prompt, instruction_prefix)
-            if args.prompts:
-                print(f"{AGENTMAKE_ASSISTANT_NAME}: ", end='', flush=True)
+            #if args.prompts:
+            #    print(f"{AGENTMAKE_ASSISTANT_NAME}: ", end='', flush=True)
             config.messages = agentmake(
                 messages=messages if is_first_go else config.messages,
                 backend=args.backend if args.backend else DEFAULT_AI_BACKEND,
@@ -420,7 +420,7 @@ def main(keep_chat_record=False):
             tools = []
             follow_up_prompt = []
             # get user prompt
-            user_prompt = getInput(prompt=f"{AGENTMAKE_USERNAME.capitalize()}")
+            user_prompt = getTextArea(title=f"{AGENTMAKE_USERNAME.capitalize()}")
 
         last_response = config.messages[-1].get("content", "")
         if args.copy or args.markdown_highlights:
@@ -509,9 +509,6 @@ def saveMessages():
         chatFile = os.path.join(folderPath, f"{timestamp}.chat")
         writeTextFile(chatFile, pformat(config.messages))
 
-def getInput(prompt="Instruction"):
-    return getTextArea(title=prompt)
-
 def selectInstruction(paste_enabled=False):
     import subprocess
     from prompt_toolkit.shortcuts import radiolist_dialog
@@ -550,7 +547,7 @@ def selectInstruction(paste_enabled=False):
     ).run()
     if result:
         if result == "custom":
-            instruction = getInput(prompt="Custom instruction")
+            instruction = getTextArea(title="Custom instruction")
             if not instruction:
                 return ""
         else:
