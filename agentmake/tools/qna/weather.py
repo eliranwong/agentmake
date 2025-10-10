@@ -1,6 +1,6 @@
 import os
 
-OPENWEATHERMAP_API_KEY = os.getenv("OPENWEATHERMAP_API_KEY").split(",") if os.getenv("OPENWEATHERMAP_API_KEY") and "," in os.getenv("OPENWEATHERMAP_API_KEY") else [os.getenv("OPENWEATHERMAP_API_KEY")]
+OPENWEATHERMAP_API_KEY = os.getenv("OPENWEATHERMAP_API_KEY").split(",") if os.getenv("OPENWEATHERMAP_API_KEY") else [""]
 
 TOOL_SYSTEM = f"""You are a senior python engineer.
 Generate python code that use my OpenWeatherMap API key '{OPENWEATHERMAP_API_KEY[0]}' to resolve my query about weather information.

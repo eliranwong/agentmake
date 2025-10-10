@@ -55,6 +55,9 @@ def closeConnections(backend: str):
     elif backend == "github" and hasattr(config, "github_client") and config.github_client is not None:
         config.github_client.close()
         config.github_client = None
+    elif backend in ("vertexai", "genai") and hasattr(config, "genai_client") and config.genai_client is not None:
+        config.genai_client.close()
+        config.genai_client = None
     elif backend == "googleai" and hasattr(config, "googleai_client") and config.googleai_client is not None:
         config.googleai_client.close()
         config.googleai_client = None

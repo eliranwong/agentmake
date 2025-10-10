@@ -165,7 +165,7 @@ def embed_texts_with_genai(texts: list, model: str=RAG_EMBEDDING_MODEL):
 def embed_texts_with_mistral(texts: list, model: str=RAG_EMBEDDING_MODEL):
     if not os.getenv("MISTRAL_API_KEY"):
         return None
-    mistral_api_key = os.getenv("MISTRAL_API_KEY").split(",") if os.getenv("MISTRAL_API_KEY") and "," in os.getenv("MISTRAL_API_KEY") else [os.getenv("MISTRAL_API_KEY")]
+    mistral_api_key = os.getenv("MISTRAL_API_KEY").split(",") if os.getenv("MISTRAL_API_KEY") else [""]
     client = Mistral(api_key=mistral_api_key[0])
     if not model in ("mistral-embed",):
         model = "mistral-embed"
@@ -179,7 +179,7 @@ def embed_texts_with_mistral(texts: list, model: str=RAG_EMBEDDING_MODEL):
 def embed_texts_with_cohere(texts: list, model: str=RAG_EMBEDDING_MODEL):
     if not os.getenv("COHERE_API_KEY"):
         return None
-    cohere_api_key = os.getenv("COHERE_API_KEY").split(",") if os.getenv("COHERE_API_KEY") and "," in os.getenv("COHERE_API_KEY") else [os.getenv("COHERE_API_KEY")]
+    cohere_api_key = os.getenv("COHERE_API_KEY").split(",") if os.getenv("COHERE_API_KEY") else [""]
     client = cohere.Client(api_key=cohere_api_key[0])
     if not model in ("embed-english-v3.0", "embed-english-light-v3.0", "embed-multilingual-v3.0", "embed-multilingual-light-v3.0"):
         model = "embed-multilingual-v3.0"

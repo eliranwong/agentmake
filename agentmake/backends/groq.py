@@ -10,7 +10,7 @@ DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MO
 
 class GroqAI:
 
-    DEFAULT_API_KEY = os.getenv("GROQ_API_KEY").split(",") if os.getenv("GROQ_API_KEY") and "," in os.getenv("GROQ_API_KEY") else [os.getenv("GROQ_API_KEY")]
+    DEFAULT_API_KEY = os.getenv("GROQ_API_KEY").split(",") if os.getenv("GROQ_API_KEY") else [""]
     DEFAULT_MODEL = os.getenv("GROQ_MODEL") if os.getenv("GROQ_MODEL") else "llama-3.3-70b-versatile"
     DEFAULT_TEMPERATURE = float(os.getenv("GROQ_TEMPERATURE")) if os.getenv("GROQ_TEMPERATURE") else 0.3
     DEFAULT_MAX_TOKENS = int(os.getenv("GROQ_MAX_TOKENS")) if os.getenv("GROQ_MAX_TOKENS") else 32768 # https://console.groq.com/docs/models

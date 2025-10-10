@@ -11,7 +11,7 @@ DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MO
 class MistralAI:
     # docs: https://docs.mistral.ai/
 
-    DEFAULT_API_KEY = os.getenv("MISTRAL_API_KEY").split(",") if os.getenv("MISTRAL_API_KEY") and "," in os.getenv("MISTRAL_API_KEY") else [os.getenv("MISTRAL_API_KEY")]
+    DEFAULT_API_KEY = os.getenv("MISTRAL_API_KEY").split(",") if os.getenv("MISTRAL_API_KEY") else [""]
     DEFAULT_MODEL = os.getenv("MISTRAL_MODEL") if os.getenv("MISTRAL_MODEL") else "mistral-large-latest"
     DEFAULT_TEMPERATURE = float(os.getenv("MISTRAL_TEMPERATURE")) if os.getenv("MISTRAL_TEMPERATURE") else 0.3
     DEFAULT_MAX_TOKENS = int(os.getenv("MISTRAL_MAX_TOKENS")) if os.getenv("MISTRAL_MAX_TOKENS") else 8000 # https://docs.mistral.ai/getting-started/models/models_overview/

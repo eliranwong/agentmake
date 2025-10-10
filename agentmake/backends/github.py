@@ -10,7 +10,7 @@ DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MO
 
 class GithubAI:
 
-    DEFAULT_API_KEY = os.getenv("GITHUB_API_KEY").split(",") if os.getenv("GITHUB_API_KEY") and "," in os.getenv("GITHUB_API_KEY") else [os.getenv("GITHUB_API_KEY")]
+    DEFAULT_API_KEY = os.getenv("GITHUB_API_KEY").split(",") if os.getenv("GITHUB_API_KEY") else [""]
     DEFAULT_MODEL = os.getenv("GITHUB_MODEL") if os.getenv("GITHUB_MODEL") else "gpt-4o"
     DEFAULT_TEMPERATURE = float(os.getenv("GITHUB_TEMPERATURE")) if os.getenv("GITHUB_TEMPERATURE") else 0.3
     DEFAULT_MAX_TOKENS = int(os.getenv("GITHUB_MAX_TOKENS")) if os.getenv("GITHUB_MAX_TOKENS") else 4000 # https://docs.github.com/en/github-models/prototyping-with-ai-models#rate-limits

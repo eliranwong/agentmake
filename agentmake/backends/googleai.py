@@ -10,7 +10,7 @@ DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MO
 
 class GoogleaiAI:
 
-    DEFAULT_API_KEY = os.getenv("GEMINI_API_KEY").split(",") if os.getenv("GEMINI_API_KEY") else os.getenv("GOOGLEAI_API_KEY").split(",")
+    DEFAULT_API_KEY = os.getenv("GOOGLEAI_API_KEY").split(",") if os.getenv("GOOGLEAI_API_KEY") else os.getenv("GEMINI_API_KEY").split(",") if os.getenv("GEMINI_API_KEY") else [""]
     DEFAULT_MODEL = os.getenv("GOOGLEAI_MODEL") if os.getenv("GOOGLEAI_MODEL") else "gemini-2.5-flash"
     DEFAULT_TEMPERATURE = float(os.getenv("GOOGLEAI_TEMPERATURE")) if os.getenv("GOOGLEAI_TEMPERATURE") else 0.3
     DEFAULT_MAX_TOKENS = int(os.getenv("GOOGLEAI_MAX_TOKENS")) if os.getenv("GOOGLEAI_MAX_TOKENS") else 8192 # https://ai.google.dev/gemini-api/docs/models/gemini

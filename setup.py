@@ -2,7 +2,7 @@ from setuptools import setup
 import os, shutil
 
 package = "agentmake"
-version="1.1.6"
+version="1.1.8"
 
 # update version info
 info_file = os.path.join(package, "version.txt") # package readme
@@ -137,7 +137,7 @@ setup(
     license="GNU General Public License (GPL)",
     install_requires=install_requires,
     extras_require={
-        'genai': ["google-genai>=1.25.0"],  # Dependencies for running Vertex AI
+        'genai': ["google-genai>=1.42.0"],  # Dependencies for running Vertex AI
         'studio': ["agentmakestudio>=0.0.10"],  # Dependencies for AgentMake Studio
         'mcp': ["agentmakemcp>=0.0.4"],  # Dependencies for AgentMake Studio
     },

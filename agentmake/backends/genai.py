@@ -4,14 +4,33 @@ try:
 except:
     # Google GenAI SDK is not supported on Android Termux
     pass
+from agentmake import config, GoogleaiAI
 from typing import Optional, Any
-import os
+import os, traceback
+
+DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
+
 
 class GenaiAI:
 
     AGENTMAKE_USER_DIR = os.getenv("AGENTMAKE_USER_DIR") if os.getenv("AGENTMAKE_USER_DIR") else os.path.join(os.path.expanduser("~"), "agentmake")
-    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.expanduser(os.getenv("VERTEXAI_API_KEY")) if not os.getenv("GOOGLE_APPLICATION_CREDENTIALS") and os.getenv("VERTEXAI_API_KEY") and os.path.isfile(os.path.expanduser(os.getenv("VERTEXAI_API_KEY"))) else os.getenv("GOOGLE_APPLICATION_CREDENTIALS") or os.path.join(AGENTMAKE_USER_DIR, "google_application_credentials.json") if os.path.isfile(os.path.join(AGENTMAKE_USER_DIR, "google_application_credentials.json")) else ""
-    DEFAULT_API_KEY = os.getenv("GOOGLE_APPLICATION_CREDENTIALS") if os.getenv("GOOGLE_APPLICATION_CREDENTIALS") else os.getenv("GOOGLEAI_API_KEY")
+
+    # set environment variable `GOOGLE_APPLICATION_CREDENTIALS`
+    if os.getenv("VERTEXAI_API_KEY") and os.path.isfile(os.path.expanduser(os.getenv("VERTEXAI_API_KEY"))):
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.expanduser(os.getenv("VERTEXAI_API_KEY"))
+    elif os.path.isfile(os.path.join(AGENTMAKE_USER_DIR, "google_application_credentials.json")):
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.join(AGENTMAKE_USER_DIR, "google_application_credentials.json")
+    elif not os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = ""
+
+    # set default key; make it a list to support rotation of multiple API keys
+    if os.getenv("VERTEXAI_API_KEY") and not os.path.isfile(os.getenv("VERTEXAI_API_KEY")):
+        DEFAULT_API_KEY = os.getenv("VERTEXAI_API_KEY").split(",")
+    elif os.getenv("GOOGLE_APPLICATION_CREDENTIALS"):
+        DEFAULT_API_KEY = [os.getenv("GOOGLE_APPLICATION_CREDENTIALS")]
+    else:
+        DEFAULT_API_KEY = GoogleaiAI.DEFAULT_API_KEY
+
     DEFAULT_API_PROJECT_ID = os.getenv("VERTEXAI_API_PROJECT_ID")
     DEFAULT_API_SERVICE_LOCATION = os.getenv("VERTEXAI_API_SERVICE_LOCATION") if os.getenv("VERTEXAI_API_SERVICE_LOCATION") else "us-central1"
     DEFAULT_MODEL = os.getenv("VERTEXAI_MODEL") if os.getenv("VERTEXAI_MODEL") else "gemini-1.5-pro"
@@ -45,15 +64,24 @@ class GenaiAI:
         return history, system_message, last_user_message
 
     @staticmethod
+    def getApiKey():
+        # rotate multiple API keys
+        if len(GenaiAI.DEFAULT_API_KEY) > 1:
+            first_item = GenaiAI.DEFAULT_API_KEY.pop(0)
+            GenaiAI.DEFAULT_API_KEY.append(first_item)
+        return GenaiAI.DEFAULT_API_KEY[0]
+
+    @staticmethod
     def getClient(api_key: Optional[str]=None, api_project_id: Optional[str]=None, api_service_location: Optional[str]=None):
         # create GenAI client
         api_project_id = api_project_id if api_project_id else GenaiAI.DEFAULT_API_PROJECT_ID
         api_service_location = api_service_location if api_service_location else GenaiAI.DEFAULT_API_SERVICE_LOCATION
-        api_key = api_key if api_key else GenaiAI.DEFAULT_API_KEY
-        current_credentials = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.expanduser(api_key) if os.path.isfile(os.path.expanduser(api_key)) else current_credentials
-        genai_client = Client(vertexai=True, project=api_project_id, location=api_service_location) if os.path.isfile(api_key) and api_project_id and api_service_location else Client(api_key=api_key)
-        return genai_client
+        api_key = api_key if api_key else GenaiAI.getApiKey()
+        if os.path.isfile(os.path.expanduser(api_key)):
+            api_key = os.path.expanduser(api_key)
+            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = api_key
+        config.genai_client = Client(vertexai=True, project=api_project_id, location=api_service_location) if os.path.isfile(api_key) and api_project_id and api_service_location else Client(api_key=api_key)
+        return config.genai_client
 
     @staticmethod
     def getConfig(
@@ -130,8 +158,6 @@ class GenaiAI:
         #    messages.append({'role': 'assistant', 'content': prefill})
         # convert messages to GenAI format
         history, system_message, last_user_message = GenaiAI.toGenAIMessages(messages=messages)
-        # create GenAI client
-        genai_client = GenaiAI.getClient(api_key=api_key, api_project_id=api_project_id, api_service_location=api_service_location)
         # format GenAI tool
         if schema:
             name, description, parameters = schema["name"], schema["description"], schema["parameters"]
@@ -162,13 +188,29 @@ class GenaiAI:
             api_timeout=api_timeout,
             tools=tools,
         )
-        genai_chat = genai_client.chats.create(
-            model=model if model else GenaiAI.DEFAULT_MODEL,
-            config=genai_config,
-            history=history,
-            **kwargs
-        )
-        return genai_chat.send_message_stream(last_user_message) if stream else genai_chat.send_message(last_user_message)
+        # run completion
+        completion = None
+        used_api_keys = []
+        while completion is None:
+            this_api_key = api_key if api_key else GenaiAI.getApiKey()
+            if this_api_key in used_api_keys:
+                break
+            else:
+                used_api_keys.append(this_api_key)
+            try:
+                genai_chat = GenaiAI.getClient(api_key=this_api_key, api_project_id=api_project_id, api_service_location=api_service_location).chats.create(
+                    model=model if model else GenaiAI.DEFAULT_MODEL,
+                    config=genai_config,
+                    history=history,
+                    **kwargs
+                )
+                completion = genai_chat.send_message_stream(last_user_message) if stream else genai_chat.send_message(last_user_message)
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                if DEVELOPER_MODE:
+                    print(traceback.format_exc())
+                print(f"Failed API key: {this_api_key}")
+        return completion
 
     @staticmethod
     def getDictionaryOutput(

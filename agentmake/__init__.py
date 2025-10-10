@@ -25,10 +25,10 @@ from .backends.azure_any import AzureAnyAI
 from .backends.cohere import CohereAI
 from .backends.custom import OpenaiCompatibleAI
 from .backends.deepseek import DeepseekAI
+from .backends.googleai import GoogleaiAI
 from .backends.genai import GenaiAI
 from .backends.github import GithubAI
 from .backends.github_any import GithubAnyAI
-from .backends.googleai import GoogleaiAI
 from .backends.groq import GroqAI
 from .backends.llamacpp import LlamacppAI
 from .backends.mistral import MistralAI
