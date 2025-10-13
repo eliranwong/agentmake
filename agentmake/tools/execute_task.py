@@ -9,7 +9,7 @@ Remember, you should format the answer or requested information, if any, into a 
 Use the 'print' function in the last line of your generated code to display the requested information."""
 
 TOOL_SCHEMA = {
-    "name": "magic",
+    "name": "execute_task",
     "description": "Execute any computing tasks or gain access to device information",
     "parameters": {
         "type": "object",
@@ -32,7 +32,7 @@ TOOL_SCHEMA = {
     },
 }
 
-def magic(code: str, title: str, risk: str="high", **kwargs):
+def execute_task(code: str, title: str, risk: str="high", **kwargs):
     from agentmake import DEVELOPER_MODE
     from agentmake.utils.handle_python_code import fineTunePythonCode
     import traceback
@@ -57,4 +57,4 @@ def magic(code: str, title: str, risk: str="high", **kwargs):
 
     return ""
 
-TOOL_FUNCTION = magic
+TOOL_FUNCTION = execute_task
