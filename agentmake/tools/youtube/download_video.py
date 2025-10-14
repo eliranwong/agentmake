@@ -5,8 +5,6 @@ import shutil, re, os
 # install binary ffmpeg and python package yt-dlp to work with this plugin
 if not shutil.which("yt-dlp"):
     installPipPackage("yt-dlp")
-if not shutil.which("ffmpeg"):
-    raise ValueError("Tool 'ffmpeg' is not found on your system! Read https://github.com/eliranwong/letmedoit/wiki/Install-ffmpeg for installation.")
 
 # update once a day
 currentDate = re.sub("_.*?$", "", getCurrentDateTime())
@@ -56,11 +54,11 @@ def download_youtube_video(url: str="", location: str="", **kwargs):
             if shutil.which("pkill"):
                 os.system("pkill yt-dlp")
             print(f"Downloaded in: '{outputFolder}'")
-            if shutil.which(getOpenCommand()):
-                try:
-                    os.system(f'''{getOpenCommand()} {outputFolder}''')
-                except:
-                    pass
+            #if shutil.which(getOpenCommand()):
+            #    try:
+            #        os.system(f'''{getOpenCommand()} {outputFolder}''')
+            #    except:
+            #        pass
         except:
             showErrors()
 
@@ -70,13 +68,16 @@ def download_youtube_video(url: str="", location: str="", **kwargs):
         if not (location and os.path.isdir(location)):
             androidMusicDir = "/data/data/com.termux/files/home/storage/shared/Music" # Android
             location = androidMusicDir if os.path.isdir(androidMusicDir) else os.getcwd()
-        downloadCommand = "yt-dlp -x --audio-format mp3" if format == "audio" else "yt-dlp -f bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4"
+        ytdlp = shutil.which("yt-dlp")
+        downloadCommand = f"{ytdlp} -x --audio-format mp3" if format == "audio" else f"{ytdlp} -f bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4"
         terminalDownloadYoutubeFile(downloadCommand, url, location)
         if shutil.which("termux-media-scan"): # Android
             os.system(f'termux-media-scan -r "{location}"')
-        newFile = find_last_added_file(location, ext=".mp3")
+        newFile = find_last_added_file(location, ext=".mp4")
         if newFile:
-            message = f"File saved: {newFile}"
+            newFileName = re.sub(r" \[[^\[\]]+?\].mp4", ".mp4" ,newFile)
+            os.rename(newFile, newFileName)
+            message = f"File saved: {newFileName}"
             print(message)
         return ""
     elif is_valid_url(url):
