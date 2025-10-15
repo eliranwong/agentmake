@@ -1,4 +1,4 @@
-from agentmake import AGENTMAKE_ASSISTANT_NAME, AGENTMAKE_USERNAME, AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand, listResources, getMultipleTools, override_DEFAULT_SYSTEM_MESSAGE, override_DEFAULT_FOLLOW_UP_PROMPT, exportPlainConversation, listFabricSystems
+from agentmake import OLLAMA_FOUND, OLLAMA_NOT_FOUND_MESSAGE, AGENTMAKE_ASSISTANT_NAME, AGENTMAKE_USERNAME, AGENTMAKE_USER_DIR, PACKAGE_PATH, DEFAULT_AI_BACKEND, DEFAULT_TEXT_EDITOR, DEFAULT_MARKDOWN_THEME, config, agentmake, edit_configurations, getOpenCommand, listResources, getMultipleTools, override_DEFAULT_SYSTEM_MESSAGE, override_DEFAULT_FOLLOW_UP_PROMPT, exportPlainConversation, listFabricSystems
 from agentmake.utils.text_area import getTextArea
 from agentmake.etextedit import launch
 from agentmake.utils.handle_text import readTextFile, writeTextFile
@@ -145,11 +145,14 @@ def main(keep_chat_record=False):
 
     # export ollama models
     if args.get_model:
-        from agentmake.utils.export_gguf import exportOllamaModels
-        from agentmake import OllamaAI
-        for i in args.get_model:
-            OllamaAI.downloadModel(i)
-        exportOllamaModels(args.get_model)
+        if OLLAMA_FOUND:
+            from agentmake.utils.export_gguf import exportOllamaModels
+            from agentmake import OllamaAI
+            for i in args.get_model:
+                OllamaAI.downloadModel(i)
+            exportOllamaModels(args.get_model)
+        else:
+            print(OLLAMA_NOT_FOUND_MESSAGE)
 
     # interactive mode
     if args.interactive:

@@ -10,6 +10,10 @@ def examine_images_ollama(query: str, image_filepath: Union[str, list], **kwargs
     import http.client
     import urllib.request
     from typing import cast
+    from agentmake import OLLAMA_FOUND, OLLAMA_NOT_FOUND_MESSAGE
+    if not OLLAMA_FOUND:
+        print(OLLAMA_NOT_FOUND_MESSAGE)
+        return ""
 
     OLLAMA_VISUAL_MODEL = os.getenv("OLLAMA_VISUAL_MODEL") if os.getenv("OLLAMA_VISUAL_MODEL") else "granite3.2-vision"
     OllamaAI.downloadModel(OLLAMA_VISUAL_MODEL)

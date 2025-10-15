@@ -60,6 +60,14 @@ DEFAULT_FOLLOW_UP_PROMPT = os.getenv("DEFAULT_FOLLOW_UP_PROMPT") if os.getenv("D
 DEFAULT_TEXT_EDITOR = os.getenv("DEFAULT_TEXT_EDITOR") if os.getenv("DEFAULT_TEXT_EDITOR") else "etextedit"
 DEFAULT_MARKDOWN_THEME = os.getenv("DEFAULT_MARKDOWN_THEME") if os.getenv("DEFAULT_MARKDOWN_THEME") else "github-dark"
 DEFAULT_FABRIC_PATTERNS_PATH = os.getenv("DEFAULT_FABRIC_PATTERNS_PATH") if os.getenv("DEFAULT_FABRIC_PATTERNS_PATH") else os.path.join(os.path.expanduser("~"), ".config", "fabric", "patterns")
+# check if ollama is installed
+try:
+    OllamaAI.getClient().ps()
+    OLLAMA_FOUND = True
+    OLLAMA_NOT_FOUND_MESSAGE = ""
+except:
+    OLLAMA_FOUND = False
+    OLLAMA_NOT_FOUND_MESSAGE = "Ollama not found! Please install Ollama first. This feature relies on Ollama to generate embeddings for vector searches. For installation instructions, visit: https://ollama.com/."
 
 def override_DEFAULT_TEXT_EDITOR(text_editor):
     # override default text editor without changing the environment variable

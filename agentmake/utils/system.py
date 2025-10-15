@@ -1,4 +1,5 @@
-import os, re, subprocess, datetime, psutil
+import os, re, subprocess, datetime, psutil, platform, socket, getpass, geocoder, pendulum
+from agentmake.utils.online import isServerAlive, get_wan_ip, get_local_ip
 
 def getCliOutput(cli):
     try:
@@ -16,15 +17,45 @@ def getCurrentDateTime():
     current_datetime = datetime.datetime.now()
     return current_datetime.strftime("%Y-%m-%d_%H_%M_%S")
 
-def runSystemCommand(command):
-    result = subprocess.run(command, shell=True, capture_output=True, text=True)
-    output = result.stdout  # Captured standard output
-    error = result.stderr  # Captured standard error
-    response = ""
-    response += f"# Output:\n{output}"
-    if error.strip():
-        response += f"\n# Error:\n{error}"
-    return response
+def getDeviceInfo(includeIp=True, isLite=False):
+    """Get device information"""
+    if isServerAlive("8.8.8.8", 53):
+        g = geocoder.ip('me')
+        location = f"""Latitude & longitude: {g.latlng}
+Country: {g.country}
+State: {g.state}
+City: {g.city}"""
+    else:
+        location = ""
+    if isServerAlive("8.8.8.8", 53) and includeIp:
+        wan_ip = get_wan_ip()
+        local_ip = get_local_ip()
+        ipInfo = f'''Wan ip: {wan_ip}
+Local ip: {local_ip}
+'''
+    else:
+        ipInfo = ""
+    if isLite:
+        dayOfWeek = ""
+    else:
+        dayOfWeek = pendulum.now().format('dddd')
+        dayOfWeek = f"Current day of the week: {dayOfWeek}"
+    user_os = "macOS" if platform.system() == "Darwin" else platform.system()
+    if user_os == "Linux":
+        user_os = "Linux (" + get_linux_distro().get("name", "") + ")"
+    return f"""Operating system: {user_os}
+Version: {platform.version()}
+Machine: {platform.machine()}
+Architecture: {platform.architecture()[0]}
+Processor: {platform.processor()}
+Hostname: {socket.gethostname()}
+Username: {getpass.getuser()}
+Python version: {platform.python_version()}
+Python implementation: {platform.python_implementation()}
+Current directory: {os.getcwd()}
+Current time: {str(datetime.datetime.now())}
+{dayOfWeek}
+{ipInfo}{location}"""
 
 def get_linux_distro():
     """

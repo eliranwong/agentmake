@@ -1,8 +1,16 @@
-import socket, webbrowser, shutil, re, requests, os, traceback
-from agentmake.utils.system import runSystemCommand
+import socket, webbrowser, shutil, re, requests, os, traceback, subprocess
 from bs4 import BeautifulSoup
 from urllib.parse import quote
 
+def runSystemCommand(command):
+    result = subprocess.run(command, shell=True, capture_output=True, text=True)
+    output = result.stdout  # Captured standard output
+    error = result.stderr  # Captured standard error
+    response = ""
+    response += f"# Output:\n{output}"
+    if error.strip():
+        response += f"\n# Error:\n{error}"
+    return response
 
 def showErrors(e=None, message=""):
     if message:

@@ -35,6 +35,10 @@ def save_memory(content: str, title: str, category: str, **kwargs):
     from pathlib import Path
     from agentmake import OllamaAI
     import os
+    from agentmake import OLLAMA_FOUND, OLLAMA_NOT_FOUND_MESSAGE
+    if not OLLAMA_FOUND:
+        print(OLLAMA_NOT_FOUND_MESSAGE)
+        return ""
     
     embedding_model = os.getenv("RAG_EMBEDDING_MODEL") if os.getenv("RAG_EMBEDDING_MODEL") else "paraphrase-multilingual"
     OllamaAI.downloadModel(embedding_model)

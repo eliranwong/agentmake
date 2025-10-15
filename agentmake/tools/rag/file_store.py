@@ -25,6 +25,10 @@ def search_file_store(question: str, list_of_files_or_folders: str, **kwargs):
     from agentmake import OllamaAI
     from pathlib import Path
     import os, json
+    from agentmake import OLLAMA_FOUND, OLLAMA_NOT_FOUND_MESSAGE
+    if not OLLAMA_FOUND:
+        print(OLLAMA_NOT_FOUND_MESSAGE)
+        return ""
 
     list_of_files_or_folders = getValidFileList(list_of_files_or_folders)
     # comment the following two lines to allow searching current file store

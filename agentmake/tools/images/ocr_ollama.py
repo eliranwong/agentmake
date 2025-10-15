@@ -19,6 +19,10 @@ def ocr_ollama(image_path_or_url: str="", **kwargs):
 
     from agentmake import extractText, OllamaAI
     import os
+    from agentmake import OLLAMA_FOUND, OLLAMA_NOT_FOUND_MESSAGE
+    if not OLLAMA_FOUND:
+        print(OLLAMA_NOT_FOUND_MESSAGE)
+        return ""
 
     if not image_path_or_url:
         return None

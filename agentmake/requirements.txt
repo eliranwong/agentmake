@@ -34,3 +34,6 @@ markdown
 python-docx
 edge-tts
 xonsh[full]
+geocoder
+pendulum
+pytz

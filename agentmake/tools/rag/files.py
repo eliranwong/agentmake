@@ -23,6 +23,10 @@ def search_files(question: str, list_of_files_or_folders: str, **kwargs):
     from agentmake.utils.rag import InMemoryVectorDatabase, build_rag_pipeline, rag_query, getValidFileList
     from agentmake import OllamaAI
     import json, os
+    from agentmake import OLLAMA_FOUND, OLLAMA_NOT_FOUND_MESSAGE
+    if not OLLAMA_FOUND:
+        print(OLLAMA_NOT_FOUND_MESSAGE)
+        return ""
 
     list_of_files_or_folders = getValidFileList(list_of_files_or_folders)
     if not list_of_files_or_folders:
@@ -51,7 +55,7 @@ TOOL_SCHEMA = {
             },
             "list_of_files_or_folders": {
                 "type": "string",
-                "description": """Return a list of file or folder paths. Return an empty string '' if there is no file or folder specified.""",
+                "description": """Return a list of file or folder paths, e.g. ['/path/folder1', '/path/folder2', '/path/file1', '/path/file2']. Return an empty string '' if there is no file or folder specified.""",
             },
         },
         "required": ["question", "list_of_files_or_folders"],
