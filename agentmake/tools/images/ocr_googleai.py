@@ -22,7 +22,7 @@ def ocr_ollama(image_path_or_url: str="", **kwargs):
 
     if not image_path_or_url:
         return None
-    GOOGLEAI_VISUAL_MODEL = os.getenv("GOOGLEAI_VISUAL_MODEL") if os.getenv("GOOGLEAI_VISUAL_MODEL") else "gemini-1.5-pro"
+    GOOGLEAI_VISUAL_MODEL = os.getenv("GOOGLEAI_VISUAL_MODEL") if os.getenv("GOOGLEAI_VISUAL_MODEL") else "gemini-2.5-pro"
     print(extractText(image_path_or_url, image_backend="googleai", llm_model=GOOGLEAI_VISUAL_MODEL))
     return ""
 

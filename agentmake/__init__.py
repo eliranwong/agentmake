@@ -1515,14 +1515,20 @@ def getOpenCommand():
         return "start"
     return "open"
 
-def extractText(item: Any, image_backend: str="", llm_model: str=""):
+def extractText(item: Any, image_backend: str=DEFAULT_AI_BACKEND, llm_model: str="") -> str:
     def getBackendClient(image_backend):
         if image_backend == "ollama":
             from openai import OpenAI
+            if not llm_model:
+                llm_model = os.getenv("OLLAMA_VISUAL_MODEL") if os.getenv("OLLAMA_VISUAL_MODEL") else "granite3.2-vision"
             return OpenAI(base_url=f"{OllamaAI.DEFAULT_ENDPOINT}/v1")
         elif image_backend == "googleai":
+            if not llm_model:
+                llm_model = os.getenv("GOOGLEAI_VISUAL_MODEL") if os.getenv("GOOGLEAI_VISUAL_MODEL") else "gemini-2.5-pro"
             return GoogleaiAI.getClient()
         elif image_backend == "xai":
+            if not llm_model:
+                llm_model = os.getenv("XAI_VISUAL_MODEL") if os.getenv("XAI_VISUAL_MODEL") else "grok-2-vision-latest"
             return XaiAI.getClient()
         elif image_backend == "openai":
             return OpenaiAI.getClient()

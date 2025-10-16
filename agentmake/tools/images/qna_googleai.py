@@ -37,7 +37,7 @@ def examine_images_googleai(query: str, image_filepath: Union[str, list], **kwar
         content.insert(0, {"type": "text", "text": query,})
 
         response = client.chat.completions.create(
-            model=os.getenv("GOOGLEAI_VISUAL_MODEL") if os.getenv("GOOGLEAI_VISUAL_MODEL") else "gemini-1.5-pro",
+            model=os.getenv("GOOGLEAI_VISUAL_MODEL") if os.getenv("GOOGLEAI_VISUAL_MODEL") else "gemini-2.5-pro",
             messages=[
                 {
                 "role": "user",

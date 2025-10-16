@@ -50,7 +50,7 @@ def examine_images_genai(query: str, image_filepath: Union[str, list], **kwargs)
         )
         history = [Content(role="user", parts=content)]
         genai_chat = client.chats.create(
-            model=os.getenv("VERTEXAI_MODEL") if os.getenv("VERTEXAI_MODEL") else "gemini-1.5-pro",
+            model=os.getenv("VERTEXAI_MODEL") if os.getenv("VERTEXAI_MODEL") else "gemini-2.5-pro",
             config=genai_config,
             history=history,
         )
