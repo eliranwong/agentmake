@@ -79,10 +79,10 @@ def teamwork(
         print(f"Saving plain record in '{plain_record_file}' ...")
         writeTextFile(plain_record_file, plain_record)
         print("Done!")
-        try:
-            os.system(f'''{DEFAULT_TEXT_EDITOR} "{plain_record_file}"''')
-        except Exception as e:
-            showErrors(e)
+        #try:
+        #    os.system(f'''{DEFAULT_TEXT_EDITOR} "{plain_record_file}"''')
+        #except Exception as e:
+        #    showErrors(e)
 
     # set initial message chain
     if isinstance(messages, str):

@@ -23,8 +23,8 @@ def create_map(code: str, **kwargs):
     if match:
         htmlFile = match.group(1)
         openCmd = getOpenCommand()
-        if shutil.which(openCmd):
-            os.system(f"{openCmd} {htmlFile}")
+        #if shutil.which(openCmd):
+        #    os.system(f"{openCmd} {htmlFile}")
         print(f"Saved: {htmlFile}")
     return ""
 
@@ -36,7 +36,7 @@ TOOL_SCHEMA = {
         "properties": {
             "code": {
                 "type": "string",
-                "description": "Generate python code that integrates packages 'folium' and 'geopy', when needed, to resolve my request. Created maps are saved in *.html file. Tell me the file path at the end.",
+                "description": "Generate python code that integrates packages 'folium' and 'geopy', when needed, to resolve my request. Created maps are saved in *.html file. Tell me the saved file path at the end of your response.",
             },
         },
         "required": ["code"],

@@ -2,7 +2,7 @@ from setuptools import setup
 import os, shutil
 
 package = "agentmake"
-version="1.1.24"
+version="1.1.27"
 
 # update version info
 info_file = os.path.join(package, "version.txt") # package readme
@@ -149,6 +149,7 @@ setup(
             f"ai={package}.main:main", # shortcut to `agentmake`
             f"aic={package}.main:chat", # shortcut to `agentmake -c`
             f"etextedit={package}.etextedit:main",
+            f"ete={package}.etextedit:main",
         ],
     },
     keywords="toolmate ai sdk adk anthropic azure chatgpt cohere deepseek genai github googleai groq llamacpp mistral ollama openai vertexai xai mesop",

@@ -21,20 +21,20 @@ def create_statistical_graphics(code: str, **kwargs):
     if match:
         openCmd = getOpenCommand()
         pngFile = match.group(1)
-        if shutil.which(openCmd):
-            os.system(f"{openCmd} {pngFile}")
+        #if shutil.which(openCmd):
+        #    os.system(f"{openCmd} {pngFile}")
         print(f"Saved: {pngFile}")
     return ""
 
 TOOL_SCHEMA = {
     "name": "create_statistical_graphics",
-    "description": f'''Create statistical plots, such as pie charts or bar charts, to visualize statistical data''',
+    "description": f'''Create statistical plots, such as pie charts / bar charts / line charts / scatter plots / heatmaps / histograms / boxplots / violin plots / radar charts / polar charts / contour plots / density plots / 3D plots, to visualize statistical data; instruction and data are required''',
     "parameters": {
         "type": "object",
         "properties": {
             "code": {
                 "type": "string",
-                "description": "Generate python code that integrates package matplotlib to resolve my input. Save the result in png format. Tell me the image path at the end.",
+                "description": "Generate python code that integrates package matplotlib to resolve my input. Save the result in png format. Tell me the save image path at the end at the end of your response.",
             },
         },
         "required": ["code"],

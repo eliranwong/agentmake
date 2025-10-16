@@ -15,10 +15,10 @@ def create_qrcode(url: str="", text: str="", **kwargs):
         openCmd = getOpenCommand()
         if shutil.which("termux-share"):
             os.system(f"termux-share {imageFile}")
-        elif shutil.which(openCmd):
-            cli = f"{openCmd} {imageFile}"
-            os.system(cli)
-            #subprocess.Popen(cli, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        #elif shutil.which(openCmd):
+        #    cli = f"{openCmd} {imageFile}"
+        #    os.system(cli)
+        #    #subprocess.Popen(cli, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         message = f"Image saved: {imageFile}"
         print(message)
 
