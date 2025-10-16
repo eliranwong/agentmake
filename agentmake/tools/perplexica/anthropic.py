@@ -4,8 +4,7 @@ def perplexica_anthropic(messages, **kwargs):
 
     from agentmake.utils.online import get_local_ip
     PERPLEXICA_HOST = os.getenv("PERPLEXICA_HOST") if os.getenv("PERPLEXICA_HOST") else f"http://{get_local_ip()}"
-    #PERPLEXICA_FRONTEND_PORT = int(os.getenv("PERPLEXICA_FRONTEND_PORT")) if os.getenv("PERPLEXICA_FRONTEND_PORT") else 3000
-    PERPLEXICA_BACKEND_PORT = int(os.getenv("PERPLEXICA_BACKEND_PORT")) if os.getenv("PERPLEXICA_BACKEND_PORT") else 3001
+    PERPLEXICA_PORT = int(os.getenv("PERPLEXICA_PORT")) if os.getenv("PERPLEXICA_PORT") else 3000
     PERPLEXICA_LOCAL_EMBEDDING = os.getenv("PERPLEXICA_LOCAL_EMBEDDING") if os.getenv("PERPLEXICA_LOCAL_EMBEDDING") else "xenova-bge-small-en-v1.5"
     PERPLEXICA_OPTIMIZATION_MODE = os.getenv("PERPLEXICA_OPTIMIZATION_MODE") if os.getenv("PERPLEXICA_OPTIMIZATION_MODE") else "speed"
     PERPLEXICA_FOCUS_MODE = os.getenv("PERPLEXICA_FOCUS_MODE") if os.getenv("PERPLEXICA_FOCUS_MODE") else "webSearch"
@@ -23,7 +22,7 @@ def perplexica_anthropic(messages, **kwargs):
             i["role"] = "human"
             history.append(i)
 
-    api_url = f"{PERPLEXICA_HOST}:{PERPLEXICA_BACKEND_PORT}/api/search" 
+    api_url = f"{PERPLEXICA_HOST}:{PERPLEXICA_PORT}/api/search" 
     headers = {"Content-Type": "application/json"}
     # references:
     # https://github.com/ItzCrazyKns/Perplexica/blob/master/docs/API/SEARCH.md
@@ -54,9 +53,7 @@ def perplexica_anthropic(messages, **kwargs):
         answer = response_json["message"]
         sources = response_json["sources"]
         
-        print("```answer")
-        print(answer)
-        print("```\n\n```sources")
+        print(f"{answer}\n\n```")
 
         for index, i in enumerate(sources):
             if "metadata" in i:
