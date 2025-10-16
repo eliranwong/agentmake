@@ -12,9 +12,9 @@ Supported backends: anthropic, azure, cohere, custom, deepseek, genai, github, g
 
 # Latest projects
 
-The following two projects are in active development. Both are powered by AgentMake AI:
+The following two projects are in active development. Both are powered by AgentMake AI and [AgentMake AI MCP Servers](https://github.com/eliranwong/agentmakemcp):
 
-[XoMate AI](https://github.com/eliranwong/xomate)
+[ComputeMate AI](https://github.com/eliranwong/computemate)
 
 [BibleMate AI](https://github.com/eliranwong/biblemate)
 
@@ -70,9 +70,9 @@ Windows, macOS, Linux, ChromeOS, Android via [Termux Terminal](https://github.co
 
 For simplicity, `agentmake` uses `ollama` as the default backend, if parameter `backend` is not specified. Ollama models are automatically downloaded if they have not already been downloaded. Users can change the default backend by modifying environment variable `DEFAULT_AI_BACKEND`.
 
-## Backends Comparison
+## Setup Examples
 
-In our latest AI agent project, [BibleMate AI](https://github.com/eliranwong/biblemate), we have tested some of the supported backends and videotaped them for comparison. Please refer to https://github.com/eliranwong/biblemate/blob/main/README.md#supported-backends for more information.
+https://github.com/eliranwong/agentmake/tree/main/docs
 
 # Introducing Agentic Components
 
