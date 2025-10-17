@@ -1093,7 +1093,7 @@ def main():
         parser = argparse.ArgumentParser(description="eTextEdit command line options")
         # Add arguments
         parser.add_argument("default", nargs="?", default=None, help="File path")
-        parser.add_argument('-p', '--paste', action='store', dest='paste', help="Set 'true' to paste clipboard text as initial text with -p flag")
+        parser.add_argument('-p', '--paste', action='store_true', dest='paste', help="Set 'true' to paste clipboard text as initial text with -p flag")
         # Parse arguments
         args = parser.parse_args()
 
@@ -1111,7 +1111,7 @@ def main():
         input_text = ""
         if not sys.stdin.isatty():
             input_text = sys.stdin.read()
-        if args.paste and args.paste.lower() == "true":
+        if args.paste:
             clipboardText = subprocess.run("termux-clipboard-get", shell=True, capture_output=True, text=True).stdout if shutil.which("termux-clipboard-get") else pyperclip.paste()
             input_text = f"{input_text}\n\n{clipboardText}" if input_text else clipboardText
 
