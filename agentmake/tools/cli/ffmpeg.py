@@ -8,8 +8,8 @@ TOOL_SYSTEM = f"""You are a senior Python engineer and an `ffmpeg` expert. Your 
 The generated code should conclude with a `print` statement that describes the work performed."""
 
 TOOL_SCHEMA = {
-    "name": "process_media_files",
-    "description": "Process / edit / convert media files, such as videos or audio",
+    "name": "cli_ffmpeg",
+    "description": "Process, edit, or convert media files—such as videos or audio—that can be handled using the `ffmpeg` command.",
     "parameters": {
         "type": "object",
         "properties": {
@@ -26,10 +26,14 @@ TOOL_SCHEMA = {
     },
 }
 
-def process_media_files(code: str, title: str, **kwargs):
+def cli_ffmpeg(code: str, title: str, **kwargs):
     from agentmake import DEVELOPER_MODE
     from agentmake.utils.handle_python_code import fineTunePythonCode
-    import traceback
+    import traceback, shutil
+
+    if not shutil.which("ffmpeg"):
+        print("Required command `ffmpeg` not found! Visit https://www.ffmpeg.org/ for installation.")
+        return ""
 
     print(f"# Task: {title}")
     print()
@@ -50,4 +54,4 @@ def process_media_files(code: str, title: str, **kwargs):
 
     return ""
 
-TOOL_FUNCTION = process_media_files
+TOOL_FUNCTION = cli_ffmpeg

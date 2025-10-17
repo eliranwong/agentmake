@@ -569,8 +569,8 @@ def _(event):
 # Handlers for menu items.
 #
 
-def do_save_file():
-    if ApplicationState.exit_without_saving:
+def do_save_file(force_save=False):
+    if ApplicationState.exit_without_saving and not force_save:
         get_app().exit()
     else:
         if ApplicationState.current_path:
@@ -596,7 +596,7 @@ def do_save_as_file():
         ApplicationState.current_path = path
 
         if path is not None:
-            do_save_file()
+            do_save_file(force_save=True)
 
     ensure_future(coroutine())
 
@@ -849,6 +849,24 @@ def do_select_all(event=None):
 def do_status_bar():
     ApplicationState.show_status_bar = not ApplicationState.show_status_bar
 
+def do_export_md():
+    async def coroutine():
+        save_dialog = TextInputDialog(
+            title="Export to Markdown",
+            label_text="Enter the path of the exported file:",
+            completer=PathCompleter(),
+        )
+
+        path = await show_dialog_as_float(save_dialog)
+
+        if path is not None:
+            if path.endswith(".md"):
+                path = path[:-3]
+            with open(f"{path}.md", "w", encoding="utf-8") as fileObj:
+                fileObj.write(text_field.text)
+
+    ensure_future(coroutine())
+
 def do_export_docx():
     async def coroutine():
         save_dialog = TextInputDialog(
@@ -893,17 +911,19 @@ file_items = [
     MenuItem("[S] Save", handler=do_save_file),
     MenuItem("[W] Save as", handler=do_save_as_file),
     MenuItem("-", disabled=True),
+    MenuItem("Export to Markdown", handler=do_export_md),
+    MenuItem("-", disabled=True),
     MenuItem("[P] Print", handler=do_print),
     MenuItem("-", disabled=True),
     MenuItem("[Q] Exit", handler=do_exit),
 ]
 # Enable pandoc related features if pandoc is installed
 if shutil.which("pandoc"):
-    file_items.insert(4, MenuItem("Export to DOCX", handler=do_export_docx))
+    file_items.insert(6, MenuItem("Export to DOCX", handler=do_export_docx))
 # pdflatex is required to export to PDF
 # Install, e.g. sudo apt install texlive-full
 if shutil.which("pandoc") and shutil.which("pdflatex"):
-    file_items.insert(4, MenuItem("Export to PDF", handler=do_export_pdf))
+    file_items.insert(6, MenuItem("Export to PDF", handler=do_export_pdf))
 
 plugins = [
     MenuItem("Toggle Auto Agent", handler=do_toggle_auto_agent),
@@ -1070,7 +1090,7 @@ def main():
     if len(sys.argv) > 1:
 
         # Create the parser
-        parser = argparse.ArgumentParser(description="LetMeDoIt AI cli options")
+        parser = argparse.ArgumentParser(description="eTextEdit command line options")
         # Add arguments
         parser.add_argument("default", nargs="?", default=None, help="File path")
         parser.add_argument('-p', '--paste', action='store', dest='paste', help="Set 'true' to paste clipboard text as initial text with -p flag")
