@@ -1094,6 +1094,8 @@ def main():
         # Add arguments
         parser.add_argument("default", nargs="?", default=None, help="File path")
         parser.add_argument('-p', '--paste', action='store_true', dest='paste', help="Set 'true' to paste clipboard text as initial text with -p flag")
+        parser.add_argument('-x', '--xsel', action='store_true', dest='xsel', help="Set 'true' to obtain text selection via `xsel` command with -x flag")
+        
         # Parse arguments
         args = parser.parse_args()
 
@@ -1111,9 +1113,12 @@ def main():
         input_text = ""
         if not sys.stdin.isatty():
             input_text = sys.stdin.read()
+        if args.xsel:
+            xsel = subprocess.run("""echo "$(xsel -o)" | sed 's/"/\"/g'""", shell=True, capture_output=True, text=True).stdout if shutil.which("xsel") else ""
+            input_text += f"\n\n```selection\n{xsel}\n```"
         if args.paste:
             clipboardText = subprocess.run("termux-clipboard-get", shell=True, capture_output=True, text=True).stdout if shutil.which("termux-clipboard-get") else pyperclip.paste()
-            input_text = f"{input_text}\n\n{clipboardText}" if input_text else clipboardText
+            input_text += f"\n\n```clipboard\n{clipboardText}\n```"
 
         try:
             if filename and input_text:
