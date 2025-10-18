@@ -6,7 +6,8 @@ TOOL_PLATFORM = TOOL_PLATFORM.replace("()", "")
 
 TOOL_SYSTEM = f"""You are a senior python engineer. Your expertise lies in generating python code that works on {TOOL_PLATFORM}, to resolve my request.
 Remember, you should format the answer or requested information, if any, into a string that is easily readable by humans.
-Use the 'print' function in the last line of your generated code to display the requested information."""
+The generated code should conclude with a `print` statement that presents the requested information or describes the work performed.
+I want the generated code to be executed directly, so do NOT use `if __name__ == "__main__":` in your code."""
 
 TOOL_SCHEMA = {
     "name": "execute_task",
