@@ -96,9 +96,9 @@ def readStreamingChunks(
         streaming_thread = threading.Thread(target=text_wrapper.streamOutputs, args=(streaming_event, completion, openai_style, print_on_terminal))
         # Start the streaming thread
         streaming_thread.start()
-        # wait while text output is steaming; capture key combo 'ctrl+q' or 'ctrl+z' to stop the streaming
+        # wait while text output is steaming; capture key combo 'ctrl+q' or 'ctrl+c' to stop the streaming
         text_wrapper.keyToStopStreaming(streaming_event)
-        # when streaming is done or when user press "ctrl+q"
+        # when streaming is done or when user press "ctrl+q" or "ctrl+c"
         streaming_thread.join()
     except:
         print(traceback.format_exc())

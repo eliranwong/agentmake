@@ -2,7 +2,7 @@ from setuptools import setup
 import os, shutil
 
 package = "agentmake"
-version="1.1.37"
+version="1.1.45"
 
 # update version info
 info_file = os.path.join(package, "version.txt") # package readme
@@ -81,6 +81,7 @@ setup(
         f"{package}.tools.tts",
         f"{package}.tools.uba",
         f"{package}.tools.biblemate",
+        f"{package}.tools.computemate",
         f"{package}.tools.youtube",
         f"{package}.utils",
         f"{package}.temp",
@@ -131,6 +132,7 @@ setup(
         f"{package}.tools.tts": ["*.*"],
         f"{package}.tools.uba": ["*.*"],
         f"{package}.tools.biblemate": ["*.*"],
+        f"{package}.tools.computemate": ["*.*"],
         f"{package}.tools.youtube": ["*.*"],
         f"{package}.utils": ["*.*"],
         f"{package}.temp": ["*.*"],

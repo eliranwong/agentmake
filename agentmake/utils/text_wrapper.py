@@ -69,7 +69,7 @@ class TextWrapper:
                 nonlocal done
                 for key_press in input.read_keys():
                     #print(key_press)
-                    if key_press.key in (Keys.ControlQ, Keys.ControlZ):
+                    if key_press.key in (Keys.ControlQ, Keys.ControlC):
                         print("\n")
                         done = True
                         streaming_event.set()

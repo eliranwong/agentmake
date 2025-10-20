@@ -57,6 +57,8 @@ def main(keep_chat_record=False):
     parser.add_argument("-show", "--show_conversation", action="store_true", dest="show_conversation", help="show conversation")
     parser.add_argument("-edit", "--edit_conversation", action="store_true", dest="edit_conversation", help="edit conversation")
     parser.add_argument("-trim", "--trim_conversation", action="store_true", dest="trim_conversation", help="trim conversation")
+    # text selection
+    parser.add_argument("-x", "--xsel", action="store_true", dest="xsel", help="use `xsel` command to obtain text selection")
     # clipboard
     parser.add_argument("-pa", "--paste", action="store_true", dest="paste", help="paste the clipboard text as a suffix to the user prompt")
     parser.add_argument("-py", "--copy", action="store_true", dest="copy", help="copy assistant response to the clipboard")
@@ -156,7 +158,7 @@ def main(keep_chat_record=False):
 
     # interactive mode
     if args.interactive:
-        instruction = selectInstruction(args.paste)
+        instruction = selectInstruction()
         if instruction:
             args.default.insert(0, instruction)
             if instruction.startswith("Rewrite the following content in markdown format"):
@@ -284,14 +286,16 @@ def main(keep_chat_record=False):
     user_prompt = " ".join(args.default) if args.default is not None else ""
     stdin_text = sys.stdin.read() if not sys.stdin.isatty() else ""
     if stdin_text:
-        stdin_text = f"\n\n{stdin_text.strip()}"
+        user_prompt += f"\n\n{stdin_text.strip()}"
+    if args.xsel:
+        xsel = xsel = subprocess.run("""echo "$(xsel -o)" | sed 's/"/\"/g'""", shell=True, capture_output=True, text=True).stdout if shutil.which("xsel") else ""
+        if xsel:
+            user_prompt += f"\n\n{xsel.strip()}"
     if args.paste:
         clipboardText = getCliOutput("termux-clipboard-get") if shutil.which("termux-clipboard-get") else pyperclip.paste()
-    else:
-        clipboardText = ""
-    if clipboardText:
-        clipboardText = f"\n\n{clipboardText.strip()}"
-    user_prompt = user_prompt + stdin_text + clipboardText
+        if clipboardText:
+            user_prompt += f"\n\n{clipboardText.strip()}"
+    user_prompt = user_prompt.strip()
     # edit with text editor
     if args.edit_input and text_editor:
         if text_editor == "etextedit":
@@ -512,11 +516,9 @@ def saveMessages():
         chatFile = os.path.join(folderPath, f"{timestamp}.chat")
         writeTextFile(chatFile, pformat(config.messages))
 
-def selectInstruction(paste_enabled=False):
+def selectInstruction():
     import subprocess
     from prompt_toolkit.shortcuts import radiolist_dialog
-    
-    input_text = subprocess.run("""echo "$(xsel -o)" | sed 's/"/\"/g'""", shell=True, capture_output=True, text=True).stdout if shutil.which("xsel") and not paste_enabled else ""
 
     # support custom menu
     custom_instructions = os.path.join(AGENTMAKE_USER_DIR, "menu.py")
@@ -567,7 +569,6 @@ def selectInstruction(paste_enabled=False):
             if not language:
                 language = "English"
             instruction = instruction + language + ". Provide me with the traslation ONLY, without extra comments and explanations."
-        instruction += input_text
         return instruction + "\n\n" if instruction else ""
     return ""
 

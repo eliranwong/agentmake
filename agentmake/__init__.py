@@ -362,163 +362,188 @@ def agentmake(
         or:
             streaming events object of AI assistant response when both parameters `stream` and `stream_events_only` are set to `True`
     """
-    if not backend:
-        backend = DEFAULT_AI_BACKEND
-    if backend not in SUPPORTED_AI_BACKENDS:
-        raise ValueError(f"Backend {backend} is not supported. Supported backends are {SUPPORTED_AI_BACKENDS}")
-    # placeholders
-    original_system = ""
-    chat_system = ""
-    # deep copy messages to avoid modifying the original one
-    messages_copy = deepcopy(messages) if isinstance(messages, list) else [{"role": "system", "content": DEFAULT_SYSTEM_MESSAGE}, {"role": "user", "content": messages}]
-    # convert follow-up-prompt to a list if it is given as a string
-    if follow_up_prompt and isinstance(follow_up_prompt, str):
-        follow_up_prompt = [follow_up_prompt]
-    elif not follow_up_prompt:
-        follow_up_prompt = []
-    # ensure user message is placed in the last item in the message list
-    if messages_copy[-1].get("role", "") == "user":
-        user_input = messages_copy[-1].get("content", "")
-    else:
-        user_input = follow_up_prompt.pop(0) if follow_up_prompt else DEFAULT_FOLLOW_UP_PROMPT
-        messages_copy.append({"role": "user", "content": user_input})
-    # echo the last assistant response if no user input is given
-    if not user_input and len(messages_copy) > 1 and messages_copy[-2].get("role", "") == "assistant":
-        messages_copy[-1]["content"] = messages_copy[-2].get("content", "")
-    # handle user input content plugin(s)
-    if input_content_plugin:
-        if isinstance(input_content_plugin, str):
-            input_content_plugin = [input_content_plugin]
-        for input_content_plugin_object in input_content_plugin:
-            input_content_plugin_func = None
-            input_content_plugin_name = input_content_plugin_object[:20]
+    try:
+        if not backend:
+            backend = DEFAULT_AI_BACKEND
+        if backend not in SUPPORTED_AI_BACKENDS:
+            raise ValueError(f"Backend {backend} is not supported. Supported backends are {SUPPORTED_AI_BACKENDS}")
+        # placeholders
+        original_system = ""
+        chat_system = ""
+        # deep copy messages to avoid modifying the original one
+        messages_copy = deepcopy(messages) if isinstance(messages, list) else [{"role": "system", "content": DEFAULT_SYSTEM_MESSAGE}, {"role": "user", "content": messages}]
+        # convert follow-up-prompt to a list if it is given as a string
+        if follow_up_prompt and isinstance(follow_up_prompt, str):
+            follow_up_prompt = [follow_up_prompt]
+        elif not follow_up_prompt:
+            follow_up_prompt = []
+        # ensure user message is placed in the last item in the message list
+        if messages_copy[-1].get("role", "") == "user":
+            user_input = messages_copy[-1].get("content", "")
+        else:
+            user_input = follow_up_prompt.pop(0) if follow_up_prompt else DEFAULT_FOLLOW_UP_PROMPT
+            messages_copy.append({"role": "user", "content": user_input})
+        # echo the last assistant response if no user input is given
+        if not user_input and len(messages_copy) > 1 and messages_copy[-2].get("role", "") == "assistant":
+            messages_copy[-1]["content"] = messages_copy[-2].get("content", "")
+        # handle user input content plugin(s)
+        if input_content_plugin:
+            if isinstance(input_content_plugin, str):
+                input_content_plugin = [input_content_plugin]
+            for input_content_plugin_object in input_content_plugin:
+                input_content_plugin_func = None
+                input_content_plugin_name = input_content_plugin_object[:20]
 
+                # check if it is a predefined plugin message built-in with this SDK
+                if USER_OS == "Windows":
+                    input_content_plugin_object = os.path.join(*input_content_plugin_object.split("/"))
+                possible_input_content_plugin_file_path_2 = os.path.join(PACKAGE_PATH, "plugins", f"{input_content_plugin_object}.py")
+                possible_input_content_plugin_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "plugins", f"{input_content_plugin_object}.py")
+                if input_content_plugin_object is None:
+                    pass
+                elif os.path.isfile(possible_input_content_plugin_file_path_1):
+                    input_content_plugin_file_content = readTextFile(possible_input_content_plugin_file_path_1)
+                    if input_content_plugin_file_content:
+                        input_content_plugin_object = input_content_plugin_file_content
+                elif os.path.isfile(possible_input_content_plugin_file_path_2):
+                    input_content_plugin_file_content = readTextFile(possible_input_content_plugin_file_path_2)
+                    if input_content_plugin_file_content:
+                        input_content_plugin_object = input_content_plugin_file_content
+                elif os.path.isfile(input_content_plugin_object): # input_content_plugin_object itself is a valid filepath
+                    input_content_plugin_file_content = readTextFile(input_content_plugin_object)
+                    if input_content_plugin_file_content:
+                        input_content_plugin_object = input_content_plugin_file_content
+                if input_content_plugin_object:
+                    glob = {}
+                    loc = {}
+                    try:
+                        exec(input_content_plugin_object, glob, loc)
+                        input_content_plugin_func = loc.get("CONTENT_PLUGIN")
+                    except Exception as e:
+                        print(f"Failed to execute input content plugin `{input_content_plugin_name}`! An error occurred: {e}")
+                        if DEVELOPER_MODE:
+                            print(traceback.format_exc())
+                # run user input content plugin
+                if input_content_plugin_func:
+                    if user_input := messages_copy[-1].get("content", ""):
+                        messages_copy[-1]["content"] = input_content_plugin_func(
+                            user_input,
+                            backend=backend,
+                            model=model,
+                            model_keep_alive=model_keep_alive,
+                            temperature=temperature,
+                            max_tokens=max_tokens,
+                            context_window=context_window,
+                            batch_size=batch_size,
+                            prefill=prefill,
+                            stop=stop,
+                            stream=stream,
+                            api_key=api_key,
+                            api_project_id=api_project_id,
+                            api_service_location=api_service_location,
+                            api_timeout=api_timeout,
+                            print_on_terminal=print_on_terminal,
+                            word_wrap=word_wrap,
+                            **kwargs,
+                        )
+        # handle agent(s)
+        agent_response = None
+        agent_func = None
+        if agent:
+            if isinstance(agent, list):
+                agent_object = agent.pop(0)
+            else: # a string instead
+                agent_object = agent
+                agent = []
+            agent_name = agent_object[:20]
             # check if it is a predefined plugin message built-in with this SDK
             if USER_OS == "Windows":
-                input_content_plugin_object = os.path.join(*input_content_plugin_object.split("/"))
-            possible_input_content_plugin_file_path_2 = os.path.join(PACKAGE_PATH, "plugins", f"{input_content_plugin_object}.py")
-            possible_input_content_plugin_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "plugins", f"{input_content_plugin_object}.py")
-            if input_content_plugin_object is None:
+                agent_object = os.path.join(*agent_object.split("/"))
+            possible_agent_file_path_2 = os.path.join(PACKAGE_PATH, "agents", f"{agent_object}.py")
+            possible_agent_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "agents", f"{agent_object}.py")
+            if agent_object is None:
                 pass
-            elif os.path.isfile(possible_input_content_plugin_file_path_1):
-                input_content_plugin_file_content = readTextFile(possible_input_content_plugin_file_path_1)
-                if input_content_plugin_file_content:
-                    input_content_plugin_object = input_content_plugin_file_content
-            elif os.path.isfile(possible_input_content_plugin_file_path_2):
-                input_content_plugin_file_content = readTextFile(possible_input_content_plugin_file_path_2)
-                if input_content_plugin_file_content:
-                    input_content_plugin_object = input_content_plugin_file_content
-            elif os.path.isfile(input_content_plugin_object): # input_content_plugin_object itself is a valid filepath
-                input_content_plugin_file_content = readTextFile(input_content_plugin_object)
-                if input_content_plugin_file_content:
-                    input_content_plugin_object = input_content_plugin_file_content
-            if input_content_plugin_object:
+            elif os.path.isfile(possible_agent_file_path_1):
+                agent_file_content = readTextFile(possible_agent_file_path_1)
+                if agent_file_content:
+                    agent_object = agent_file_content
+            elif os.path.isfile(possible_agent_file_path_2):
+                agent_file_content = readTextFile(possible_agent_file_path_2)
+                if agent_file_content:
+                    agent_object = agent_file_content
+            elif os.path.isfile(agent_object): # agent_object itself is a valid filepath
+                agent_file_content = readTextFile(agent_object)
+                if agent_file_content:
+                    agent_object = agent_file_content
+            if agent_object:
                 glob = {}
                 loc = {}
                 try:
-                    exec(input_content_plugin_object, glob, loc)
-                    input_content_plugin_func = loc.get("CONTENT_PLUGIN")
+                    exec(agent_object, glob, loc)
+                    agent_func = loc.get("AGENT_FUNCTION")
                 except Exception as e:
-                    print(f"Failed to execute input content plugin `{input_content_plugin_name}`! An error occurred: {e}")
+                    print(f"Failed to run agent `{agent_name}`! An error occurred: {e}")
                     if DEVELOPER_MODE:
                         print(traceback.format_exc())
             # run user input content plugin
-            if input_content_plugin_func:
-                if user_input := messages_copy[-1].get("content", ""):
-                    messages_copy[-1]["content"] = input_content_plugin_func(
-                        user_input,
-                        backend=backend,
-                        model=model,
-                        model_keep_alive=model_keep_alive,
-                        temperature=temperature,
-                        max_tokens=max_tokens,
-                        context_window=context_window,
-                        batch_size=batch_size,
-                        prefill=prefill,
-                        stop=stop,
-                        stream=stream,
-                        api_key=api_key,
-                        api_project_id=api_project_id,
-                        api_service_location=api_service_location,
-                        api_timeout=api_timeout,
-                        print_on_terminal=print_on_terminal,
-                        word_wrap=word_wrap,
-                        **kwargs,
-                    )
-    # handle agent(s)
-    agent_response = None
-    agent_func = None
-    if agent:
-        if isinstance(agent, list):
-            agent_object = agent.pop(0)
-        else: # a string instead
-            agent_object = agent
-            agent = []
-        agent_name = agent_object[:20]
-        # check if it is a predefined plugin message built-in with this SDK
-        if USER_OS == "Windows":
-            agent_object = os.path.join(*agent_object.split("/"))
-        possible_agent_file_path_2 = os.path.join(PACKAGE_PATH, "agents", f"{agent_object}.py")
-        possible_agent_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "agents", f"{agent_object}.py")
-        if agent_object is None:
-            pass
-        elif os.path.isfile(possible_agent_file_path_1):
-            agent_file_content = readTextFile(possible_agent_file_path_1)
-            if agent_file_content:
-                agent_object = agent_file_content
-        elif os.path.isfile(possible_agent_file_path_2):
-            agent_file_content = readTextFile(possible_agent_file_path_2)
-            if agent_file_content:
-                agent_object = agent_file_content
-        elif os.path.isfile(agent_object): # agent_object itself is a valid filepath
-            agent_file_content = readTextFile(agent_object)
-            if agent_file_content:
-                agent_object = agent_file_content
-        if agent_object:
-            glob = {}
-            loc = {}
-            try:
-                exec(agent_object, glob, loc)
-                agent_func = loc.get("AGENT_FUNCTION")
-            except Exception as e:
-                print(f"Failed to run agent `{agent_name}`! An error occurred: {e}")
-                if DEVELOPER_MODE:
-                    print(traceback.format_exc())
-        # run user input content plugin
-        if agent_func:
-            agent_response = agent_func(
-                messages_copy,
-                backend=backend,
-                model=model,
-                model_keep_alive=model_keep_alive,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                context_window=context_window,
-                batch_size=batch_size,
-                stream=stream,
-                stream_events_only=stream_events_only,
-                api_key=api_key,
-                api_endpoint=api_endpoint,
-                api_project_id=api_project_id,
-                api_service_location=api_service_location,
-                api_timeout=api_timeout,
-                print_on_terminal=print_on_terminal,
-                word_wrap=word_wrap,
-                **kwargs,
-            )
-    # handle given system message(s)
-    if system and not agent_response:
-        if isinstance(system, list):
-            system_instruction = system.pop(0)
-        else: # a string instead
-            system_instruction = system
-            system = []
-        if system_instruction is None:
-            pass
-        else:
+            if agent_func:
+                agent_response = agent_func(
+                    messages_copy,
+                    backend=backend,
+                    model=model,
+                    model_keep_alive=model_keep_alive,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    context_window=context_window,
+                    batch_size=batch_size,
+                    stream=stream,
+                    stream_events_only=stream_events_only,
+                    api_key=api_key,
+                    api_endpoint=api_endpoint,
+                    api_project_id=api_project_id,
+                    api_service_location=api_service_location,
+                    api_timeout=api_timeout,
+                    print_on_terminal=print_on_terminal,
+                    word_wrap=word_wrap,
+                    **kwargs,
+                )
+        # handle given system message(s)
+        if system and not agent_response:
+            if isinstance(system, list):
+                system_instruction = system.pop(0)
+            else: # a string instead
+                system_instruction = system
+                system = []
+            if system_instruction is None:
+                pass
+            else:
+                user_prompt = messages_copy[-1].get("content", "")
+                system_instruction = refine_system_instruction(
+                    system_instruction,
+                    user_prompt=user_prompt,
+                    backend=backend,
+                    model=model,
+                    model_keep_alive=model_keep_alive,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    context_window=context_window,
+                    batch_size=batch_size,
+                    stream=stream,
+                    api_key=api_key,
+                    api_endpoint=api_endpoint,
+                    api_project_id=api_project_id,
+                    api_service_location=api_service_location,
+                    api_timeout=api_timeout,
+                    print_on_terminal=print_on_terminal,
+                    word_wrap=word_wrap,
+                    **kwargs
+                )
+            if system_instruction:
+                original_system = updateSystemMessage(messages_copy, system_instruction)
+        elif not system and not agent_response and DEFAULT_SYSTEM_MESSAGE:
             user_prompt = messages_copy[-1].get("content", "")
             system_instruction = refine_system_instruction(
-                system_instruction,
+                DEFAULT_SYSTEM_MESSAGE,
                 user_prompt=user_prompt,
                 backend=backend,
                 model=model,
@@ -537,407 +562,113 @@ def agentmake(
                 word_wrap=word_wrap,
                 **kwargs
             )
-        if system_instruction:
-            original_system = updateSystemMessage(messages_copy, system_instruction)
-    elif not system and not agent_response and DEFAULT_SYSTEM_MESSAGE:
-        user_prompt = messages_copy[-1].get("content", "")
-        system_instruction = refine_system_instruction(
-            DEFAULT_SYSTEM_MESSAGE,
-            user_prompt=user_prompt,
-            backend=backend,
-            model=model,
-            model_keep_alive=model_keep_alive,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            context_window=context_window,
-            batch_size=batch_size,
-            stream=stream,
-            api_key=api_key,
-            api_endpoint=api_endpoint,
-            api_project_id=api_project_id,
-            api_service_location=api_service_location,
-            api_timeout=api_timeout,
-            print_on_terminal=print_on_terminal,
-            word_wrap=word_wrap,
-            **kwargs
-        )
-        if system_instruction:
-            original_system = updateSystemMessage(messages_copy, system_instruction)
-    # handle given predefined instruction(s)
-    if instruction and not agent_response:
-        if isinstance(instruction, list):
-            instruction_content = instruction.pop(0)
-        else: # a string instead
-            instruction_content = instruction
-            instruction = []
-        # check if it is a predefined instruction built-in with this SDK
-        if USER_OS == "Windows":
-            instruction_content = os.path.join(*instruction_content.split("/"))
-        possible_instruction_file_path_2 = os.path.join(PACKAGE_PATH, "instructions", f"{instruction_content}.md")
-        possible_instruction_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "instructions", f"{instruction_content}.md")
-        if instruction_content is None:
-            pass
-        elif isFabricPattern(instruction_content): # fabric integration
-            instruction_content = getFabricPatternSystem(instruction_content[7:], instruction=True)
-        elif os.path.isfile(possible_instruction_file_path_1):
-            instruction_file_content = readTextFile(possible_instruction_file_path_1)
-            if instruction_file_content:
-                instruction_content = instruction_file_content
-        elif os.path.isfile(possible_instruction_file_path_2):
-            instruction_file_content = readTextFile(possible_instruction_file_path_2)
-            if instruction_file_content:
-                instruction_content = instruction_file_content
-        elif os.path.isfile(instruction_content): # instruction_content itself is a valid filepath
-            instruction_file_content = readTextFile(instruction_content)
-            if instruction_file_content:
-                instruction_content = instruction_file_content
-        if instruction_content:
-            messages_copy[-1]["content"] = instruction_content + "\n" + messages_copy[-1]["content"]
-    # handle given prefill(s)
-    if prefill and not agent_response:
-        if isinstance(prefill, list):
-            prefill_content = prefill.pop(0)
-        else: # a string instead
-            prefill_content = prefill
-            prefill = None
-    else:
-        prefill_content = None
-    # handle given tools
-    if tool and not agent_response:
-        if isinstance(tool, list):
-            tool_object = tool.pop(0)
-        else: # a string instead
-            tool_object = tool
-            tool = []
-        tool_name = tool_object[:20]
-        # check if it is a predefined tool built-in with this SDK
-        if USER_OS == "Windows":
-            tool_object = os.path.join(*tool_object.split("/"))
-        possible_tool_file_path_2 = os.path.join(PACKAGE_PATH, "tools", f"{tool_object}.py")
-        possible_tool_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "tools", f"{tool_object}.py")
-        if tool_object is None:
-            pass
-        elif os.path.isfile(possible_tool_file_path_1):
-            tool_file_content = readTextFile(possible_tool_file_path_1)
-            if tool_file_content:
-                tool_object = tool_file_content
-        elif os.path.isfile(possible_tool_file_path_2):
-            tool_file_content = readTextFile(possible_tool_file_path_2)
-            if tool_file_content:
-                tool_object = tool_file_content
-        elif os.path.isfile(tool_object): # tool_object itself is a valid filepath
-            tool_file_content = readTextFile(tool_object)
-            if tool_file_content:
-                tool_object = tool_file_content
-        if tool_object:
-            glob = {}
-            loc = {}
-            try:
-                exec(tool_object, glob, loc)
-                schema = loc.get("TOOL_SCHEMA")
-                try:
-                    func = loc.get("TOOL_FUNCTION")
-                except:
-                    # TOOL_FUNCTION is optional
-                    pass
-                try:
-                    tool_system = loc.get("TOOL_SYSTEM")
-                except:
-                    tool_system = getDefaultToolSystem(schema)
-                if tool_system:
-                    chat_system = updateSystemMessage(messages_copy, tool_system)
-            except Exception as e:
-                print(f"Failed to execute tool `{tool_name}`! An error occurred: {e}")
-                if DEVELOPER_MODE:
-                    print(traceback.format_exc())
-
-    # check if it is last request
-    is_last_request = True if not follow_up_prompt and not system and not instruction and not tool and not agent and not prefill else False
-
-    # deep copy schema avoid modifying the original one
-    schemaCopy = None if schema is None else deepcopy(schema)
-    # run AI
-    if agent_response is not None:
-        if stream and stream_events_only and is_last_request:
-            return agent_response
+            if system_instruction:
+                original_system = updateSystemMessage(messages_copy, system_instruction)
+        # handle given predefined instruction(s)
+        if instruction and not agent_response:
+            if isinstance(instruction, list):
+                instruction_content = instruction.pop(0)
+            else: # a string instead
+                instruction_content = instruction
+                instruction = []
+            # check if it is a predefined instruction built-in with this SDK
+            if USER_OS == "Windows":
+                instruction_content = os.path.join(*instruction_content.split("/"))
+            possible_instruction_file_path_2 = os.path.join(PACKAGE_PATH, "instructions", f"{instruction_content}.md")
+            possible_instruction_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "instructions", f"{instruction_content}.md")
+            if instruction_content is None:
+                pass
+            elif isFabricPattern(instruction_content): # fabric integration
+                instruction_content = getFabricPatternSystem(instruction_content[7:], instruction=True)
+            elif os.path.isfile(possible_instruction_file_path_1):
+                instruction_file_content = readTextFile(possible_instruction_file_path_1)
+                if instruction_file_content:
+                    instruction_content = instruction_file_content
+            elif os.path.isfile(possible_instruction_file_path_2):
+                instruction_file_content = readTextFile(possible_instruction_file_path_2)
+                if instruction_file_content:
+                    instruction_content = instruction_file_content
+            elif os.path.isfile(instruction_content): # instruction_content itself is a valid filepath
+                instruction_file_content = readTextFile(instruction_content)
+                if instruction_file_content:
+                    instruction_content = instruction_file_content
+            if instruction_content:
+                messages_copy[-1]["content"] = instruction_content + "\n" + messages_copy[-1]["content"]
+        # handle given prefill(s)
+        if prefill and not agent_response:
+            if isinstance(prefill, list):
+                prefill_content = prefill.pop(0)
+            else: # a string instead
+                prefill_content = prefill
+                prefill = None
         else:
-            messages_copy = agent_response
-            output = agent_response[-1].get("content", "")
-    elif schemaCopy is not None: # structured output or function calling; allow schema to be an empty dict
-        dictionary_output = {"messages": messages_copy} if not schemaCopy else getDictionaryOutput(
-            messages_copy,
-            schemaCopy,
-            backend,
-            model=model,
-            model_keep_alive=model_keep_alive,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            context_window=context_window,
-            batch_size=batch_size,
-            prefill=prefill_content,
-            stop=stop,
-            api_key=api_key,
-            api_endpoint=api_endpoint,
-            api_project_id=api_project_id,
-            api_service_location=api_service_location,
-            api_timeout=api_timeout,
-            **kwargs
-        )
-        if chat_system:
-            updateSystemMessage(messages_copy, chat_system)
-            chat_system = ""
-        if func:
-            # Create a StringIO object to capture the output
-            terminal_output = StringIO()
-            # Redirect stdout to the StringIO object
-            old_stdout = sys.stdout
-            sys.stdout = terminal_output
-            # placeholder for function text output
-            function_text_output = ""
-            try:
-                # execute the function
-                function_response = func() if not dictionary_output else func(
-                    **dictionary_output,
-                    backend=backend,
-                    model=model,
-                    model_keep_alive=model_keep_alive,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    context_window=context_window,
-                    batch_size=batch_size,
-                    prefill=prefill,
-                    stop=stop,
-                    stream=stream,
-                    api_key=api_key,
-                    api_project_id=api_project_id,
-                    api_service_location=api_service_location,
-                    api_timeout=api_timeout,
-                    print_on_terminal=print_on_terminal,
-                    word_wrap=word_wrap,
-                    **kwargs,
-                ) # returned response can be either 1) an empty string: no chat extension 2) a non-empty string: chat extension 3) none: errors encountered in executing the function
-                function_text_output = terminal_output.getvalue().replace("```output\n```\n", "Done!") # capture the function text output for function calling without chat extension
-                # Restore the original stdout
-                sys.stdout = old_stdout
-            except Exception as e:
-                sys.stdout = old_stdout
-                print("```error")
-                function_name = re.sub("<function (.*?) .*?$", r"\1", str(func))
-                print(f"Failed to run tool function `{function_name}`! An error occurred: {e}")
-                if DEVELOPER_MODE:
-                    print(traceback.format_exc())
-                print("```")
-                function_response = None # due to unexpected errors encountered in executing the function; fall back to regular completion
-            # handle function response
-            if function_response is None or function_response: # fall back to regular completion if function_response is None; chat extension if function_response
-                if function_response:
-                    # added function response as provided information to the original prompt
-                    addContextToMessages(messages_copy, function_response)
-                return agentmake(
-                    messages_copy,
-                    backend,
-                    model=model,
-                    model_keep_alive=model_keep_alive,
-                    system=None if function_response else system,
-                    instruction=None if function_response else instruction,
-                    follow_up_prompt=None if function_response else follow_up_prompt,
-                    input_content_plugin=None if function_response else input_content_plugin,
-                    output_content_plugin=output_content_plugin,
-                    agent=None if function_response else agent,
-                    tool=None if function_response else tool,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                    context_window=context_window,
-                    batch_size=batch_size,
-                    prefill=None if function_response else prefill_content,
-                    stop=stop,
-                    stream=stream,
-                    stream_events_only=stream_events_only,
-                    api_key=api_key,
-                    api_endpoint=api_endpoint,
-                    api_project_id=api_project_id,
-                    api_service_location=api_service_location,
-                    api_timeout=api_timeout,
-                    print_on_terminal=print_on_terminal,
-                    word_wrap=word_wrap,
-                    **kwargs
-                )
-            else: # empty str; function executed successfully without chat extension
-                output = function_text_output if function_text_output else "Done!"
-        else: # structured output
-            output = json.dumps(dictionary_output)
-        if print_on_terminal:
-            print(output)
-    else: # regular completion
-        if backend == "anthropic":
-            completion = AnthropicAI.getChatCompletion(
+            prefill_content = None
+        # handle given tools
+        if tool and not agent_response:
+            if isinstance(tool, list):
+                tool_object = tool.pop(0)
+            else: # a string instead
+                tool_object = tool
+                tool = []
+            tool_name = tool_object[:20]
+            # check if it is a predefined tool built-in with this SDK
+            if USER_OS == "Windows":
+                tool_object = os.path.join(*tool_object.split("/"))
+            possible_tool_file_path_2 = os.path.join(PACKAGE_PATH, "tools", f"{tool_object}.py")
+            possible_tool_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "tools", f"{tool_object}.py")
+            if tool_object is None:
+                pass
+            elif os.path.isfile(possible_tool_file_path_1):
+                tool_file_content = readTextFile(possible_tool_file_path_1)
+                if tool_file_content:
+                    tool_object = tool_file_content
+            elif os.path.isfile(possible_tool_file_path_2):
+                tool_file_content = readTextFile(possible_tool_file_path_2)
+                if tool_file_content:
+                    tool_object = tool_file_content
+            elif os.path.isfile(tool_object): # tool_object itself is a valid filepath
+                tool_file_content = readTextFile(tool_object)
+                if tool_file_content:
+                    tool_object = tool_file_content
+            if tool_object:
+                glob = {}
+                loc = {}
+                try:
+                    exec(tool_object, glob, loc)
+                    schema = loc.get("TOOL_SCHEMA")
+                    try:
+                        func = loc.get("TOOL_FUNCTION")
+                    except:
+                        # TOOL_FUNCTION is optional
+                        pass
+                    try:
+                        tool_system = loc.get("TOOL_SYSTEM")
+                    except:
+                        tool_system = getDefaultToolSystem(schema)
+                    if tool_system:
+                        chat_system = updateSystemMessage(messages_copy, tool_system)
+                except Exception as e:
+                    print(f"Failed to execute tool `{tool_name}`! An error occurred: {e}")
+                    if DEVELOPER_MODE:
+                        print(traceback.format_exc())
+
+        # check if it is last request
+        is_last_request = True if not follow_up_prompt and not system and not instruction and not tool and not agent and not prefill else False
+
+        # deep copy schema avoid modifying the original one
+        schemaCopy = None if schema is None else deepcopy(schema)
+        # run AI
+        if agent_response is not None:
+            if stream and stream_events_only and is_last_request:
+                return agent_response
+            else:
+                messages_copy = agent_response
+                output = agent_response[-1].get("content", "")
+        elif schemaCopy is not None: # structured output or function calling; allow schema to be an empty dict
+            dictionary_output = {"messages": messages_copy} if not schemaCopy else getDictionaryOutput(
                 messages_copy,
-                model=model,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                stop=stop,
-                stream=stream,
-                api_key=api_key,
-                api_timeout=api_timeout,
-                **kwargs
-            )
-        elif backend == "azure":
-            completion = AzureAI.getChatCompletion(
-                messages_copy,
-                model=model,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                stop=stop,
-                stream=stream,
-                api_key=api_key,
-                api_endpoint=api_endpoint,
-                api_timeout=api_timeout,
-                **kwargs
-            )
-        elif backend == "azure_any":
-            completion = AzureAnyAI.getChatCompletion(
-                messages_copy,
-                model=model,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                stop=stop,
-                stream=stream,
-                api_key=api_key,
-                api_endpoint=api_endpoint,
-                #api_timeout=api_timeout,
-                **kwargs
-            )
-        elif backend == "cohere":
-            completion = CohereAI.getChatCompletion(
-                messages_copy,
-                model=model,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                stop=stop,
-                stream=stream,
-                api_key=api_key,
-                api_timeout=api_timeout,
-                **kwargs
-            )
-        elif backend == "custom":
-            completion = OpenaiCompatibleAI.getChatCompletion(
-                messages_copy,
-                model=model,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                stop=stop,
-                stream=stream,
-                api_key=api_key,
-                api_endpoint=api_endpoint,
-                api_timeout=api_timeout,
-                **kwargs
-            )
-        elif backend == "deepseek":
-            completion = DeepseekAI.getChatCompletion(
-                messages_copy,
-                model=model,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                prefill=prefill_content,
-                stop=stop,
-                stream=stream,
-                api_key=api_key,
-                api_timeout=api_timeout,
-                **kwargs
-            )
-        elif backend in ("genai", "vertexai"):
-            completion = GenaiAI.getChatCompletion(
-                messages_copy,
-                model=model,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                stop=stop,
-                stream=stream,
-                api_key=api_key,
-                api_project_id=api_project_id,
-                api_service_location=api_service_location,
-                api_timeout=api_timeout,
-                **kwargs
-            )
-        elif backend == "github":
-            completion = GithubAI.getChatCompletion(
-                messages_copy,
-                model=model,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                stop=stop,
-                stream=stream,
-                api_key=api_key,
-                api_timeout=api_timeout,
-                **kwargs
-            )
-        elif backend == "github_any":
-            completion = GithubAnyAI.getChatCompletion(
-                messages_copy,
-                model=model,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                stop=stop,
-                stream=stream,
-                api_key=api_key,
-                #api_timeout=api_timeout,
-                **kwargs
-            )
-        elif backend == "googleai":
-            completion = GoogleaiAI.getChatCompletion(
-                messages_copy,
-                model=model,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                stop=stop,
-                stream=stream,
-                api_key=api_key,
-                api_timeout=api_timeout,
-                **kwargs
-            )
-        elif backend == "groq":
-            completion = GroqAI.getChatCompletion(
-                messages_copy,
-                model=model,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                prefill=prefill_content,
-                stop=stop,
-                stream=stream,
-                api_key=api_key,
-                api_timeout=api_timeout,
-                **kwargs
-            )
-        elif backend == "llamacpp":
-            completion = LlamacppAI.getChatCompletion(
-                messages_copy,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                stop=stop,
-                stream=stream,
-                api_endpoint=api_endpoint,
-                api_timeout=api_timeout,
-                **kwargs
-            )
-        elif backend == "mistral":
-            completion = MistralAI.getChatCompletion(
-                messages_copy,
-                model=model,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                prefill=prefill_content,
-                stop=stop,
-                stream=stream,
-                api_key=api_key,
-                api_timeout=api_timeout,
-                stream_events_only=stream_events_only,
-                print_on_terminal=print_on_terminal,
-                word_wrap=word_wrap,
-                **kwargs
-            )
-        elif backend == "ollama":
-            completion = OllamaAI.getChatCompletion(             
-                messages_copy,
+                schemaCopy,
+                backend,
                 model=model,
                 model_keep_alive=model_keep_alive,
                 temperature=temperature,
@@ -946,147 +677,425 @@ def agentmake(
                 batch_size=batch_size,
                 prefill=prefill_content,
                 stop=stop,
-                stream=stream,
+                api_key=api_key,
                 api_endpoint=api_endpoint,
-                **kwargs
-            )
-        elif backend == "openai":
-            completion = OpenaiAI.getChatCompletion(
-                messages_copy,
-                model=model,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                stop=stop,
-                stream=stream,
-                api_key=api_key,
+                api_project_id=api_project_id,
+                api_service_location=api_service_location,
                 api_timeout=api_timeout,
                 **kwargs
             )
-        elif backend == "xai":
-            completion = XaiAI.getChatCompletion(
-                messages_copy,
-                model=model,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                stop=stop,
-                stream=stream,
-                api_key=api_key,
-                api_timeout=api_timeout,
-                **kwargs
-            )
-        if stream and stream_events_only and is_last_request:
-            return completion
-        output = getChatCompletionText(backend, completion, stream=stream, print_on_terminal=print_on_terminal, word_wrap=word_wrap)
-
-    # close connection
-    closeConnections(backend)
-
-    # handle user output content plugin(s)
-    if output_content_plugin:
-        if isinstance(output_content_plugin, str):
-            output_content_plugin = [output_content_plugin]
-        for output_content_plugin_object in output_content_plugin:
-            output_content_plugin_func = None
-            output_content_plugin_name = output_content_plugin_object[:20]
-
-            # check if it is a predefined plugin message built-in with this SDK
-            if USER_OS == "Windows":
-                output_content_plugin_object = os.path.join(*output_content_plugin_object.split("/"))
-            possible_output_content_plugin_file_path_2 = os.path.join(PACKAGE_PATH, "plugins", f"{output_content_plugin_object}.py")
-            possible_output_content_plugin_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "plugins", f"{output_content_plugin_object}.py")
-            if output_content_plugin_object is None:
-                pass
-            elif os.path.isfile(possible_output_content_plugin_file_path_1):
-                output_content_plugin_file_content = readTextFile(possible_output_content_plugin_file_path_1)
-                if output_content_plugin_file_content:
-                    output_content_plugin_object = output_content_plugin_file_content
-            elif os.path.isfile(possible_output_content_plugin_file_path_2):
-                output_content_plugin_file_content = readTextFile(possible_output_content_plugin_file_path_2)
-                if output_content_plugin_file_content:
-                    output_content_plugin_object = output_content_plugin_file_content
-            elif os.path.isfile(output_content_plugin_object): # output_content_plugin_object itself is a valid filepath
-                output_content_plugin_file_content = readTextFile(output_content_plugin_object)
-                if output_content_plugin_file_content:
-                    output_content_plugin_object = output_content_plugin_file_content
-            if output_content_plugin_object:
-                glob = {}
-                loc = {}
+            if chat_system:
+                updateSystemMessage(messages_copy, chat_system)
+                chat_system = ""
+            if func:
+                # Create a StringIO object to capture the output
+                terminal_output = StringIO()
+                # Redirect stdout to the StringIO object
+                old_stdout = sys.stdout
+                sys.stdout = terminal_output
+                # placeholder for function text output
+                function_text_output = ""
                 try:
-                    exec(output_content_plugin_object, glob, loc)
-                    output_content_plugin_func = loc.get("CONTENT_PLUGIN")
+                    # execute the function
+                    if dictionary_output is None:
+                        # The case when user use keyboard to interrupt with `Cltr+C`
+                        return []
+                    elif not dictionary_output:
+                        function_response = func()
+                    else:
+                        function_response = func(
+                            **dictionary_output,
+                            backend=backend,
+                            model=model,
+                            model_keep_alive=model_keep_alive,
+                            temperature=temperature,
+                            max_tokens=max_tokens,
+                            context_window=context_window,
+                            batch_size=batch_size,
+                            prefill=prefill,
+                            stop=stop,
+                            stream=stream,
+                            api_key=api_key,
+                            api_project_id=api_project_id,
+                            api_service_location=api_service_location,
+                            api_timeout=api_timeout,
+                            print_on_terminal=print_on_terminal,
+                            word_wrap=word_wrap,
+                            **kwargs,
+                        ) # returned response can be either 1) an empty string: no chat extension 2) a non-empty string: chat extension 3) none: errors encountered in executing the function
+                    function_text_output = terminal_output.getvalue().replace("```output\n```\n", "Done!") # capture the function text output for function calling without chat extension
+                    # Restore the original stdout
+                    sys.stdout = old_stdout
                 except Exception as e:
-                    print(f"Failed to execute output content plugin `{output_content_plugin_name}`! An error occurred: {e}")
+                    sys.stdout = old_stdout
+                    print("```error")
+                    function_name = re.sub("<function (.*?) .*?$", r"\1", str(func))
+                    print(f"Failed to run tool function `{function_name}`! An error occurred: {e}")
                     if DEVELOPER_MODE:
                         print(traceback.format_exc())
-            # run user output content plugin
-            if output_content_plugin_func and output:
-                output = output_content_plugin_func(
-                    output,
-                    backend=backend,
+                    print("```")
+                    function_response = None # due to unexpected errors encountered in executing the function; fall back to regular completion
+                # handle function response
+                if function_response is None or function_response: # fall back to regular completion if function_response is None; chat extension if function_response
+                    if function_response:
+                        # added function response as provided information to the original prompt
+                        addContextToMessages(messages_copy, function_response)
+                    return agentmake(
+                        messages_copy,
+                        backend,
+                        model=model,
+                        model_keep_alive=model_keep_alive,
+                        system=None if function_response else system,
+                        instruction=None if function_response else instruction,
+                        follow_up_prompt=None if function_response else follow_up_prompt,
+                        input_content_plugin=None if function_response else input_content_plugin,
+                        output_content_plugin=output_content_plugin,
+                        agent=None if function_response else agent,
+                        tool=None if function_response else tool,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        context_window=context_window,
+                        batch_size=batch_size,
+                        prefill=None if function_response else prefill_content,
+                        stop=stop,
+                        stream=stream,
+                        stream_events_only=stream_events_only,
+                        api_key=api_key,
+                        api_endpoint=api_endpoint,
+                        api_project_id=api_project_id,
+                        api_service_location=api_service_location,
+                        api_timeout=api_timeout,
+                        print_on_terminal=print_on_terminal,
+                        word_wrap=word_wrap,
+                        **kwargs
+                    )
+                else: # empty str; function executed successfully without chat extension
+                    output = function_text_output if function_text_output else "Done!"
+            else: # structured output
+                output = json.dumps(dictionary_output)
+            if print_on_terminal:
+                print(output)
+        else: # regular completion
+            if backend == "anthropic":
+                completion = AnthropicAI.getChatCompletion(
+                    messages_copy,
                     model=model,
-                    model_keep_alive=model_keep_alive,
                     temperature=temperature,
                     max_tokens=max_tokens,
-                    context_window=context_window,
-                    batch_size=batch_size,
-                    prefill=prefill,
+                    stop=stop,
+                    stream=stream,
+                    api_key=api_key,
+                    api_timeout=api_timeout,
+                    **kwargs
+                )
+            elif backend == "azure":
+                completion = AzureAI.getChatCompletion(
+                    messages_copy,
+                    model=model,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    stop=stop,
+                    stream=stream,
+                    api_key=api_key,
+                    api_endpoint=api_endpoint,
+                    api_timeout=api_timeout,
+                    **kwargs
+                )
+            elif backend == "azure_any":
+                completion = AzureAnyAI.getChatCompletion(
+                    messages_copy,
+                    model=model,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    stop=stop,
+                    stream=stream,
+                    api_key=api_key,
+                    api_endpoint=api_endpoint,
+                    #api_timeout=api_timeout,
+                    **kwargs
+                )
+            elif backend == "cohere":
+                completion = CohereAI.getChatCompletion(
+                    messages_copy,
+                    model=model,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    stop=stop,
+                    stream=stream,
+                    api_key=api_key,
+                    api_timeout=api_timeout,
+                    **kwargs
+                )
+            elif backend == "custom":
+                completion = OpenaiCompatibleAI.getChatCompletion(
+                    messages_copy,
+                    model=model,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    stop=stop,
+                    stream=stream,
+                    api_key=api_key,
+                    api_endpoint=api_endpoint,
+                    api_timeout=api_timeout,
+                    **kwargs
+                )
+            elif backend == "deepseek":
+                completion = DeepseekAI.getChatCompletion(
+                    messages_copy,
+                    model=model,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    prefill=prefill_content,
+                    stop=stop,
+                    stream=stream,
+                    api_key=api_key,
+                    api_timeout=api_timeout,
+                    **kwargs
+                )
+            elif backend in ("genai", "vertexai"):
+                completion = GenaiAI.getChatCompletion(
+                    messages_copy,
+                    model=model,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
                     stop=stop,
                     stream=stream,
                     api_key=api_key,
                     api_project_id=api_project_id,
                     api_service_location=api_service_location,
                     api_timeout=api_timeout,
+                    **kwargs
+                )
+            elif backend == "github":
+                completion = GithubAI.getChatCompletion(
+                    messages_copy,
+                    model=model,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    stop=stop,
+                    stream=stream,
+                    api_key=api_key,
+                    api_timeout=api_timeout,
+                    **kwargs
+                )
+            elif backend == "github_any":
+                completion = GithubAnyAI.getChatCompletion(
+                    messages_copy,
+                    model=model,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    stop=stop,
+                    stream=stream,
+                    api_key=api_key,
+                    #api_timeout=api_timeout,
+                    **kwargs
+                )
+            elif backend == "googleai":
+                completion = GoogleaiAI.getChatCompletion(
+                    messages_copy,
+                    model=model,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    stop=stop,
+                    stream=stream,
+                    api_key=api_key,
+                    api_timeout=api_timeout,
+                    **kwargs
+                )
+            elif backend == "groq":
+                completion = GroqAI.getChatCompletion(
+                    messages_copy,
+                    model=model,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    prefill=prefill_content,
+                    stop=stop,
+                    stream=stream,
+                    api_key=api_key,
+                    api_timeout=api_timeout,
+                    **kwargs
+                )
+            elif backend == "llamacpp":
+                completion = LlamacppAI.getChatCompletion(
+                    messages_copy,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    stop=stop,
+                    stream=stream,
+                    api_endpoint=api_endpoint,
+                    api_timeout=api_timeout,
+                    **kwargs
+                )
+            elif backend == "mistral":
+                completion = MistralAI.getChatCompletion(
+                    messages_copy,
+                    model=model,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    prefill=prefill_content,
+                    stop=stop,
+                    stream=stream,
+                    api_key=api_key,
+                    api_timeout=api_timeout,
+                    stream_events_only=stream_events_only,
                     print_on_terminal=print_on_terminal,
                     word_wrap=word_wrap,
-                    **kwargs,
+                    **kwargs
                 )
+            elif backend == "ollama":
+                completion = OllamaAI.getChatCompletion(             
+                    messages_copy,
+                    model=model,
+                    model_keep_alive=model_keep_alive,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    context_window=context_window,
+                    batch_size=batch_size,
+                    prefill=prefill_content,
+                    stop=stop,
+                    stream=stream,
+                    api_endpoint=api_endpoint,
+                    **kwargs
+                )
+            elif backend == "openai":
+                completion = OpenaiAI.getChatCompletion(
+                    messages_copy,
+                    model=model,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    stop=stop,
+                    stream=stream,
+                    api_key=api_key,
+                    api_timeout=api_timeout,
+                    **kwargs
+                )
+            elif backend == "xai":
+                completion = XaiAI.getChatCompletion(
+                    messages_copy,
+                    model=model,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    stop=stop,
+                    stream=stream,
+                    api_key=api_key,
+                    api_timeout=api_timeout,
+                    **kwargs
+                )
+            if stream and stream_events_only and is_last_request:
+                return completion
+            output = getChatCompletionText(backend, completion, stream=stream, print_on_terminal=print_on_terminal, word_wrap=word_wrap)
 
-    # update the message list
-    if not agent_response:
-        messages_copy.append({"role": "assistant", "content": output if output else "Done!"})
+        # close connection
+        closeConnections(backend)
 
-    # restore system message
-    if original_system:
-        updateSystemMessage(messages_copy, original_system)
-    # work on follow-up prompts
-    if not is_last_request and not follow_up_prompt:
-        follow_up_prompt = DEFAULT_FOLLOW_UP_PROMPT
-    if follow_up_prompt:
-        follow_up_prompt_content = follow_up_prompt.pop(0)
-        follow_up_prompt_content = refine_follow_up_prompt_content(follow_up_prompt_content)
-        messages_copy.append({"role": "user", "content": follow_up_prompt_content})
-        return agentmake(
-            messages=messages_copy,
-            backend=backend,
-            model=model,
-            model_keep_alive=model_keep_alive,
-            system=system,
-            instruction=instruction,
-            follow_up_prompt=follow_up_prompt,
-            input_content_plugin=input_content_plugin,
-            output_content_plugin=output_content_plugin,
-            agent=agent,
-            tool=tool,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            context_window=context_window,
-            batch_size=batch_size,
-            prefill=prefill,
-            stop=stop,
-            stream=stream,
-            stream_events_only=stream_events_only,
-            api_key=api_key,
-            api_endpoint=api_endpoint,
-            api_project_id=api_project_id,
-            api_service_location=api_service_location,
-            api_timeout=api_timeout,
-            print_on_terminal=print_on_terminal,
-            word_wrap=word_wrap,
-            **kwargs
-        )
-    # For debugging
-    #print(messages_copy)
-    return messages_copy
+        # handle user output content plugin(s)
+        if output_content_plugin:
+            if isinstance(output_content_plugin, str):
+                output_content_plugin = [output_content_plugin]
+            for output_content_plugin_object in output_content_plugin:
+                output_content_plugin_func = None
+                output_content_plugin_name = output_content_plugin_object[:20]
+
+                # check if it is a predefined plugin message built-in with this SDK
+                if USER_OS == "Windows":
+                    output_content_plugin_object = os.path.join(*output_content_plugin_object.split("/"))
+                possible_output_content_plugin_file_path_2 = os.path.join(PACKAGE_PATH, "plugins", f"{output_content_plugin_object}.py")
+                possible_output_content_plugin_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "plugins", f"{output_content_plugin_object}.py")
+                if output_content_plugin_object is None:
+                    pass
+                elif os.path.isfile(possible_output_content_plugin_file_path_1):
+                    output_content_plugin_file_content = readTextFile(possible_output_content_plugin_file_path_1)
+                    if output_content_plugin_file_content:
+                        output_content_plugin_object = output_content_plugin_file_content
+                elif os.path.isfile(possible_output_content_plugin_file_path_2):
+                    output_content_plugin_file_content = readTextFile(possible_output_content_plugin_file_path_2)
+                    if output_content_plugin_file_content:
+                        output_content_plugin_object = output_content_plugin_file_content
+                elif os.path.isfile(output_content_plugin_object): # output_content_plugin_object itself is a valid filepath
+                    output_content_plugin_file_content = readTextFile(output_content_plugin_object)
+                    if output_content_plugin_file_content:
+                        output_content_plugin_object = output_content_plugin_file_content
+                if output_content_plugin_object:
+                    glob = {}
+                    loc = {}
+                    try:
+                        exec(output_content_plugin_object, glob, loc)
+                        output_content_plugin_func = loc.get("CONTENT_PLUGIN")
+                    except Exception as e:
+                        print(f"Failed to execute output content plugin `{output_content_plugin_name}`! An error occurred: {e}")
+                        if DEVELOPER_MODE:
+                            print(traceback.format_exc())
+                # run user output content plugin
+                if output_content_plugin_func and output:
+                    output = output_content_plugin_func(
+                        output,
+                        backend=backend,
+                        model=model,
+                        model_keep_alive=model_keep_alive,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                        context_window=context_window,
+                        batch_size=batch_size,
+                        prefill=prefill,
+                        stop=stop,
+                        stream=stream,
+                        api_key=api_key,
+                        api_project_id=api_project_id,
+                        api_service_location=api_service_location,
+                        api_timeout=api_timeout,
+                        print_on_terminal=print_on_terminal,
+                        word_wrap=word_wrap,
+                        **kwargs,
+                    )
+
+        # update the message list
+        if not agent_response:
+            messages_copy.append({"role": "assistant", "content": output if output else "Done!"})
+
+        # restore system message
+        if original_system:
+            updateSystemMessage(messages_copy, original_system)
+        # work on follow-up prompts
+        if not is_last_request and not follow_up_prompt:
+            follow_up_prompt = DEFAULT_FOLLOW_UP_PROMPT
+        if follow_up_prompt:
+            follow_up_prompt_content = follow_up_prompt.pop(0)
+            follow_up_prompt_content = refine_follow_up_prompt_content(follow_up_prompt_content)
+            messages_copy.append({"role": "user", "content": follow_up_prompt_content})
+            return agentmake(
+                messages=messages_copy,
+                backend=backend,
+                model=model,
+                model_keep_alive=model_keep_alive,
+                system=system,
+                instruction=instruction,
+                follow_up_prompt=follow_up_prompt,
+                input_content_plugin=input_content_plugin,
+                output_content_plugin=output_content_plugin,
+                agent=agent,
+                tool=tool,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                context_window=context_window,
+                batch_size=batch_size,
+                prefill=prefill,
+                stop=stop,
+                stream=stream,
+                stream_events_only=stream_events_only,
+                api_key=api_key,
+                api_endpoint=api_endpoint,
+                api_project_id=api_project_id,
+                api_service_location=api_service_location,
+                api_timeout=api_timeout,
+                print_on_terminal=print_on_terminal,
+                word_wrap=word_wrap,
+                **kwargs
+            )
+        # For debugging
+        #print(messages_copy)
+        return messages_copy
+    except KeyboardInterrupt:
+        return []
 
 def refine_system_instruction(
     system_instruction,
@@ -1117,7 +1126,7 @@ def refine_system_instruction(
     if system_instruction in ("auto", "reasoning") and user_prompt:
         if print_on_terminal:
             print(">>> Generating system instruction ...\n")
-        system_instruction = agentmake(
+        system_instruction_output = agentmake(
             user_prompt,
             system="create_reasoning_agent" if system_instruction == "reasoning" else "create_agent",
             instruction=os.path.join("system", "auto"),
@@ -1137,7 +1146,10 @@ def refine_system_instruction(
             print_on_terminal=print_on_terminal,
             word_wrap=word_wrap,
             **kwargs,
-        )[-1].get("content", "")
+        )
+        if not system_instruction_output:
+            return []
+        system_instruction = system_instruction_output[-1].get("content", "")
         if agent := re.search("""```agent(.+?)```""", system_instruction, re.DOTALL):
             system_instruction = agent.group(1).strip()
         try:
@@ -1163,7 +1175,7 @@ def refine_system_instruction(
             # generate new role
             if print_on_terminal:
                 print(">>> Generating system instruction ...\n")
-            system_instruction = agentmake(
+            system_instruction_output = agentmake(
                 role,
                 instruction=os.path.join("system", "role"),
                 backend=backend,
@@ -1182,7 +1194,10 @@ def refine_system_instruction(
                 print_on_terminal=print_on_terminal,
                 word_wrap=word_wrap,
                 **kwargs,
-            )[-1].get("content", "")
+            )
+            if not system_instruction_output:
+                return []
+            system_instruction = system_instruction_output[-1].get("content", "")
         try:
             user_systems_file = saveUserSystemMessage(system_instruction, subfolder="roles", filename=role)
             if print_on_terminal:
@@ -1249,209 +1264,213 @@ def getDictionaryOutput(
     """
     Returns dictionary in response to user message
     """
-    if backend == "anthropic":
-        return AnthropicAI.getDictionaryOutput(
-            messages,
-            schema,
-            model=model,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            stop=stop,
-            api_key=api_key,
-            api_timeout=api_timeout,
-            **kwargs
-        )
-    elif backend == "azure":
-        return AzureAI.getDictionaryOutput(
-            messages,
-            schema,
-            model=model,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            stop=stop,
-            api_key=api_key,
-            api_endpoint=api_endpoint,
-            api_timeout=api_timeout,
-            **kwargs
-        )
-    elif backend == "azure_any":
-        return AzureAnyAI.getDictionaryOutput(
-            messages,
-            schema,
-            model=model,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            stop=stop,
-            api_key=api_key,
-            api_endpoint=api_endpoint,
-            #api_timeout=api_timeout,
-            **kwargs
-        )
-    elif backend == "cohere":
-        return CohereAI.getDictionaryOutput(
-            messages,
-            schema,
-            model=model,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            stop=stop,
-            api_key=api_key,
-            api_timeout=api_timeout,
-            **kwargs
-        )
-    elif backend == "custom":
-        return OpenaiCompatibleAI.getDictionaryOutput(
-            messages,
-            schema,
-            model=model,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            stop=stop,
-            api_key=api_key,
-            api_endpoint=api_endpoint,
-            api_timeout=api_timeout,
-            **kwargs
-        )
-    elif backend == "deepseek":
-        return DeepseekAI.getDictionaryOutput(
-            messages,
-            schema,
-            model=model,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            prefill=prefill,
-            stop=stop,
-            api_key=api_key,
-            api_timeout=api_timeout,
-            **kwargs
-        )
-    elif backend in ("genai", "vertexai"):
-        return GenaiAI.getDictionaryOutput(
-            messages,
-            schema,
-            model=model,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            stop=stop,
-            api_key=api_key,
-            api_project_id=api_project_id,
-            api_service_location=api_service_location,
-            api_timeout=api_timeout,
-            **kwargs
-        )
-    elif backend == "github":
-        return GithubAI.getDictionaryOutput(
-            messages,
-            schema,
-            model=model,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            stop=stop,
-            api_key=api_key,
-            api_timeout=api_timeout,
-            **kwargs
-        )
-    elif backend == "github_any":
-        return GithubAnyAI.getDictionaryOutput(
-            messages,
-            schema,
-            model=model,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            stop=stop,
-            api_key=api_key,
-            #api_timeout=api_timeout,
-            **kwargs
-        )
-    elif backend == "googleai":
-        return GoogleaiAI.getDictionaryOutput(
-            messages,
-            schema,
-            model=model,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            stop=stop,
-            api_key=api_key,
-            api_timeout=api_timeout,
-            **kwargs
-        )
-    elif backend == "groq":
-        return GroqAI.getDictionaryOutput(
-            messages,
-            schema,
-            model=model,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            prefill=prefill,
-            stop=stop,
-            api_key=api_key,
-            api_timeout=api_timeout,
-            **kwargs
-        )
-    elif backend == "llamacpp":
-        return LlamacppAI.getDictionaryOutput(
-            messages,
-            schema,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            stop=stop,
-            api_endpoint=api_endpoint,
-            api_timeout=api_timeout,
-            **kwargs
-        )
-    elif backend == "mistral":
-        return MistralAI.getDictionaryOutput(
-            messages,
-            schema,
-            model=model,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            prefill=prefill,
-            stop=stop,
-            api_key=api_key,
-            api_timeout=api_timeout,
-            **kwargs
-        )
-    elif backend == "ollama":
-        return OllamaAI.getDictionaryOutput(
-            messages,
-            schema,
-            model=model,
-            model_keep_alive=model_keep_alive,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            context_window=context_window,
-            batch_size=batch_size,
-            prefill=prefill,
-            stop=stop,
-            api_endpoint=api_endpoint,
-            **kwargs
-        )
-    elif backend == "openai":
-        return OpenaiAI.getDictionaryOutput(
-            messages,
-            schema,
-            model=model,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            stop=stop,
-            api_key=api_key,
-            api_timeout=api_timeout,
-            **kwargs
-        )
-    elif backend == "xai":
-        return XaiAI.getDictionaryOutput(
-            messages,
-            schema,
-            model=model,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            stop=stop,
-            api_key=api_key,
-            api_timeout=api_timeout,
-            **kwargs
-        )
-    return {}
+    try:
+        if backend == "anthropic":
+            return AnthropicAI.getDictionaryOutput(
+                messages,
+                schema,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stop=stop,
+                api_key=api_key,
+                api_timeout=api_timeout,
+                **kwargs
+            )
+        elif backend == "azure":
+            return AzureAI.getDictionaryOutput(
+                messages,
+                schema,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stop=stop,
+                api_key=api_key,
+                api_endpoint=api_endpoint,
+                api_timeout=api_timeout,
+                **kwargs
+            )
+        elif backend == "azure_any":
+            return AzureAnyAI.getDictionaryOutput(
+                messages,
+                schema,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stop=stop,
+                api_key=api_key,
+                api_endpoint=api_endpoint,
+                #api_timeout=api_timeout,
+                **kwargs
+            )
+        elif backend == "cohere":
+            return CohereAI.getDictionaryOutput(
+                messages,
+                schema,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stop=stop,
+                api_key=api_key,
+                api_timeout=api_timeout,
+                **kwargs
+            )
+        elif backend == "custom":
+            return OpenaiCompatibleAI.getDictionaryOutput(
+                messages,
+                schema,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stop=stop,
+                api_key=api_key,
+                api_endpoint=api_endpoint,
+                api_timeout=api_timeout,
+                **kwargs
+            )
+        elif backend == "deepseek":
+            return DeepseekAI.getDictionaryOutput(
+                messages,
+                schema,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                prefill=prefill,
+                stop=stop,
+                api_key=api_key,
+                api_timeout=api_timeout,
+                **kwargs
+            )
+        elif backend in ("genai", "vertexai"):
+            return GenaiAI.getDictionaryOutput(
+                messages,
+                schema,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stop=stop,
+                api_key=api_key,
+                api_project_id=api_project_id,
+                api_service_location=api_service_location,
+                api_timeout=api_timeout,
+                **kwargs
+            )
+        elif backend == "github":
+            return GithubAI.getDictionaryOutput(
+                messages,
+                schema,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stop=stop,
+                api_key=api_key,
+                api_timeout=api_timeout,
+                **kwargs
+            )
+        elif backend == "github_any":
+            return GithubAnyAI.getDictionaryOutput(
+                messages,
+                schema,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stop=stop,
+                api_key=api_key,
+                #api_timeout=api_timeout,
+                **kwargs
+            )
+        elif backend == "googleai":
+            return GoogleaiAI.getDictionaryOutput(
+                messages,
+                schema,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stop=stop,
+                api_key=api_key,
+                api_timeout=api_timeout,
+                **kwargs
+            )
+        elif backend == "groq":
+            return GroqAI.getDictionaryOutput(
+                messages,
+                schema,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                prefill=prefill,
+                stop=stop,
+                api_key=api_key,
+                api_timeout=api_timeout,
+                **kwargs
+            )
+        elif backend == "llamacpp":
+            return LlamacppAI.getDictionaryOutput(
+                messages,
+                schema,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stop=stop,
+                api_endpoint=api_endpoint,
+                api_timeout=api_timeout,
+                **kwargs
+            )
+        elif backend == "mistral":
+            return MistralAI.getDictionaryOutput(
+                messages,
+                schema,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                prefill=prefill,
+                stop=stop,
+                api_key=api_key,
+                api_timeout=api_timeout,
+                **kwargs
+            )
+        elif backend == "ollama":
+            return OllamaAI.getDictionaryOutput(
+                messages,
+                schema,
+                model=model,
+                model_keep_alive=model_keep_alive,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                context_window=context_window,
+                batch_size=batch_size,
+                prefill=prefill,
+                stop=stop,
+                api_endpoint=api_endpoint,
+                **kwargs
+            )
+        elif backend == "openai":
+            return OpenaiAI.getDictionaryOutput(
+                messages,
+                schema,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stop=stop,
+                api_key=api_key,
+                api_timeout=api_timeout,
+                **kwargs
+            )
+        elif backend == "xai":
+            return XaiAI.getDictionaryOutput(
+                messages,
+                schema,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stop=stop,
+                api_key=api_key,
+                api_timeout=api_timeout,
+                **kwargs
+            )
+        return {}
+    except KeyboardInterrupt:
+        # print("Stopped by user!")
+        return None
 
 def saveUserSystemMessage(system: str, subfolder="", filename=""):
     user_systems_dir = os.path.join(AGENTMAKE_USER_DIR, "systems", subfolder) if subfolder else os.path.join(AGENTMAKE_USER_DIR, "systems")
