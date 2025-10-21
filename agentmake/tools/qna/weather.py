@@ -11,6 +11,12 @@ Use the 'print' function in the last line of your generated code to display the 
 def search_weather(code: str, **kwargs):
 
     from agentmake.utils.handle_python_code import fineTunePythonCode
+    import os
+
+    OPENWEATHERMAP_API_KEY = os.getenv("OPENWEATHERMAP_API_KEY").split(",") if os.getenv("OPENWEATHERMAP_API_KEY") else [""]
+    if not OPENWEATHERMAP_API_KEY[0]:
+        print("OpenWeatherMap API key is required but not found! Read https://github.com/eliranwong/computemate/blob/main/docs/setup_others/openweather_API.md.")
+        return ""
 
     refined_python_code = fineTunePythonCode(code)
     glob = {}
@@ -22,7 +28,7 @@ def search_weather(code: str, **kwargs):
 
 TOOL_SCHEMA = {
     "name": "search_weather",
-    "description": f'''Answer a query about weather''',
+    "description": f'''Answer a query about weather; weather-related query is required.''',
     "parameters": {
         "type": "object",
         "properties": {
