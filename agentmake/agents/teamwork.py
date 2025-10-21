@@ -272,10 +272,10 @@ Please provide me with the final answer to my original request based on the work
     # backup before closing
     if not (stream and stream_events_only):
         plain_record_file = generate_teamwork_record(backend, messages_copy, userRequest, agents, agents_description, print_on_terminal)
-        messages_copy[-1]["content"] += f"""\n\n#Full Report
+        '''messages_copy[-1]["content"] += f"""\n\n# Full Report
 
 Find full report at:
-`{plain_record_file}`"""
+`{plain_record_file}`"""'''
     if print_on_terminal:
         print("# Closing TeamGen AI ...\n")
     
