@@ -569,6 +569,24 @@ def _(event):
 # Handlers for menu items.
 #
 
+def isExistingFile(docs_path):
+    # handle document path dragged to the terminal
+    docs_path = docs_path.strip()
+    search_replace = (
+        ("^'(.*?)'$", r"\1"),
+        ('^(File|Folder): "(.*?)"$', r"\2"),
+    )
+    for search, replace in search_replace:
+        docs_path = re.sub(search, replace, docs_path)
+    if "\\ " in docs_path or r"\(" in docs_path:
+        search_replace = (
+            ("\\ ", " "),
+            (r"\(", "("),
+        )
+        for search, replace in search_replace:
+            docs_path = docs_path.replace(search, replace)
+    return docs_path if os.path.isfile(os.path.expanduser(docs_path)) else ""
+
 def do_save_file(force_save=False):
     if ApplicationState.exit_without_saving and not force_save:
         get_app().exit()
@@ -603,6 +621,9 @@ def do_save_as_file():
 def do_open_file():
     check_changes_before_execute(confirm_open_file)
 
+def do_import_file():
+    check_changes_before_execute(confirm_import_file)
+
 def confirm_open_file():
     async def coroutine():
         open_dialog = TextInputDialog(
@@ -610,21 +631,42 @@ def confirm_open_file():
             label_text="Enter the path of a file:",
             completer=PathCompleter(),
         )
-
         path = await show_dialog_as_float(open_dialog)
-        ApplicationState.current_path = path
-
         if path is not None:
-            try:
-                #with open(path, "rb") as f:
-                #    text_field.text = f.read().decode("utf-8", errors="ignore")
-                with open(path, "r", encoding="utf-8") as fileObj:
-                    text_field.text = fileObj.read()
-            except OSError as e:
-                show_message("Error", f"{e}")
-                ApplicationState.current_path = None
+            path = isExistingFile(path)
+            if path:
+                ApplicationState.current_path = path
+                try:
+                    #with open(path, "rb") as f:
+                    #    text_field.text = f.read().decode("utf-8", errors="ignore")
+                    with open(path, "r", encoding="utf-8") as fileObj:
+                        text_field.text = fileObj.read()
+                    ApplicationState.saved_text = text_field.text
+                except OSError as e:
+                    show_message("Error", f"{e}")
+                    ApplicationState.current_path = None
         update_title()
+    ensure_future(coroutine())
 
+def confirm_import_file():
+    async def coroutine():
+        open_dialog = TextInputDialog(
+            title="Import file",
+            label_text="Enter the path of a file:",
+            completer=PathCompleter(),
+        )
+        path = await show_dialog_as_float(open_dialog)
+        if path is not None:
+            path = isExistingFile(path)
+            if path:
+                ApplicationState.current_path = None
+                try:
+                    text_field.text = extractText(path)
+                    ApplicationState.saved_text = ""
+                except OSError as e:
+                    show_message("Error", f"{e}")
+                    ApplicationState.current_path = None
+        update_title()
     ensure_future(coroutine())
 
 def do_find_replace():
@@ -924,6 +966,11 @@ if shutil.which("pandoc"):
 # Install, e.g. sudo apt install texlive-full
 if shutil.which("pandoc") and shutil.which("pdflatex"):
     file_items.insert(6, MenuItem("Export to PDF", handler=do_export_pdf))
+try:
+    from agentmake import extractText
+    file_items.insert(5, MenuItem("Import File Text", handler=do_import_file))
+except:
+    pass
 
 plugins = [
     MenuItem("Toggle Auto Agent", handler=do_toggle_auto_agent),

@@ -83,6 +83,7 @@ def teamwork(
         #    os.system(f'''{DEFAULT_TEXT_EDITOR} "{plain_record_file}"''')
         #except Exception as e:
         #    showErrors(e)
+        return plain_record_file
 
     # set initial message chain
     if isinstance(messages, str):
@@ -270,7 +271,11 @@ Please provide me with the final answer to my original request based on the work
 
     # backup before closing
     if not (stream and stream_events_only):
-        generate_teamwork_record(backend, messages_copy, userRequest, agents, agents_description, print_on_terminal)
+        plain_record_file = generate_teamwork_record(backend, messages_copy, userRequest, agents, agents_description, print_on_terminal)
+        messages_copy[-1]["content"] += f"""\n\n#Full Report
+
+Find full report at:
+`{plain_record_file}`"""
     if print_on_terminal:
         print("# Closing TeamGen AI ...\n")
     
