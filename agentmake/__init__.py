@@ -724,7 +724,7 @@ def agentmake(
                             word_wrap=word_wrap,
                             **kwargs,
                         ) # returned response can be either 1) an empty string: no chat extension 2) a non-empty string: chat extension 3) none: errors encountered in executing the function
-                    function_text_output = terminal_output.getvalue().replace("```output\n```\n", "Done!") # capture the function text output for function calling without chat extension
+                    function_text_output = terminal_output.getvalue().replace("```output\n```\n", "[NO_CONTENT]") # capture the function text output for function calling without chat extension
                     # Restore the original stdout
                     sys.stdout = old_stdout
                 except Exception as e:
@@ -771,7 +771,7 @@ def agentmake(
                         **kwargs
                     )
                 else: # empty str; function executed successfully without chat extension
-                    output = function_text_output if function_text_output else "Done!"
+                    output = function_text_output if function_text_output else "[NO_CONTENT]"
             else: # structured output
                 output = json.dumps(dictionary_output)
             if print_on_terminal:
@@ -1068,7 +1068,7 @@ def agentmake(
 
         # update the message list
         if not agent_response:
-            messages_copy.append({"role": "assistant", "content": output if output else "Done!"})
+            messages_copy.append({"role": "assistant", "content": output if output else "[NO_CONTENT]"})
 
         # restore system message
         if original_system:
