@@ -23,7 +23,11 @@ def perplexica_googleai(messages, **kwargs):
             i["role"] = "human"
             history.append(i)
 
-    api_url = f"{PERPLEXICA_HOST}:{PERPLEXICA_PORT}/api/search" 
+    providers_url = f"{PERPLEXICA_HOST}:{PERPLEXICA_PORT}/api/providers"
+    providers = requests.get(providers_url).json()["providers"]
+    providers = {provider["name"]: provider["id"] for provider in providers}
+    #print(providers)
+    api_url = f"{PERPLEXICA_HOST}:{PERPLEXICA_PORT}/api/search"
     headers = {"Content-Type": "application/json"}
     # references:
     # https://github.com/ItzCrazyKns/Perplexica/blob/master/docs/API/SEARCH.md
@@ -31,12 +35,12 @@ def perplexica_googleai(messages, **kwargs):
 
     data = {
         "chatModel": {
-            "provider": "gemini",
-            "model": GoogleaiAI.DEFAULT_MODEL,
+            "providerId": providers["Gemini"],
+            "key": "models/gemini-2.5-flash",
         },
         "embeddingModel": {
-            "provider": "gemini",
-            "model": "text-embedding-004",
+            "providerId": providers["Gemini"],
+            "key": "models/embedding-gecko-001",
         },
         "optimizationMode": PERPLEXICA_OPTIMIZATION_MODE,
         "focusMode": PERPLEXICA_FOCUS_MODE,

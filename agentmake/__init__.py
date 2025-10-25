@@ -954,6 +954,7 @@ def agentmake(
                     prefill=prefill_content,
                     stop=stop,
                     stream=stream,
+                    api_key=api_key,
                     api_endpoint=api_endpoint,
                     **kwargs
                 )
@@ -1698,3 +1699,4 @@ def getFabricPatternSystem(pattern, instruction=False):
 # This is a workaround for the issue with Ollama connections not being closed properly
 import warnings
 warnings.filterwarnings("ignore", category=ResourceWarning, message=r"unclosed <socket.socket.*11434\)>")
+warnings.filterwarnings("ignore", category=ResourceWarning, message=r"unclosed <ssl.SSLSocket ")

@@ -62,18 +62,30 @@ class GroqAI:
             else:
                 used_api_keys.append(this_api_key)
             try:
-                completion = GroqAI.getClient(api_key=this_api_key).chat.completions.create(
-                    model=model if model else GroqAI.DEFAULT_MODEL,
-                    messages=messages,
-                    temperature=temperature if temperature is not None else GroqAI.DEFAULT_TEMPERATURE,
-                    max_tokens=max_tokens if max_tokens else GroqAI.DEFAULT_MAX_TOKENS,
-                    tools=[{"type": "function", "function": schema}] if schema else None,
-                    tool_choice={"type": "function", "function": {"name": schema["name"]}} if schema else "none",
-                    stream=stream,
-                    stop=stop,
-                    timeout=api_timeout,
-                    **kwargs
-                )
+                if schema:
+                    completion = GroqAI.getClient(api_key=this_api_key).chat.completions.create(
+                        model=model if model else GroqAI.DEFAULT_MODEL,
+                        messages=messages,
+                        temperature=temperature if temperature is not None else GroqAI.DEFAULT_TEMPERATURE,
+                        max_tokens=max_tokens if max_tokens else GroqAI.DEFAULT_MAX_TOKENS,
+                        tools=[{"type": "function", "function": schema}],
+                        tool_choice={"type": "function", "function": {"name": schema["name"]}},
+                        stream=stream,
+                        stop=stop,
+                        timeout=api_timeout,
+                        **kwargs
+                    )
+                else:
+                    completion = GroqAI.getClient(api_key=this_api_key).chat.completions.create(
+                        model=model if model else GroqAI.DEFAULT_MODEL,
+                        messages=messages,
+                        temperature=temperature if temperature is not None else GroqAI.DEFAULT_TEMPERATURE,
+                        max_tokens=max_tokens if max_tokens else GroqAI.DEFAULT_MAX_TOKENS,
+                        stream=stream,
+                        stop=stop,
+                        timeout=api_timeout,
+                        **kwargs
+                    )
             except Exception as e:
                 print(f"An error occurred: {e}")
                 if DEVELOPER_MODE:
