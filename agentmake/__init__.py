@@ -33,6 +33,7 @@ from .backends.groq import GroqAI
 from .backends.llamacpp import LlamacppAI
 from .backends.mistral import MistralAI
 from .backends.ollama import OllamaAI
+from .backends.ollamacloud import OllamacloudAI
 from .backends.openai import OpenaiAI
 from .backends.xai import XaiAI
 
@@ -52,7 +53,7 @@ AGENTMAKE_ASSISTANT_NAME = os.getenv("AGENTMAKE_ASSISTANT_NAME") if os.getenv("A
 AGENTMAKE_USERNAME = os.getenv("AGENTMAKE_USERNAME") if os.getenv("AGENTMAKE_USERNAME") else getpass.getuser().capitalize()
 USER_OS = "macOS" if platform.system() == "Darwin" else platform.system()
 DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
-SUPPORTED_AI_BACKENDS = ["anthropic", "azure", "azure_any", "cohere", "custom", "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"]
+SUPPORTED_AI_BACKENDS = ["anthropic", "azure", "azure_any", "cohere", "custom", "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "ollama", "ollamacloud", "openai", "vertexai", "xai"]
 DEFAULT_AI_BACKEND = os.getenv("DEFAULT_AI_BACKEND") if os.getenv("DEFAULT_AI_BACKEND") else "ollama"
 RAW_SYSTEM_MESSAGE = f"You are my personal AI assistant. I am your user, {AGENTMAKE_USERNAME}. I will give you both text-based and non-text-based tasks, and the necessary tools to resolve my requests. Therefore, do not tell me that you are only a text-based language model. Try your best to resolve my requests. Do not address my name more than once in a single conversation unless I request it."
 DEFAULT_SYSTEM_MESSAGE = os.getenv("DEFAULT_SYSTEM_MESSAGE") if os.getenv("DEFAULT_SYSTEM_MESSAGE") else RAW_SYSTEM_MESSAGE
@@ -155,7 +156,7 @@ def agentmake(
         backend:
             type: Optional[str]="ollama"
             AI backend
-            supported backends: "anthropic", "azure", "azure_any", "cohere", "custom", "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "ollama", "openai", "vertexai", "xai"
+            supported backends: "anthropic", "azure", "azure_any", "cohere", "custom", "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "ollama", "ollamacloud", "openai", "vertexai", "xai"
 
         model:
             type: Optional[str]=None
@@ -958,6 +959,22 @@ def agentmake(
                     api_endpoint=api_endpoint,
                     **kwargs
                 )
+            elif backend == "ollamacloud":
+                completion = OllamacloudAI.getChatCompletion(             
+                    messages_copy,
+                    model=model,
+                    model_keep_alive=model_keep_alive,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    context_window=context_window,
+                    batch_size=batch_size,
+                    prefill=prefill_content,
+                    stop=stop,
+                    stream=stream,
+                    api_key=api_key,
+                    api_endpoint=api_endpoint,
+                    **kwargs
+                )
             elif backend == "openai":
                 completion = OpenaiAI.getChatCompletion(
                     messages_copy,
@@ -1444,6 +1461,21 @@ def getDictionaryOutput(
                 api_endpoint=api_endpoint,
                 **kwargs
             )
+        elif backend == "ollamacloud":
+            return OllamacloudAI.getDictionaryOutput(
+                messages,
+                schema,
+                model=model,
+                model_keep_alive=model_keep_alive,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                context_window=context_window,
+                batch_size=batch_size,
+                prefill=prefill,
+                stop=stop,
+                api_endpoint=api_endpoint,
+                **kwargs
+            )
         elif backend == "openai":
             return OpenaiAI.getDictionaryOutput(
                 messages,
@@ -1542,6 +1574,11 @@ def extractText(item: Any, image_backend: str=DEFAULT_AI_BACKEND, llm_model: str
             if not llm_model:
                 llm_model = os.getenv("OLLAMA_VISUAL_MODEL") if os.getenv("OLLAMA_VISUAL_MODEL") else "granite3.2-vision"
             return OpenAI(base_url=f"{OllamaAI.DEFAULT_ENDPOINT}/v1")
+        elif image_backend == "ollamacloud":
+            from openai import OpenAI
+            if not llm_model:
+                llm_model = os.getenv("OLLAMACLOUD_VISUAL_MODEL") if os.getenv("OLLAMACLOUD_VISUAL_MODEL") else "qwen3-vl:235b"
+            return OpenAI(base_url=f"{OllamacloudAI.DEFAULT_ENDPOINT}/v1")
         elif image_backend == "googleai":
             if not llm_model:
                 llm_model = os.getenv("GOOGLEAI_VISUAL_MODEL") if os.getenv("GOOGLEAI_VISUAL_MODEL") else "gemini-2.5-pro"

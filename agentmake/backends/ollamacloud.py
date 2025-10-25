@@ -10,32 +10,32 @@ import re, os, json, traceback
 
 DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
 
-class OllamaAI:
+class OllamacloudAI:
 
-    DEFAULT_API_KEY = os.getenv("OLLAMA_API_KEY").split(",") if os.getenv("OLLAMA_API_KEY") else ["agentmake"]
-    DEFAULT_ENDPOINT = os.getenv("OLLAMA_ENDPOINT") if os.getenv("OLLAMA_ENDPOINT") else f"http://{get_local_ip()}:11434"
-    DEFAULT_MODEL = os.getenv("OLLAMA_MODEL") if os.getenv("OLLAMA_MODEL") else "llama3.2"
-    DEFAULT_TEMPERATURE = float(os.getenv("OLLAMA_TEMPERATURE")) if os.getenv("OLLAMA_TEMPERATURE") else 0.3
-    DEFAULT_MAX_TOKENS = int(os.getenv("OLLAMA_MAX_TOKENS")) if os.getenv("OLLAMA_MAX_TOKENS") else -1
-    DEFAULT_CONTEXT_WINDOW = int(os.getenv("OLLAMA_CONTEXT_WINDOW")) if os.getenv("OLLAMA_CONTEXT_WINDOW") else 2048
-    DEFAULT_BATCH_SIZE = int(os.getenv("OLLAMA_BATCH_SIZE")) if os.getenv("OLLAMA_BATCH_SIZE") else 512
-    DEFAULT_KEEP_ALIVE = os.getenv("OLLAMA_KEEP_ALIVE") if os.getenv("OLLAMA_KEEP_ALIVE") else "5m"
+    DEFAULT_API_KEY = os.getenv("OLLAMACLOUD_API_KEY").split(",") if os.getenv("OLLAMACLOUD_API_KEY") else ["agentmake"]
+    DEFAULT_ENDPOINT = os.getenv("OLLAMACLOUD_ENDPOINT") if os.getenv("OLLAMACLOUD_ENDPOINT") else f"http://{get_local_ip()}:11434"
+    DEFAULT_MODEL = os.getenv("OLLAMACLOUD_MODEL") if os.getenv("OLLAMACLOUD_MODEL") else "llama3.2"
+    DEFAULT_TEMPERATURE = float(os.getenv("OLLAMACLOUD_TEMPERATURE")) if os.getenv("OLLAMACLOUD_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("OLLAMACLOUD_MAX_TOKENS")) if os.getenv("OLLAMACLOUD_MAX_TOKENS") else 65536
+    DEFAULT_CONTEXT_WINDOW = int(os.getenv("OLLAMACLOUD_CONTEXT_WINDOW")) if os.getenv("OLLAMACLOUD_CONTEXT_WINDOW") else 2048
+    DEFAULT_BATCH_SIZE = int(os.getenv("OLLAMACLOUD_BATCH_SIZE")) if os.getenv("OLLAMACLOUD_BATCH_SIZE") else 512
+    DEFAULT_KEEP_ALIVE = os.getenv("OLLAMACLOUD_KEEP_ALIVE") if os.getenv("OLLAMACLOUD_KEEP_ALIVE") else "5m"
 
     @staticmethod
     def getApiKey():
         # rotate multiple API keys
-        if len(OllamaAI.DEFAULT_API_KEY) > 1:
-            first_item = OllamaAI.DEFAULT_API_KEY.pop(0)
-            OllamaAI.DEFAULT_API_KEY.append(first_item)
-        return OllamaAI.DEFAULT_API_KEY[0]
+        if len(OllamacloudAI.DEFAULT_API_KEY) > 1:
+            first_item = OllamacloudAI.DEFAULT_API_KEY.pop(0)
+            OllamacloudAI.DEFAULT_API_KEY.append(first_item)
+        return OllamacloudAI.DEFAULT_API_KEY[0]
 
     @staticmethod
     def getClient(api_endpoint: Optional[str]=None, api_key: Optional[str]=None):
-        config.ollama_client = Client(
-            host=api_endpoint if api_endpoint else OllamaAI.DEFAULT_ENDPOINT,
-            headers={'Authorization': 'Bearer ' + (api_key if api_key else OllamaAI.getApiKey())}
+        config.ollamacloud_client = Client(
+            host=api_endpoint if api_endpoint else OllamacloudAI.DEFAULT_ENDPOINT,
+            headers={'Authorization': 'Bearer ' + (api_key if api_key else OllamacloudAI.getApiKey())}
         )
-        return config.ollama_client
+        return config.ollamacloud_client
 
     @staticmethod
     def getChatCompletion(
@@ -58,36 +58,32 @@ class OllamaAI:
     ) -> ChatResponse:
         if prefill:
             messages.append({'role': 'assistant', 'content': prefill})
-        model = model if model else OllamaAI.DEFAULT_MODEL
-        # Note: custom client, like Client(host=api_endpoint if api_endpoint else OllamaAI.DEFAULT_ENDPOINT), rasies resource warning
+        model = model if model else OllamacloudAI.DEFAULT_MODEL
+        # Note: custom client, like Client(host=api_endpoint if api_endpoint else OllamacloudAI.DEFAULT_ENDPOINT), rasies resource warning
         # download model if it is not in the model list
-        os.environ["OLLAMA_HOST"] = api_endpoint if api_endpoint else OllamaAI.DEFAULT_ENDPOINT
-        if not os.getenv("OLLAMA_HOST").startswith("https://"):
-            OllamaAI.downloadModel(model)
+        os.environ["OLLAMACLOUD_HOST"] = api_endpoint if api_endpoint else OllamacloudAI.DEFAULT_ENDPOINT
+        if not os.getenv("OLLAMACLOUD_HOST").startswith("https://"):
+            OllamacloudAI.downloadModel(model)
         completion = None
         used_api_keys = []
         while completion is None:
-            this_api_key = api_key if api_key else OllamaAI.getApiKey()
+            this_api_key = api_key if api_key else OllamacloudAI.getApiKey()
             if this_api_key in used_api_keys:
                 break
             else:
                 used_api_keys.append(this_api_key)
-            if os.getenv("OLLAMA_HOST") == "https://ollama.com":
-                this_num_predict = int(os.getenv("OLLAMACLOUD_MAX_TOKENS")) if os.getenv("OLLAMACLOUD_MAX_TOKENS") else 65536
-            else:
-                this_num_predict = max_tokens if max_tokens else OllamaAI.DEFAULT_MAX_TOKENS
             try:
-                completion = OllamaAI.getClient(api_endpoint=os.getenv("OLLAMA_HOST"), api_key=this_api_key).chat(
-                    keep_alive=model_keep_alive if model_keep_alive else OllamaAI.DEFAULT_KEEP_ALIVE,
+                completion = OllamacloudAI.getClient(api_endpoint=os.getenv("OLLAMACLOUD_HOST"), api_key=this_api_key).chat(
+                    keep_alive=model_keep_alive if model_keep_alive else OllamacloudAI.DEFAULT_KEEP_ALIVE,
                     model=model,
                     messages=messages,
                     format=getParameterSchema(schema) if schema else None,
                     stream=stream,
                     options=Options(
-                        temperature=temperature if temperature is not None else OllamaAI.DEFAULT_TEMPERATURE,
-                        num_ctx=context_window if context_window is not None else OllamaAI.DEFAULT_CONTEXT_WINDOW,
-                        num_batch=batch_size if batch_size is not None else OllamaAI.DEFAULT_BATCH_SIZE,
-                        num_predict=this_num_predict,
+                        temperature=temperature if temperature is not None else OllamacloudAI.DEFAULT_TEMPERATURE,
+                        num_ctx=context_window if context_window is not None else OllamacloudAI.DEFAULT_CONTEXT_WINDOW,
+                        num_batch=batch_size if batch_size is not None else OllamacloudAI.DEFAULT_BATCH_SIZE,
+                        num_predict=max_tokens if max_tokens else OllamacloudAI.DEFAULT_MAX_TOKENS,
                         stop=stop,
                         **kwargs,
                     ),
@@ -117,7 +113,7 @@ class OllamaAI:
         #api_service_location: Optional[str]=None, # applicable to Vertex AI only
         **kwargs,
     ) -> dict:
-        completion = OllamaAI.getChatCompletion(
+        completion = OllamacloudAI.getChatCompletion(
             messages,
             model=model,
             schema=schema,
@@ -140,12 +136,12 @@ class OllamaAI:
     def downloadModel(model: str, force: bool=False) -> bool:
         if not ":" in model:
             model = f"{model}:latest"
-        if force or not model in [i.model for i in OllamaAI.getClient().list().models]:
+        if force or not model in [i.model for i in OllamacloudAI.getClient().list().models]:
             print(f"Downloading model '{model}' ...")
             try:
                 #https://github.com/ollama/ollama-python/blob/main/examples/pull-progress/main.py
                 current_digest, bars = '', {}
-                for progress in OllamaAI.getClient().pull(model, stream=True):
+                for progress in OllamacloudAI.getClient().pull(model, stream=True):
                     digest = progress.get('digest', '')
                     if digest != current_digest and current_digest in bars:
                         bars[current_digest].close()

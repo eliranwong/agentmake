@@ -20,7 +20,7 @@ def getChatCompletionText(
             text_output = completion.content[0].text
         elif backend == "cohere":
             text_output = completion.message.content[0].text
-        elif backend == "ollama":
+        elif backend in ("ollama", "ollamacloud"):
             text_output = completion.message.content
         elif backend in ("azure_any", "github_any"):
             text_output = completion.choices[0].message.content
@@ -76,6 +76,9 @@ def closeConnections(backend: str):
     elif backend == "ollama" and hasattr(config, "ollama_client") and config.ollama_client is not None:
         config.ollama_client._client.close()
         config.ollama_client = None
+    elif backend == "ollamacloud" and hasattr(config, "ollamacloud_client") and config.ollamacloud_client is not None:
+        config.ollamacloud_client._client.close()
+        config.ollamacloud_client = None
     elif backend == "xai" and hasattr(config, "xai_client") and config.xai_client is not None:
         config.xai_client.close()
         config.xai_client = None

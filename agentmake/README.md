@@ -1,6 +1,6 @@
 # AgentMake AI
 
-AgentMake AI: an agent developement kit (ADK) for developing agentic AI applications that support 16 AI backends and work with 7 agentic components, such as tools and agents. (Developer: Eliran Wong)
+AgentMake AI: an agent developement kit (ADK) for developing agentic AI applications that support 18 AI backends and work with 7 agentic components, such as tools and agents. (Developer: Eliran Wong)
 
 Supported backends: anthropic, azure, cohere, custom, deepseek, genai, github, googleai, groq, llamacpp, mistral, ollama, openai, vertexai, xai
 
@@ -61,6 +61,8 @@ Windows, macOS, Linux, ChromeOS, Android via [Termux Terminal](https://github.co
 `mistral` - [Mistral API](https://console.mistral.ai/api-keys/) [[docs](https://docs.mistral.ai/)]
 
 `ollama` - [Ollama](https://ollama.com/) [[docs](https://github.com/ollama/ollama-python)] - [local setup](https://ollama.com/download) required
+
+`ollamacloud` - [Ollama](https://ollama.com/) [[docs](https://docs.ollama.com/cloud)]
 
 `openai` - [OpenAI API](https://platform.openai.com/) [[docs](https://platform.openai.com/)]
 
