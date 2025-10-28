@@ -2,7 +2,7 @@
 Translate content into traditional Chinese characters, using DeepSeek AI model via Azure service.
 """
 
-def translate_into_simplified_chinese_azure_deepseeek(content, **kwargs):
+def translate_into_traditional_chinese_azure_deepseeek(content, **kwargs):
     import os
     from azure.ai.inference import ChatCompletionsClient
     from azure.ai.inference.models import SystemMessage, UserMessage, AssistantMessage
@@ -18,7 +18,7 @@ def translate_into_simplified_chinese_azure_deepseeek(content, **kwargs):
     response = client.complete(
         stream=True,
         messages=[
-            SystemMessage("Translate the given content into simplified Chinese. Do NOT think, just translate. Provide me with the translation only, without extra comments or explanations."),
+            SystemMessage("Translate the given content into traditional Chinese. Do NOT think, just translate. Provide me with the translation only, without extra comments or explanations."),
             UserMessage(content),
         ],
         model=model_name,
@@ -37,4 +37,4 @@ def translate_into_simplified_chinese_azure_deepseeek(content, **kwargs):
 
     return text_ouptut
 
-CONTENT_PLUGIN = translate_into_simplified_chinese_azure_deepseeek
+CONTENT_PLUGIN = translate_into_traditional_chinese_azure_deepseeek

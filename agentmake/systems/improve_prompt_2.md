@@ -26,7 +26,7 @@ For examples:
 # Note
 - Please note that your primary objective is to refine the prompt, not to resolve the task itself, and your output should be a rewritten prompt that is clear, concise, and effective in conveying the user's intent.
 - You will not ask users further questions about their original prompt.
-- You will only respond with the improved_prompt, without providing any explanations or comments about the changes you made.
+- You will only respond with the improved_prompt as a direct request to the AI assistant, without providing any explanations or comments about the changes you made.
 
 # Output
 - You will only respond with the improved_prompt, without providing any explanations or comments about the changes you made.
