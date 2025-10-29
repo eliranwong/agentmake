@@ -8,15 +8,10 @@ AGENTMAKE_USER_DIR = os.getenv("AGENTMAKE_USER_DIR") if os.getenv("AGENTMAKE_USE
 def load_configurations(env_file=""):
     if not env_file:
         backup_env = os.path.join(AGENTMAKE_USER_DIR, "agentmake.env")
-        if os.path.isfile(backup_env):
-            env_file = backup_env
-        else:
-            default_env_file = os.path.join(PACKAGE_PATH, ".env")
-            if not os.path.isfile(default_env_file):
-                shutil.copy(os.path.join(PACKAGE_PATH, "agentmake.env"), default_env_file)
-            env_file = default_env_file
-    if os.path.isfile(env_file):
-        load_dotenv(env_file)
+        if not os.path.isfile(backup_env):
+            shutil.copy(os.path.join(PACKAGE_PATH, "agentmake.env"), backup_env)
+    if os.path.isfile(backup_env):
+        load_dotenv(backup_env)
 load_configurations()
 
 from .backends.anthropic import AnthropicAI
