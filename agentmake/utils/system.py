@@ -43,11 +43,13 @@ Local ip: {local_ip}
     user_os = "macOS" if platform.system() == "Darwin" else platform.system()
     if user_os == "Linux":
         user_os = "Linux (" + get_linux_distro().get("name", "") + ")"
-    return f"""Operating system: {user_os}
-Version: {platform.version()}
-Machine: {platform.machine()}
+    return f"""Machine: {platform.machine()}
 Architecture: {platform.architecture()[0]}
 Processor: {platform.processor()}
+CPU threads: {getCpuThreads()}
+RAM: {str(round(psutil.virtual_memory().total / (1024.0 **3)))} GB
+Operating system: {user_os}
+OS Version: {platform.version()}
 Hostname: {socket.gethostname()}
 Username: {getpass.getuser()}
 Python version: {platform.python_version()}
