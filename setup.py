@@ -2,7 +2,7 @@ from setuptools import setup
 import os, shutil
 
 package = "agentmake"
-version="1.1.68"
+version="1.1.71"
 
 # update version info
 info_file = os.path.join(package, "version.txt") # package readme
@@ -58,7 +58,6 @@ setup(
         f"{package}.systems.counsellors",
         f"{package}.systems.roles",
         f"{package}.systems.styles",
-        f"{package}.systems.xomate",
         f"{package}.systems.biblemate",
         f"{package}.systems.computemate",
         f"{package}.tools",
@@ -109,7 +108,6 @@ setup(
         f"{package}.systems.counsellors": ["*.*"],
         f"{package}.systems.roles": ["*.*"],
         f"{package}.systems.styles": ["*.*"],
-        f"{package}.systems.xomate": ["*.*"],
         f"{package}.systems.biblemate": ["*.*"],
         f"{package}.systems.computemate": ["*.*"],
         f"{package}.tools": ["*.*"],
