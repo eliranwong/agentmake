@@ -63,13 +63,37 @@ class GroqAI:
                 used_api_keys.append(this_api_key)
             try:
                 if schema:
+                    if "code" in schema["parameters"]["properties"]:
+                        schema["parameters"]["properties"]["code"]["description"] += " Ensure the code includes all necessary import statements."
+                    '''# Structured output; supported by selected models only
+                    parameters = schema["parameters"]
+                    parameters["additionalProperties"] = False
+                    schema = {
+                        "name": schema["name"],
+                        "schema": parameters,
+                    }
+                    completion = GroqAI.getClient(api_key=this_api_key).chat.completions.create(
+                        model=model if model else GroqAI.DEFAULT_MODEL,
+                        messages=messages,
+                        temperature=temperature if temperature is not None else GroqAI.DEFAULT_TEMPERATURE,
+                        max_tokens=max_tokens if max_tokens else GroqAI.DEFAULT_MAX_TOKENS,
+                        response_format={
+                            "type": "json_schema",
+                            "json_schema": schema,
+                        },
+                        stream=stream,
+                        stop=stop,
+                        timeout=api_timeout,
+                        **kwargs
+                    )'''
                     completion = GroqAI.getClient(api_key=this_api_key).chat.completions.create(
                         model=model if model else GroqAI.DEFAULT_MODEL,
                         messages=messages,
                         temperature=temperature if temperature is not None else GroqAI.DEFAULT_TEMPERATURE,
                         max_tokens=max_tokens if max_tokens else GroqAI.DEFAULT_MAX_TOKENS,
                         tools=[{"type": "function", "function": schema}],
-                        tool_choice={"type": "function", "function": {"name": schema["name"]}},
+                        #tool_choice={"type": "function", "function": {"name": schema["name"]}}, # inconsistant; doesn't work sometimes
+                        tool_choice="auto",
                         stream=stream,
                         stop=stop,
                         timeout=api_timeout,
@@ -123,4 +147,13 @@ class GroqAI:
             api_timeout=api_timeout,
             **kwargs
         )
+        if content:= completion.choices[0].message.content:
+            if required := schema["parameters"]["required"]:
+                dictionary_output = {}
+                dictionary_output[required[0]] = content
+                for i in range(1,len(required)):
+                    dictionary_output[required[i]] = ""
+                return dictionary_output
+            else:
+                return {}
         return json.loads(completion.choices[0].message.tool_calls[0].function.arguments)

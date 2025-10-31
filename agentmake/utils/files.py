@@ -2,6 +2,38 @@ from agentmake import USER_OS
 import glob
 import os, re
 
+def sanitize_filename(filename, replacement_char='_'):
+    """
+    Sanitizes a string to be used as a filename by replacing invalid characters.
+
+    Args:
+        filename (str): The original string that might contain invalid characters.
+        replacement_char (str): The character to replace invalid characters with.
+                                Defaults to '_'.
+
+    Returns:
+        str: The sanitized filename.
+    """
+    # Regex pattern to match invalid filename characters:
+    # <>:"/\|?* (literal characters)
+    # \x00-\x1F (control characters, including null)
+    invalid_chars_pattern = r'[<>:"/\\|?*\x00-\x1F]'
+
+    # Replace invalid characters with the specified replacement_char
+    sanitized = re.sub(invalid_chars_pattern, replacement_char, filename)
+
+    # Optional: Remove leading/trailing spaces or dots, which can also be problematic
+    # on some systems or for specific file operations.
+    sanitized = sanitized.strip(' .') 
+
+    # Optional: Ensure the filename is not empty after sanitization
+    if not sanitized:
+        return "untitled" # Or raise an error, or return a default name
+    
+    sanitized = re.sub("_[_]+?([^_])", r"_\1", sanitized)
+
+    return sanitized
+
 def searchFolder(folder, query, filter="*.txt"):
     # Linux/macOS: find chats/ -name "*.txt" -type f -exec grep -rin --color=auto "your_string" {} +
     # Windows: findstr /s "your_string" *.txt /path/to/your/folder
