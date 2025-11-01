@@ -35,7 +35,7 @@ class GenaiAI:
     DEFAULT_API_SERVICE_LOCATION = os.getenv("VERTEXAI_API_SERVICE_LOCATION") if os.getenv("VERTEXAI_API_SERVICE_LOCATION") else "us-central1"
     DEFAULT_MODEL = os.getenv("VERTEXAI_MODEL") if os.getenv("VERTEXAI_MODEL") else "gemini-2.5-pro"
     DEFAULT_TEMPERATURE = float(os.getenv("VERTEXAI_TEMPERATURE")) if os.getenv("VERTEXAI_TEMPERATURE") else 0.3
-    DEFAULT_MAX_TOKENS = int(os.getenv("VERTEXAI_MAX_TOKENS")) if os.getenv("VERTEXAI_MAX_TOKENS") else 8192 # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models
+    DEFAULT_MAX_TOKENS = int(os.getenv("VERTEXAI_MAX_TOKENS")) if os.getenv("VERTEXAI_MAX_TOKENS") else 65536 # https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models
 
     @staticmethod
     def toGenAIMessages(messages: dict=[]) -> Optional[list]:
