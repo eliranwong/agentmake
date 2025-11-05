@@ -1,3 +1,4 @@
+from agentmake import STOP_FILE
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.input import create_input
 import asyncio, shutil, os, wcwidth, re, textwrap
@@ -102,10 +103,9 @@ class TextWrapper:
         block_start = False
         word_wrap = self.word_wrap
         first_event = True
-        stop_file = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "temp", "stop_running")
         for event in completion:
-            if os.path.isfile(stop_file):
-                os.remove(stop_file)
+            if os.path.isfile(STOP_FILE):
+                os.remove(STOP_FILE)
                 finishOutputs(word_wrap, chat_response)
             if streaming_event is None or (not streaming_event.is_set() and not self.streaming_finished):
                 # RETRIEVE THE TEXT FROM THE RESPONSE

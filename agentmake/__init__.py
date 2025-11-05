@@ -1,9 +1,14 @@
 from dotenv import load_dotenv
-import os, shutil, getpass
+import os, shutil, getpass, logging
 
 PACKAGE_PATH = os.path.dirname(os.path.realpath(__file__))
 PACKAGE_NAME = os.path.basename(PACKAGE_PATH)
 AGENTMAKE_USER_DIR = os.getenv("AGENTMAKE_USER_DIR") if os.getenv("AGENTMAKE_USER_DIR") else os.path.join(os.path.expanduser("~"), "agentmake") # It is where users store their custom components, i.e. `tools`, `agents`, `plugins`, `systems`, `instructions`, and `prompts`.Custom components are placed outside the package directory, to avoid overriding upon upgrades.
+
+STOP_FILE = os.path.join(PACKAGE_PATH, "temp", "stop_running")
+LOG_FILE = os.path.join(AGENTMAKE_USER_DIR, "errors.txt")
+logging.basicConfig(format="[%(levelname)s]: %(message)s", level=logging.ERROR, filename=LOG_FILE)
+LOGGER = logging.getLogger(__name__)
 
 def load_configurations(env_file=""):
     if not env_file:
@@ -358,6 +363,8 @@ def agentmake(
         or:
             streaming events object of AI assistant response when both parameters `stream` and `stream_events_only` are set to `True`
     """
+    if os.path.isfile(STOP_FILE):
+        os.remove(STOP_FILE)
     try:
         if not backend:
             backend = DEFAULT_AI_BACKEND
@@ -416,6 +423,7 @@ def agentmake(
                         exec(input_content_plugin_object, glob, loc)
                         input_content_plugin_func = loc.get("CONTENT_PLUGIN")
                     except Exception as e:
+                        LOGGER.exception(f"An error occurred: {e}")
                         print(f"Failed to execute input content plugin `{input_content_plugin_name}`! An error occurred: {e}")
                         if DEVELOPER_MODE:
                             print(traceback.format_exc())
@@ -478,6 +486,7 @@ def agentmake(
                     exec(agent_object, glob, loc)
                     agent_func = loc.get("AGENT_FUNCTION")
                 except Exception as e:
+                    LOGGER.exception(f"An error occurred: {e}")
                     print(f"Failed to run agent `{agent_name}`! An error occurred: {e}")
                     if DEVELOPER_MODE:
                         print(traceback.format_exc())
@@ -536,7 +545,7 @@ def agentmake(
                 )
             if system_instruction:
                 original_system = updateSystemMessage(messages_copy, system_instruction)
-        elif not system and not agent_response and DEFAULT_SYSTEM_MESSAGE:
+        elif not (messages_copy and messages_copy[0].get("role", "") == "system") and not system and not agent_response and DEFAULT_SYSTEM_MESSAGE:
             user_prompt = messages_copy[-1].get("content", "")
             system_instruction = refine_system_instruction(
                 DEFAULT_SYSTEM_MESSAGE,
@@ -644,6 +653,7 @@ def agentmake(
                     if tool_system:
                         chat_system = updateSystemMessage(messages_copy, tool_system)
                 except Exception as e:
+                    LOGGER.exception(f"An error occurred: {e}")
                     print(f"Failed to execute tool `{tool_name}`! An error occurred: {e}")
                     if DEVELOPER_MODE:
                         print(traceback.format_exc())
@@ -723,6 +733,7 @@ def agentmake(
                     # Restore the original stdout
                     sys.stdout = old_stdout
                 except Exception as e:
+                    LOGGER.exception(f"An error occurred: {e}")
                     sys.stdout = old_stdout
                     print("```error")
                     function_name = re.sub("<function (.*?) .*?$", r"\1", str(func))
@@ -1035,6 +1046,7 @@ def agentmake(
                         exec(output_content_plugin_object, glob, loc)
                         output_content_plugin_func = loc.get("CONTENT_PLUGIN")
                     except Exception as e:
+                        LOGGER.exception(f"An error occurred: {e}")
                         print(f"Failed to execute output content plugin `{output_content_plugin_name}`! An error occurred: {e}")
                         if DEVELOPER_MODE:
                             print(traceback.format_exc())
@@ -1108,6 +1120,11 @@ def agentmake(
         #print(messages_copy)
         return messages_copy
     except KeyboardInterrupt:
+        return []
+    except Exception as e:
+        LOGGER.exception(f"An error occurred: {e}")
+        if DEVELOPER_MODE:
+            print(traceback.format_exc())
         return []
 
 def refine_system_instruction(
@@ -1277,6 +1294,8 @@ def getDictionaryOutput(
     """
     Returns dictionary in response to user message
     """
+    if os.path.isfile(STOP_FILE):
+        os.remove(STOP_FILE)
     try:
         if backend == "anthropic":
             return AnthropicAI.getDictionaryOutput(
@@ -1499,6 +1518,11 @@ def getDictionaryOutput(
     except KeyboardInterrupt:
         # print("Stopped by user!")
         return None
+    except Exception as e:
+        LOGGER.exception(f"An error occurred: {e}")
+        if DEVELOPER_MODE:
+            print(traceback.format_exc())
+        return None
 
 def saveUserSystemMessage(system: str, subfolder="", filename=""):
     user_systems_dir = os.path.join(AGENTMAKE_USER_DIR, "systems", subfolder) if subfolder else os.path.join(AGENTMAKE_USER_DIR, "systems")
@@ -1525,6 +1549,9 @@ def updateSystemMessage(messages: List[Dict[str, str]], system: str) -> str:
             original_system = i.get("content", "")
             i["content"] = system
             break
+    if not original_system:
+        messages.insert(0, {"role": "system", "content": system})
+        return system
     return original_system
 
 def addContextToMessages(messages: List[Dict[str, str]], context: str):
@@ -1598,6 +1625,7 @@ def extractText(item: Any, image_backend: str=DEFAULT_AI_BACKEND, llm_model: str
         md = MarkItDown(llm_client=getBackendClient(image_backend), llm_model=llm_model if llm_model else "gpt-4o") if re.search(r"(\.jpg|\.jpeg|\.png)$", item.lower()) else MarkItDown()
         text_content = md.convert(item).text_content
     except Exception as e:
+        LOGGER.exception(f"An error occurred: {e}")
         showErrors(e)
         return f"An error occurred: {e}"
     return text_content
@@ -1706,6 +1734,7 @@ def exportPlainConversation(messages: list, filepath: str):
         writeTextFile(filepath, "\n".join(export_content))
         os.system(f'''{DEFAULT_TEXT_EDITOR} "{filepath}"''')
     except Exception as e:
+        LOGGER.exception(f"An error occurred: {e}")
         raise ValueError("An error occurred: {e}" if e else f"Error! Failed to export conversation to '{filepath}'!")
 
 # fabric integration
