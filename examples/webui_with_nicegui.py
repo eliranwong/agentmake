@@ -1,8 +1,8 @@
 from agentmake import agentmake
 from agentmake import STOP_FILE
 from nicegui import ui
-from pathlib import Path
-import asyncio, datetime
+#from pathlib import Path
+import asyncio, datetime, threading
 
 RUNNING = False
 SEND_BUTTON = None
@@ -12,13 +12,15 @@ MESSAGES = None
 MESSAGE_CONTAINER = None 
 SCROLL_AREA = None
 AUTO_SCROLL_CHECKBOX = None
+STREAMING_EVENT = None
 
 
 async def handle_send_click():
     """Handles the logic when the Send button is pressed."""
-    global RUNNING, REQUEST_INPUT, SCROLL_AREA, MESSAGE_CONTAINER, SEND_BUTTON, AUTO_SCROLL_CHECKBOX, MESSAGES, agentmake, STOP_FILE
+    global RUNNING, REQUEST_INPUT, SCROLL_AREA, MESSAGE_CONTAINER, SEND_BUTTON, AUTO_SCROLL_CHECKBOX, MESSAGES, agentmake, STOP_FILE, STREAMING_EVENT
     if RUNNING:
-        Path(STOP_FILE).touch()
+        #Path(STOP_FILE).touch()
+        STREAMING_EVENT.set()
         RUNNING = False
         return None
 
@@ -40,7 +42,8 @@ async def handle_send_click():
 
         n = ui.notification(timeout=None)
 
-        awaitable = asyncio.to_thread(agentmake, MESSAGES, follow_up_prompt=user_request, stream=True, print_on_terminal=False)
+        STREAMING_EVENT = threading.Event()
+        awaitable = asyncio.to_thread(agentmake, MESSAGES, follow_up_prompt=user_request, stream=True, print_on_terminal=False, streaming_event=STREAMING_EVENT)
         task = asyncio.create_task(awaitable)
         while RUNNING and not task.done():
             n.message = f'Loading ...'

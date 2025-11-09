@@ -47,7 +47,7 @@ from io import StringIO
 from markitdown import MarkItDown
 from pathlib import Path
 from copy import deepcopy
-import sys, re, platform, atexit, json, traceback
+import sys, re, platform, json, traceback, threading
 
 AGENTMAKE_ASSISTANT_NAME = os.getenv("AGENTMAKE_ASSISTANT_NAME") if os.getenv("AGENTMAKE_ASSISTANT_NAME") else "AI"
 AGENTMAKE_USERNAME = os.getenv("AGENTMAKE_USERNAME") if os.getenv("AGENTMAKE_USERNAME") else getpass.getuser().capitalize()
@@ -126,6 +126,7 @@ def agentmake(
     api_timeout: Optional[Union[int, float]]=None, # timeout for API request; applicable to all backends, execept for ollama
     print_on_terminal: Optional[bool]=True, # print output on terminal
     word_wrap: Optional[bool]=True, # word wrap output according to current terminal width
+    streaming_event: Optional[threading.Event]=None,
     **kwargs, # pass extra options supported by individual backends
 ) -> Union[List[Dict[str, str]], Any]:
     """
@@ -1007,7 +1008,7 @@ def agentmake(
                 )
             if stream and stream_events_only and is_last_request:
                 return completion
-            output = getChatCompletionText(backend, completion, stream=stream, print_on_terminal=print_on_terminal, word_wrap=word_wrap)
+            output = getChatCompletionText(backend, completion, stream=stream, print_on_terminal=print_on_terminal, word_wrap=word_wrap, streaming_event=streaming_event)
 
         # close connection
         closeConnections(backend)

@@ -9,12 +9,13 @@ def getChatCompletionText(
         stream: Optional[bool]=False,
         print_on_terminal: Optional[bool]=True,
         word_wrap: Optional[bool]=True,
+        streaming_event: Optional[threading.Event]=None,
     ) -> str:
     if not completion:
         return ""
     stream_openai_reasoning_model = True if stream and backend=="openai" and hasattr(completion, "choices") else False
     if stream and not stream_openai_reasoning_model: # openai reasoning models do not support streaming
-        text_output = readStreamingChunks(backend, completion, print_on_terminal, word_wrap)
+        text_output = readStreamingChunks(backend, completion, print_on_terminal, word_wrap, streaming_event)
     else:
         if backend == "anthropic":
             text_output = completion.content[0].text
@@ -88,6 +89,7 @@ def readStreamingChunks(
         completion: Any,
         print_on_terminal: Optional[bool]=True,
         word_wrap: Optional[bool]=True,
+        streaming_event: Optional[threading.Event]=None,
     ) -> str:
     if isinstance(completion, str):
         # in case of mistral
@@ -95,7 +97,8 @@ def readStreamingChunks(
     openai_style = True if backend in ("azure", "azure_any", "custom", "deepseek", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "openai", "xai") else False
     try:
         text_wrapper = TextWrapper(word_wrap)
-        streaming_event = threading.Event()
+        if not streaming_event:
+            streaming_event = threading.Event()
         streaming_thread = threading.Thread(target=text_wrapper.streamOutputs, args=(streaming_event, completion, openai_style, print_on_terminal))
         # Start the streaming thread
         streaming_thread.start()
