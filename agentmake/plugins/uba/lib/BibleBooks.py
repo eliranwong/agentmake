@@ -2861,6 +2861,10 @@ class BibleBooks:
     }
 
     @staticmethod
+    def bookNameToNum(bookName):
+        return int(BibleBooks.name2number[bookName]) if bookName in BibleBooks.name2number else int(BibleBooks.name2number[bookName+"."]) if bookName+"." in BibleBooks.name2number else 0
+
+    @staticmethod
     def getLastChapter(book):
         if book in BibleBooks.chapters.keys():
             return BibleBooks.chapters[book]

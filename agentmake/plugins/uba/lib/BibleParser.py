@@ -293,7 +293,10 @@ class BibleVerseParser:
         return "; ".join(allReferences)
 
     def extractExhaustiveReferences(self, text, tagged=False, splitInChunks=True) -> str:
-        allReferences = self.extractAllReferences(text=text, tagged=tagged, splitInChunks=splitInChunks)
+        if isinstance(text, str):
+            allReferences = self.extractAllReferences(text=text, tagged=tagged, splitInChunks=splitInChunks)
+        else:
+            allReferences = text # a list of references is provided instead of a string
         exhaustiveReferences = []
         for i in allReferences:
             if len(i) == 5:
