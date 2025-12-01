@@ -117,7 +117,7 @@ class BibleVerseParser:
     # This function check if there is an existing value of config.standardAbbreviation
     def checkConfig(self):
         if not hasattr(config, "standardAbbreviation"):
-            config.standardAbbreviation = "ENG"
+            config.standardAbbreviation = self.language.upper()
             config.convertChapterVerseDotSeparator = True
             config.useLiteVerseParsing = False
             config.noOfLinesPerChunkForParsing = 100
