@@ -292,7 +292,7 @@ class BibleVerseParser:
         allReferences = [self.bcvToVerseReference(*i) for i in allReferences]
         return "; ".join(allReferences)
 
-    def extractExhaustiveReferences(self, text, tagged=False, splitInChunks=True) -> str:
+    def extractExhaustiveReferences(self, text, tagged=False, splitInChunks=True) -> list:
         if isinstance(text, str):
             allReferences = self.extractAllReferences(text=text, tagged=tagged, splitInChunks=splitInChunks)
         else:
