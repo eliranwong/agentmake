@@ -276,7 +276,14 @@ class BibleVerseParser:
         # return the tagged text, without the extra space added at the beginning of this function.
         return text[:-1]
 
+    def replace_chinese_punctuations(self, text):
+        text = text.replace("：", ":")
+        text = text.replace("，", ",")
+        text = text.replace("；", ";")
+        return text
+
     def extractAllReferences(self, text, tagged=False, splitInChunks=True):
+        text = self.replace_chinese_punctuations(text)
         if splitInChunks:
             allReferences = []
             chunks = text.splitlines(True)
@@ -293,6 +300,7 @@ class BibleVerseParser:
         return "; ".join(allReferences)
 
     def extractExhaustiveReferences(self, text, tagged=False, splitInChunks=True) -> list:
+        text = self.replace_chinese_punctuations(text)
         if isinstance(text, str):
             allReferences = self.extractAllReferences(text=text, tagged=tagged, splitInChunks=splitInChunks)
         else:
