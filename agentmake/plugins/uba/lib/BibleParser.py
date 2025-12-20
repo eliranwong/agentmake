@@ -109,7 +109,7 @@ class BibleVerseParser:
     # update self.standardAbbreviation
     def updateStandardAbbreviation(self):
         self.checkConfig()
-        self.standardAbbreviation = BibleBooks().booksMap.get(config.standardAbbreviation, BibleBooks.abbrev[self.language])
+        self.standardAbbreviation = BibleBooks().booksMap.get(self.language.lower(), BibleBooks.abbrev[self.language])
         self.standardFullBookName = {key: value[1] for key, value in self.standardAbbreviation.items()}
         self.standardAbbreviation = {key: value[0] for key, value in self.standardAbbreviation.items()}
 
@@ -277,6 +277,7 @@ class BibleVerseParser:
         return text[:-1]
 
     def replace_chinese_punctuations(self, text):
+        if not isinstance(text, str): return text
         text = text.replace("：", ":")
         text = text.replace("，", ",")
         text = text.replace("；", ";")
