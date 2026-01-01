@@ -23,11 +23,11 @@ def getChatCompletionText(
             text_output = completion.message.content[0].text
         elif backend in ("ollama", "ollamacloud"):
             text_output = completion.message.content
-        elif backend in ("azure_any", "github_any"):
+        elif backend in ("azure_sdk", "github_any"):
             text_output = completion.choices[0].message.content
         elif backend in ("genai", "vertexai"):
             text_output = completion.candidates[0].content.parts[0].text
-        elif backend in ("azure_openai", "custom", "deepseek", "github", "googleai", "groq", "llamacpp", "mistral", "openai", "xai"):
+        elif backend in ("azure_openai", "azure_cohere", "azure_deepseek", "azure_xai", "custom", "custom1", "custom2", "deepseek", "github", "googleai", "groq", "llamacpp", "mistral", "openai", "xai"):
             text_output = completion.choices[0].message.content
         if print_on_terminal:
             print(wrapText(text_output) if word_wrap else text_output)
@@ -50,9 +50,24 @@ def closeConnections(backend: str):
     elif backend == "cohere" and hasattr(config, "cohere_client") and config.cohere_client is not None:
         config.cohere_client._client_wrapper.httpx_client.httpx_client.close()
         config.cohere_client = None
+    elif backend == "azure_cohere" and hasattr(config, "azure_cohere_client") and config.azure_cohere_client is not None:
+        config.azure_cohere_client.close()
+        config.azure_cohere_client = None
+    elif backend == "azure_deepseek" and hasattr(config, "azure_deepseek_client") and config.azure_deepseek_client is not None:
+        config.azure_deepseek_client.close()
+        config.azure_deepseek_client = None
+    elif backend == "azure_xai" and hasattr(config, "azure_xai_client") and config.azure_xai_client is not None:
+        config.azure_xai_client.close()
+        config.azure_xai_client = None
     elif backend == "custom" and hasattr(config, "custom_client") and config.custom_client is not None:
         config.custom_client.close()
         config.custom_client = None
+    elif backend == "custom1" and hasattr(config, "custom1_client") and config.custom1_client is not None:
+        config.custom1_client.close()
+        config.custom1_client = None
+    elif backend == "custom2" and hasattr(config, "custom2_client") and config.custom2_client is not None:
+        config.custom2_client.close()
+        config.custom2_client = None
     elif backend == "deepseek" and hasattr(config, "deepseek_client") and config.deepseek_client is not None:
         config.deepseek_client.close()
         config.deepseek_client = None
@@ -97,7 +112,7 @@ def readStreamingChunks(
     if isinstance(completion, str):
         # in case of mistral
         return completion
-    openai_style = True if backend in ("azure_openai", "azure_any", "custom", "deepseek", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "openai", "xai") else False
+    openai_style = True if backend in ("azure_openai", "azure_cohere", "azure_deepseek", "azure_xai", "azure_sdk", "custom", "custom1", "custom2", "deepseek", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "openai", "xai") else False
     try:
         text_wrapper = TextWrapper(word_wrap)
         if not streaming_event:

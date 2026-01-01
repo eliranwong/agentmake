@@ -2,7 +2,7 @@
 
 AgentMake AI: an agent developement kit (ADK) for developing agentic AI applications that support 18 AI backends and work with 7 agentic components, such as tools and agents. (Developer: Eliran Wong)
 
-Supported backends: anthropic, azure_anthropic, azure_openai, azure_any, cohere, custom, deepseek, genai, github, googleai, groq, llamacpp, mistral, ollama, openai, vertexai, xai
+Supported backends: anthropic, azure_anthropic, azure_openai, azure_sdk, cohere, custom, deepseek, genai, github, googleai, groq, llamacpp, mistral, ollama, openai, vertexai, xai
 
 # Audio Introduction
 
@@ -36,11 +36,15 @@ Windows, macOS, Linux, ChromeOS, Android via [Termux Terminal](https://github.co
 
 `anthropic` - [Anthropic API](https://console.anthropic.com/) [[docs](https://docs.anthropic.com/en/home)]
 
-`azure_openai` - [Azure OpenAI Service API](https://ai.azure.com/github) [[docs](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)]
-
 `azure_anthropic` - [Azure Anthropic Service API](https://ai.azure.com/github) [[docs](https://ai.azure.com/github)]
 
-`azure_any` - [Azure AI Inference API](https://ai.azure.com/github) [[docs](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)]
+`azure_deepseek` - [Azure Anthropic Service API](https://ai.azure.com/github) [[docs](https://ai.azure.com/github)]
+
+`azure_openai` - [Azure OpenAI Service API](https://ai.azure.com/github) [[docs](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)]
+
+`azure_xai` - [Azure Anthropic Service API](https://ai.azure.com/github) [[docs](https://ai.azure.com/github)]
+
+`azure_sdk` - [Azure AI Inference API](https://ai.azure.com/github) [[docs](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)]
 
 `cohere` - [Cohere API](https://cohere.com/) [[docs](https://docs.cohere.com/docs/the-cohere-platform)]
 

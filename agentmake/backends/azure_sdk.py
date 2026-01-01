@@ -17,11 +17,11 @@ class AzureAnyAI:
     @staticmethod
     def getClient(api_key: Optional[str]=None, api_endpoint: Optional[str]=None):
         if (api_key or AzureAnyAI.DEFAULT_API_KEY) and (api_endpoint or AzureAnyAI.DEFAULT_API_ENDPOINT):
-            config.azure_any_client = ChatCompletionsClient(
+            config.azure_sdk_client = ChatCompletionsClient(
                 endpoint=api_endpoint if api_endpoint else AzureAnyAI.DEFAULT_API_ENDPOINT,
                 credential=AzureKeyCredential(api_key if api_key else AzureAnyAI.DEFAULT_API_KEY),
             )
-            return config.azure_any_client
+            return config.azure_sdk_client
         return None
 
     @staticmethod

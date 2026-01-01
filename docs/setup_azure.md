@@ -4,9 +4,15 @@ Agentmake supports both OpenAI and non-OpenAI models, deployed with Azure servic
 
 To use them with AgentMake:
 
-* specify `azure` as backend to use Azure OpenAI models
+* specify `azure_openai` as backend to use Azure OpenAI models
 
-* specify `azure_any` as backend to use Azure non-OpenAI models
+* specify `azure_deepseek` as backend to use Azure DeepSeek models
+
+* specify `azure_xai` as backend to use Azure Xai models
+
+* specify `azure_sdk` as backend to use Azure models with Azure AI SDK
+
+* specify `custom` or `custom1` or `custom2` as backend to use other Azure openai-compatible models with OpenAI SDK
 
 To set up or deploy models with Azure, go to https://ai.azure.com/github.
 
