@@ -20,7 +20,8 @@ def load_configurations(env_file=""):
 load_configurations()
 
 from .backends.anthropic import AnthropicAI
-from .backends.azure import AzureAI
+from .backends.azure_openai import AzureAI # openai
+from .backends.azure_anthropic import AzureAnthropicAI
 from .backends.azure_any import AzureAnyAI
 from .backends.cohere import CohereAI
 from .backends.custom import OpenaiCompatibleAI
@@ -53,7 +54,7 @@ AGENTMAKE_ASSISTANT_NAME = os.getenv("AGENTMAKE_ASSISTANT_NAME") if os.getenv("A
 AGENTMAKE_USERNAME = os.getenv("AGENTMAKE_USERNAME") if os.getenv("AGENTMAKE_USERNAME") else getpass.getuser().capitalize()
 USER_OS = "macOS" if platform.system() == "Darwin" else platform.system()
 DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
-SUPPORTED_AI_BACKENDS = ["anthropic", "azure", "azure_any", "cohere", "custom", "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "ollama", "ollamacloud", "openai", "vertexai", "xai"]
+SUPPORTED_AI_BACKENDS = ["anthropic", "azure_anthropic", "azure_openai", "azure_any", "cohere", "custom", "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "ollama", "ollamacloud", "openai", "vertexai", "xai"]
 DEFAULT_AI_BACKEND = os.getenv("DEFAULT_AI_BACKEND") if os.getenv("DEFAULT_AI_BACKEND") else "ollama"
 RAW_SYSTEM_MESSAGE = f"You are my personal AI assistant. I am your user, {AGENTMAKE_USERNAME}. I will give you both text-based and non-text-based tasks, and the necessary tools to resolve my requests. Therefore, do not tell me that you are only a text-based language model. Try your best to resolve my requests. Do not address my name more than once in a single conversation unless I request it."
 DEFAULT_SYSTEM_MESSAGE = os.getenv("DEFAULT_SYSTEM_MESSAGE") if os.getenv("DEFAULT_SYSTEM_MESSAGE") else RAW_SYSTEM_MESSAGE
@@ -157,7 +158,7 @@ def agentmake(
         backend:
             type: Optional[str]="ollama"
             AI backend
-            supported backends: "anthropic", "azure", "azure_any", "cohere", "custom", "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "ollama", "ollamacloud", "openai", "vertexai", "xai"
+            supported backends: "anthropic", "azure_anthropic", "azure_openai", "azure_any", "cohere", "custom", "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "ollama", "ollamacloud", "openai", "vertexai", "xai"
 
         model:
             type: Optional[str]=None
@@ -796,8 +797,21 @@ def agentmake(
                     api_timeout=api_timeout,
                     **kwargs
                 )
-            elif backend == "azure":
+            elif backend == "azure_openai":
                 completion = AzureAI.getChatCompletion(
+                    messages_copy,
+                    model=model,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                    stop=stop,
+                    stream=stream,
+                    api_key=api_key,
+                    api_endpoint=api_endpoint,
+                    api_timeout=api_timeout,
+                    **kwargs
+                )
+            elif backend == "azure_anthropic":
+                completion = AzureAnthropicAI.getChatCompletion(
                     messages_copy,
                     model=model,
                     temperature=temperature,
@@ -1310,8 +1324,21 @@ def getDictionaryOutput(
                 api_timeout=api_timeout,
                 **kwargs
             )
-        elif backend == "azure":
+        elif backend == "azure_openai":
             return AzureAI.getDictionaryOutput(
+                messages,
+                schema,
+                model=model,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stop=stop,
+                api_key=api_key,
+                api_endpoint=api_endpoint,
+                api_timeout=api_timeout,
+                **kwargs
+            )
+        elif backend == "azure_anthropic":
+            return AzureAnthropicAI.getDictionaryOutput(
                 messages,
                 schema,
                 model=model,
@@ -1614,7 +1641,7 @@ def extractText(item: Any, image_backend: str=DEFAULT_AI_BACKEND, llm_model: str
             return OpenaiAI.getClient()
         elif image_backend == "github":
             return GithubAI.getClient()
-        elif image_backend == "azure":
+        elif image_backend == "azure_openai":
             return AzureAI.getClient()
         elif client := AzureAI.getClient():
             return client

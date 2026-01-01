@@ -30,7 +30,7 @@ Args:
     backend:
         type: Optional[str]="ollama"
         AI backend
-        supported backends: "anthropic", "azure", "azure_any", "cohere", "custom", "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "ollama", "ollamacloud", "openai", "vertexai", "xai"
+        supported backends: "anthropic", "azure_anthropic", "azure_openai", "azure_any", "cohere", "custom", "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "ollama", "ollamacloud", "openai", "vertexai", "xai"
 
     model:
         type: Optional[str]=None

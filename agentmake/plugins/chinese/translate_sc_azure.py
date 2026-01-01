@@ -11,7 +11,7 @@ def translate_traditional_chinese_deepseek(content, **kwargs):
     messages = agentmake(
         content,
         system="Translate the given content into simplified Chinese. Provide me with the translation only, without additional explanations.",
-        backend="azure",
+        backend="azure_openai",
         model="gpt-4o",
     )
     if print_on_terminal:

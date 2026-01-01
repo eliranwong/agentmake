@@ -91,7 +91,7 @@ def cosine_similarity_matrix(query_vector, document_matrix):
 def get_embeddings(texts: list, model: str=RAG_EMBEDDING_MODEL, backend: str=""):
     if backend == "openai" or model in ("text-embedding-3-small", "text-embedding-3-large", "text-embedding-ada-002"):
         return embed_texts_with_openai(texts=texts, model=model)
-    if backend == "azure" or model in ("azure-text-embedding-3-small", "azure-text-embedding-3-large", "azure-text-embedding-ada-002"):
+    if backend == "azure_openai" or model in ("azure-text-embedding-3-small", "azure-text-embedding-3-large", "azure-text-embedding-ada-002"):
         return embed_texts_with_azure(texts=texts, model=model)
     elif backend == "cohere" or model in ("embed-english-v3.0", "embed-english-light-v3.0", "embed-multilingual-v3.0", "embed-multilingual-light-v3.0"):
         return embed_texts_with_cohere(texts=texts, model=model)

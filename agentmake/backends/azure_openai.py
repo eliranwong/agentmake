@@ -11,7 +11,7 @@ class AzureAI:
     DEFAULT_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION") if os.getenv("AZURE_OPENAI_API_VERSION") else "2024-10-21" # check the latest api version at https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#data-plane-inference
     DEFAULT_API_KEY = os.getenv("AZURE_OPENAI_API_KEY") if os.getenv("AZURE_OPENAI_API_KEY") else ""
     DEFAULT_API_ENDPOINT = os.getenv("AZURE_OPENAI_API_ENDPOINT") if os.getenv("AZURE_OPENAI_API_ENDPOINT") else ""
-    DEFAULT_MODEL = os.getenv("AZURE_OPENAI_MODEL") if os.getenv("AZURE_OPENAI_MODEL") else "gpt-4o"
+    DEFAULT_MODEL = os.getenv("AZURE_OPENAI_MODEL") if os.getenv("AZURE_OPENAI_MODEL") else "gpt-5-chat"
     DEFAULT_TEMPERATURE = float(os.getenv("AZURE_OPENAI_TEMPERATURE")) if os.getenv("AZURE_OPENAI_TEMPERATURE") else 0.3
     DEFAULT_MAX_TOKENS = int(os.getenv("AZURE_OPENAI_MAX_TOKENS")) if os.getenv("AZURE_OPENAI_MAX_TOKENS") else 16384
 

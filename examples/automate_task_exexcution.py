@@ -16,7 +16,7 @@ task = "Write brief introductions to the Gospels of Mark, Luke, and John, and sa
 
 agentmake(
     task,
-    backend="azure",
+    backend="azure_openai",
     agent="super",
 )
 

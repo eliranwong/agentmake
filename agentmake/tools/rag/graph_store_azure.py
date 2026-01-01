@@ -57,7 +57,7 @@ def search_graph_store_azure(question: str, list_of_files_or_folders: str, **kwa
         embeddings = [item.embedding for item in embedding.data]
         return np.array(embeddings)
 
-    working_dir = os.path.join(AGENTMAKE_USER_DIR, "graph_store", "azure")
+    working_dir = os.path.join(AGENTMAKE_USER_DIR, "graph_store", "azure_openai")
     Path(working_dir).mkdir(parents=True, exist_ok=True)
 
     rag = LightRAG(

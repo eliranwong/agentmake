@@ -21,7 +21,7 @@ def ocr_azure(image_path_or_url: str="", **kwargs):
 
     if not image_path_or_url:
         return None
-    print(extractText(image_path_or_url, image_backend="azure"))
+    print(extractText(image_path_or_url, image_backend="azure_openai"))
     return ""
 
 TOOL_FUNCTION = ocr_azure

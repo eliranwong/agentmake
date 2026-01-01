@@ -2,7 +2,7 @@
 
 AgentMake AI: an agent developement kit (ADK) for developing agentic AI applications that support 18 AI backends and work with 7 agentic components, such as tools and agents. (Developer: Eliran Wong)
 
-Supported backends: anthropic, azure, cohere, custom, deepseek, genai, github, googleai, groq, llamacpp, mistral, ollama, openai, vertexai, xai
+Supported backends: anthropic, azure_anthropic, azure_openai, azure_any, cohere, custom, deepseek, genai, github, googleai, groq, llamacpp, mistral, ollama, openai, vertexai, xai
 
 # Audio Introduction
 
@@ -36,7 +36,9 @@ Windows, macOS, Linux, ChromeOS, Android via [Termux Terminal](https://github.co
 
 `anthropic` - [Anthropic API](https://console.anthropic.com/) [[docs](https://docs.anthropic.com/en/home)]
 
-`azure` - [Azure OpenAI Service API](https://ai.azure.com/github) [[docs](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)]
+`azure_openai` - [Azure OpenAI Service API](https://ai.azure.com/github) [[docs](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)]
+
+`azure_anthropic` - [Azure Anthropic Service API](https://ai.azure.com/github) [[docs](https://ai.azure.com/github)]
 
 `azure_any` - [Azure AI Inference API](https://ai.azure.com/github) [[docs](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)]
 
@@ -248,13 +250,13 @@ To work with parameter `agent`, e.g.:
 
 > agentmake("Send an email to Eliran Wong at eliran.wong@domain.com to express my gratitude for his work", agent="auto_tool_selection")
 
-> agentmake("Write brief introductions to the Gospels of Mark, Luke, and John, and save each introduction in a separate file, placing them in three different folders named after the respective Gospel book.", agent="super", backend="azure")
+> agentmake("Write brief introductions to the Gospels of Mark, Luke, and John, and save each introduction in a separate file, placing them in three different folders named after the respective Gospel book.", agent="super", backend="azure_openai")
 
 Remarks: the agent `super` is designed to resolve complex tasks that involve multiple steps, tools and agents. It fully automates task plan, tool selection, execution and quality control. Read more at https://github.com/eliranwong/agentmake/blob/main/examples/automate_task_execution.py and https://github.com/eliranwong/agentmake/blob/main/examples/automate_task_execution_tools_specified.md
 
 To specify an AI backend:
 
-> agentmake("What is Microsoft stock price today?", tool="search/finance", backend="azure")
+> agentmake("What is Microsoft stock price today?", tool="search/finance", backend="azure_openai")
 
 To work collaboratively with different backends, e.g.
 
@@ -342,7 +344,7 @@ The available CLI options use the same parameter names as the `agentmake` functi
 
 > ai Extract text from image file sample.png. --tool=ocr/openai
 
-> ai What is Microsoft stock price today? -t search/finance -b azure
+> ai What is Microsoft stock price today? -t search/finance -b azure_openai
 
 > ai what AI model best --input_content_plugin styles/british_english --output_content_plugin chinese/translate_tc_deepseek
 
@@ -356,7 +358,7 @@ The available CLI options use the same parameter names as the `agentmake` functi
 
 > ai -a auto_tool_selection "Send an email to Eliran Wong at eliran.wong@domain.com to express my gratitude for his work"
 
-> ai -a super -b azure "Write brief introductions to the Gospels of Mark, Luke, and John, and save each introduction in a separate file, placing them in three different folders named after the respective Gospel book."
+> ai -a super -b azure_openai "Write brief introductions to the Gospels of Mark, Luke, and John, and save each introduction in a separate file, placing them in three different folders named after the respective Gospel book."
 
 ## More Examples
 

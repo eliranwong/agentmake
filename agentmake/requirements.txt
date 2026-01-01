@@ -4,7 +4,7 @@ groq>=0.33.0
 mistralai>=1.9.2
 openai>=1.96.1
 tiktoken>=0.9.0
-anthropic>=0.57.1
+anthropic>=0.75.0
 cohere>=5.16.1
 #google-genai>=1.0.0 # not installed on Android termux
 azure-ai-inference

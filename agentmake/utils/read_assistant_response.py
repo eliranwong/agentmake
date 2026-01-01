@@ -17,7 +17,7 @@ def getChatCompletionText(
     if stream and not stream_openai_reasoning_model: # openai reasoning models do not support streaming
         text_output = readStreamingChunks(backend, completion, print_on_terminal, word_wrap, streaming_event)
     else:
-        if backend == "anthropic":
+        if backend in ("anthropic", "azure_anthropic"):
             text_output = completion.content[0].text
         elif backend == "cohere":
             text_output = completion.message.content[0].text
@@ -27,7 +27,7 @@ def getChatCompletionText(
             text_output = completion.choices[0].message.content
         elif backend in ("genai", "vertexai"):
             text_output = completion.candidates[0].content.parts[0].text
-        elif backend in ("azure", "custom", "deepseek", "github", "googleai", "groq", "llamacpp", "mistral", "openai", "xai"):
+        elif backend in ("azure_openai", "custom", "deepseek", "github", "googleai", "groq", "llamacpp", "mistral", "openai", "xai"):
             text_output = completion.choices[0].message.content
         if print_on_terminal:
             print(wrapText(text_output) if word_wrap else text_output)
@@ -38,12 +38,15 @@ def closeConnections(backend: str):
     if backend is None:
         backend = os.getenv("DEFAULT_AI_BACKEND") if os.getenv("DEFAULT_AI_BACKEND") else "ollama"
     # close connection
-    if backend == "azure" and hasattr(config, "azure_client") and config.azure_client is not None:
+    if backend == "azure_openai" and hasattr(config, "azure_client") and config.azure_client is not None:
         config.azure_client.close()
         config.azure_client = None
     elif backend == "anthropic" and hasattr(config, "anthropic_client") and config.anthropic_client is not None:
         config.anthropic_client.close()
         config.anthropic_client = None
+    elif backend == "azure_anthropic" and hasattr(config, "azure_anthropic_client") and config.azure_anthropic_client is not None:
+        config.azure_anthropic_client.close()
+        config.azure_anthropic_client = None
     elif backend == "cohere" and hasattr(config, "cohere_client") and config.cohere_client is not None:
         config.cohere_client._client_wrapper.httpx_client.httpx_client.close()
         config.cohere_client = None
@@ -94,7 +97,7 @@ def readStreamingChunks(
     if isinstance(completion, str):
         # in case of mistral
         return completion
-    openai_style = True if backend in ("azure", "azure_any", "custom", "deepseek", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "openai", "xai") else False
+    openai_style = True if backend in ("azure_openai", "azure_any", "custom", "deepseek", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "openai", "xai") else False
     try:
         text_wrapper = TextWrapper(word_wrap)
         if not streaming_event:
