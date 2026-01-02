@@ -4,6 +4,8 @@ from openai.types.chat import ChatCompletion
 from typing import Optional
 import codecs, json, os
 import traceback
+from openai._types import omit
+
 
 DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
 
@@ -69,8 +71,8 @@ class GoogleaiAI:
                     messages=messages,
                     temperature=temperature if temperature is not None else GoogleaiAI.DEFAULT_TEMPERATURE,
                     max_tokens=max_tokens if max_tokens else GoogleaiAI.DEFAULT_MAX_TOKENS,
-                    tools=[{"type": "function", "function": schema}] if schema else None,
-                    tool_choice={"type": "function", "function": {"name": schema["name"]}} if schema else "none",
+                    tools=[{"type": "function", "function": schema}] if schema else omit,
+                    tool_choice={"type": "function", "function": {"name": schema["name"]}} if schema else omit,
                     stream=stream,
                     #stop=stop,
                     timeout=api_timeout,

@@ -6,3 +6,27 @@ Running in HTTP Server Mode
 Open browser link: 'http://192.168.68.62:8080'
 NoneType: None
 
+Traceback (most recent call last):
+  File "/home/eliran/ai/bin/biblemategui", line 3, in <module>
+    from biblemategui.main import main
+  File "/home/eliran/ai/lib/python3.12/site-packages/biblemategui/main.py", line 4, in <module>
+    from biblemategui.pages.home import *
+  File "/home/eliran/ai/lib/python3.12/site-packages/biblemategui/pages/home.py", line 19, in <module>
+    from biblemategui.pages.bibles.original_reader import original_reader
+  File "/home/eliran/ai/lib/python3.12/site-packages/biblemategui/pages/bibles/original_reader.py", line 4, in <module>
+    from biblemategui.fx.bible import *
+  File "/home/eliran/ai/lib/python3.12/site-packages/biblemategui/fx/bible.py", line 7, in <module>
+    from biblemate.uba.bible import BibleVectorDatabase
+ModuleNotFoundError: No module named 'biblemate.uba.bible'
+Traceback (most recent call last):
+  File "/home/eliran/ai/bin/biblemategui", line 3, in <module>
+    from biblemategui.main import main
+  File "/home/eliran/ai/lib/python3.12/site-packages/biblemategui/main.py", line 4, in <module>
+    from biblemategui.pages.home import *
+  File "/home/eliran/ai/lib/python3.12/site-packages/biblemategui/pages/home.py", line 19, in <module>
+    from biblemategui.pages.bibles.original_reader import original_reader
+  File "/home/eliran/ai/lib/python3.12/site-packages/biblemategui/pages/bibles/original_reader.py", line 4, in <module>
+    from biblemategui.fx.bible import *
+  File "/home/eliran/ai/lib/python3.12/site-packages/biblemategui/fx/bible.py", line 7, in <module>
+    from biblemate.uba.bible import BibleVectorDatabase
+ModuleNotFoundError: No module named 'biblemate.uba.bible'

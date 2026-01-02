@@ -8,6 +8,8 @@ To use them with AgentMake:
 
 * specify `azure_deepseek` as backend to use Azure DeepSeek models
 
+* specify `azure_cohere` as backend to use Azure Cohere models
+
 * specify `azure_xai` as backend to use Azure Xai models
 
 * specify `azure_sdk` as backend to use Azure models with Azure AI SDK

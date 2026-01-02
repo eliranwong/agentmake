@@ -59,7 +59,7 @@ AGENTMAKE_ASSISTANT_NAME = os.getenv("AGENTMAKE_ASSISTANT_NAME") if os.getenv("A
 AGENTMAKE_USERNAME = os.getenv("AGENTMAKE_USERNAME") if os.getenv("AGENTMAKE_USERNAME") else getpass.getuser().capitalize()
 USER_OS = "macOS" if platform.system() == "Darwin" else platform.system()
 DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
-SUPPORTED_AI_BACKENDS = ["anthropic", "azure_anthropic", "azure_openai", "azure_deepseek", "azure_xai", "azure_sdk", "cohere", "custom", "custom1", "custom2", "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "ollama", "ollamacloud", "openai", "vertexai", "xai"]
+SUPPORTED_AI_BACKENDS = ["anthropic", "azure_anthropic", "azure_openai", "azure_cohere", "azure_deepseek", "azure_xai", "azure_sdk", "cohere", "custom", "custom1", "custom2", "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "ollama", "ollamacloud", "openai", "vertexai", "xai"]
 DEFAULT_AI_BACKEND = os.getenv("DEFAULT_AI_BACKEND") if os.getenv("DEFAULT_AI_BACKEND") else "ollama"
 RAW_SYSTEM_MESSAGE = f"You are my personal AI assistant. I am your user, {AGENTMAKE_USERNAME}. I will give you both text-based and non-text-based tasks, and the necessary tools to resolve my requests. Therefore, do not tell me that you are only a text-based language model. Try your best to resolve my requests. Do not address my name more than once in a single conversation unless I request it."
 DEFAULT_SYSTEM_MESSAGE = os.getenv("DEFAULT_SYSTEM_MESSAGE") if os.getenv("DEFAULT_SYSTEM_MESSAGE") else RAW_SYSTEM_MESSAGE
@@ -163,7 +163,7 @@ def agentmake(
         backend:
             type: Optional[str]="ollama"
             AI backend
-            supported backends: "anthropic", "azure_anthropic", "azure_openai", "azure_deepseek", "azure_xai", "azure_sdk", "cohere", "custom", "custom1", "custom2", "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "ollama", "ollamacloud", "openai", "vertexai", "xai"
+            supported backends: "anthropic", "azure_anthropic", "azure_openai", "azure_cohere", "azure_deepseek", "azure_xai", "azure_sdk", "cohere", "custom", "custom1", "custom2", "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "ollama", "ollamacloud", "openai", "vertexai", "xai"
 
         model:
             type: Optional[str]=None

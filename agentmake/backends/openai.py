@@ -3,6 +3,7 @@ from openai import OpenAI
 from openai.types.chat import ChatCompletion
 from typing import Optional
 import json, os, re
+from openai._types import omit
 
 
 class OpenaiAI:
@@ -54,8 +55,8 @@ class OpenaiAI:
             messages=messages,
             #temperature=temperature if temperature is not None else OpenaiAI.DEFAULT_TEMPERATURE,
             #max_tokens=max_tokens if max_tokens else OpenaiAI.DEFAULT_MAX_TOKENS,
-            tools=[{"type": "function", "function": schema}] if schema else None,
-            tool_choice={"type": "function", "function": {"name": schema["name"]}} if schema else None,
+            tools=[{"type": "function", "function": schema}] if schema else omit,
+            tool_choice={"type": "function", "function": {"name": schema["name"]}} if schema else omit,
             #stream=stream,
             stop=stop,
             timeout=api_timeout,

@@ -36,15 +36,17 @@ Windows, macOS, Linux, ChromeOS, Android via [Termux Terminal](https://github.co
 
 `anthropic` - [Anthropic API](https://console.anthropic.com/) [[docs](https://docs.anthropic.com/en/home)]
 
-`azure_anthropic` - [Azure Anthropic Service API](https://ai.azure.com/github) [[docs](https://ai.azure.com/github)]
+`azure_anthropic` - [Claude models via Azure Service API](https://ai.azure.com/github) [[docs](https://ai.azure.com/github)]
 
-`azure_deepseek` - [Azure Anthropic Service API](https://ai.azure.com/github) [[docs](https://ai.azure.com/github)]
+`azure_cohere` - [Cohere models via Azure Service API](https://ai.azure.com/github) [[docs](https://ai.azure.com/github)]
 
-`azure_openai` - [Azure OpenAI Service API](https://ai.azure.com/github) [[docs](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)]
+`azure_deepseek` - [DeepSeek models via Azure Service API](https://ai.azure.com/github) [[docs](https://ai.azure.com/github)]
 
-`azure_xai` - [Azure Anthropic Service API](https://ai.azure.com/github) [[docs](https://ai.azure.com/github)]
+`azure_openai` - [OpenAI models via Azure Service API](https://ai.azure.com/github) [[docs](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)]
 
-`azure_sdk` - [Azure AI Inference API](https://ai.azure.com/github) [[docs](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)]
+`azure_xai` - [Grok models viaAzure Service API](https://ai.azure.com/github) [[docs](https://ai.azure.com/github)]
+
+`azure_sdk` - [Other models via Azure AI Inference API](https://ai.azure.com/github) [[docs](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)]
 
 `cohere` - [Cohere API](https://cohere.com/) [[docs](https://docs.cohere.com/docs/the-cohere-platform)]
 
