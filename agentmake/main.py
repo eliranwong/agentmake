@@ -6,7 +6,7 @@ from agentmake.utils.files import searchFolder
 from agentmake.utils.text_wrapper import wrapText
 from agentmake.utils.system import getCliOutput
 from pprint import pformat
-import argparse, os, sys, pyperclip, re, json, shutil
+import argparse, os, sys, pyperclip, re, json, shutil, subprocess
 
 
 def chat():

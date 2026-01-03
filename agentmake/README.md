@@ -52,6 +52,10 @@ Windows, macOS, Linux, ChromeOS, Android via [Termux Terminal](https://github.co
 
 `custom` - any openai-compatible backends that support function calling
 
+`custom1` - any openai-compatible backends that support function calling
+
+`custom2` - any openai-compatible backends that support function calling
+
 `deepseek` - [DeepSeek API](https://platform.deepseek.com/) [[docs](https://api-docs.deepseek.com/)]
 
 `genai` - [Vertex AI](https://cloud.google.com/vertex-ai) or [Google AI](https://ai.google.dev/) [[docs](https://github.com/googleapis/python-genai)]
