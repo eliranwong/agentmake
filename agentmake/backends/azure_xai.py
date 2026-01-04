@@ -49,7 +49,7 @@ class AzureXaiAI:
             model=model if model else AzureXaiAI.DEFAULT_MODEL,
             messages=messages,
             temperature=temperature if temperature is not None else AzureXaiAI.DEFAULT_TEMPERATURE,
-            max_tokens=max_tokens if max_tokens else AzureXaiAI.DEFAULT_MAX_TOKENS,
+            max_completion_tokens=max_tokens if max_tokens else AzureXaiAI.DEFAULT_MAX_TOKENS,
             tools=[{"type": "function", "function": schema}] if schema else omit,
             tool_choice={"type": "function", "function": {"name": schema["name"]}} if schema else omit,
             stream=stream,

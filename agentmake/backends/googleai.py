@@ -70,7 +70,7 @@ class GoogleaiAI:
                     model=model if model else GoogleaiAI.DEFAULT_MODEL,
                     messages=messages,
                     temperature=temperature if temperature is not None else GoogleaiAI.DEFAULT_TEMPERATURE,
-                    max_tokens=max_tokens if max_tokens else GoogleaiAI.DEFAULT_MAX_TOKENS,
+                    max_completion_tokens=max_tokens if max_tokens else GoogleaiAI.DEFAULT_MAX_TOKENS,
                     tools=[{"type": "function", "function": schema}] if schema else omit,
                     tool_choice={"type": "function", "function": {"name": schema["name"]}} if schema else omit,
                     stream=stream,
@@ -103,6 +103,22 @@ class GoogleaiAI:
         api_timeout: Optional[float]=None,
         **kwargs,
     ) -> dict:
+
+        def fixed_getDictionaryOutput(function_arguments):
+            try:
+                # 1. Decode unicode escapes (fixes \uXXXX characters)
+                decoded = codecs.decode(function_arguments, "unicode_escape")
+                
+                # 2. CRITICAL FIX: The decode step turns '\\n' into real newlines, 
+                #    which makes JSON invalid. We must escape them back to '\\n'.
+                sanitized = decoded.replace('\n', '\\n').replace('\r', '')
+                
+                return json.loads(sanitized)
+            except Exception as e:
+                print(f"JSON Repair Failed: {e}")
+                # Fallback: Try loading the raw arguments if decoding failed completely
+                return json.loads(function_arguments)
+
         completion = GoogleaiAI.getChatCompletion(
             messages,
             model=model,
@@ -119,7 +135,7 @@ class GoogleaiAI:
         outputMessage = completion.choices[0].message
         if hasattr(outputMessage, "tool_calls") and outputMessage.tool_calls:
             function_arguments = outputMessage.tool_calls[0].function.arguments
-            return json.loads(codecs.decode(function_arguments, "unicode_escape"))
+            return fixed_getDictionaryOutput(function_arguments)
         else:
             #print("Failed to output structered data!")
             if hasattr(outputMessage, "content") and outputMessage.content:

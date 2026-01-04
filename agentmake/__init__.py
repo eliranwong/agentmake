@@ -25,7 +25,7 @@ from .backends.azure_anthropic import AzureAnthropicAI
 from .backends.azure_xai import AzureXaiAI
 from .backends.azure_deepseek import AzureDeepseekAI
 from .backends.azure_cohere import AzureCohereAI
-from .backends.azure_sdk import AzureAnyAI
+from .backends.azure_sdk import AzureSdkAI
 from .backends.cohere import CohereAI
 from .backends.custom import OpenaiCompatibleAI
 from .backends.custom1 import OpenaiCompatibleAI1
@@ -829,7 +829,7 @@ def agentmake(
                     **kwargs
                 )
             elif backend == "azure_sdk":
-                completion = AzureAnyAI.getChatCompletion(
+                completion = AzureSdkAI.getChatCompletion(
                     messages_copy,
                     model=model,
                     temperature=temperature,
@@ -1421,7 +1421,7 @@ def getDictionaryOutput(
                 **kwargs
             )
         elif backend == "azure_sdk":
-            return AzureAnyAI.getDictionaryOutput(
+            return AzureSdkAI.getDictionaryOutput(
                 messages,
                 schema,
                 model=model,

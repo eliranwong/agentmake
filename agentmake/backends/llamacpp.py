@@ -48,7 +48,7 @@ class LlamacppAI:
             model="agentmake", # specify a model in the command line running llama.cpp
             messages=messages,
             temperature=temperature if temperature is not None else LlamacppAI.DEFAULT_TEMPERATURE,
-            max_tokens=max_tokens if max_tokens else LlamacppAI.DEFAULT_MAX_TOKENS,
+            max_completion_tokens=max_tokens if max_tokens else LlamacppAI.DEFAULT_MAX_TOKENS,
             response_format={
                 "type": "json_object",
                 "schema": getParameterSchema(schema),

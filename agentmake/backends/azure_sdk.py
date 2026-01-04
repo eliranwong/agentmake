@@ -6,20 +6,20 @@ from azure.ai.inference import ChatCompletionsClient
 from azure.ai.inference.models import SystemMessage, UserMessage, AssistantMessage, ChatCompletionsToolDefinition, FunctionDefinition
 from azure.core.credentials import AzureKeyCredential
 
-class AzureAnyAI:
+class AzureSdkAI:
 
-    DEFAULT_API_KEY = os.getenv("AZURE_ANY_API_KEY") if os.getenv("AZURE_ANY_API_KEY") else ""
-    DEFAULT_API_ENDPOINT = os.getenv("AZURE_ANY_API_ENDPOINT") if os.getenv("AZURE_ANY_API_ENDPOINT") else ""
-    DEFAULT_MODEL = os.getenv("AZURE_ANY_MODEL") if os.getenv("AZURE_ANY_MODEL") else "DeepSeek-V3"
-    DEFAULT_TEMPERATURE = float(os.getenv("AZURE_ANY_TEMPERATURE")) if os.getenv("AZURE_ANY_TEMPERATURE") else 0.3
-    DEFAULT_MAX_TOKENS = int(os.getenv("AZURE_ANY_MAX_TOKENS")) if os.getenv("AZURE_ANY_MAX_TOKENS") else 8000
+    DEFAULT_API_KEY = os.getenv("AZURE_SDK_API_KEY") if os.getenv("AZURE_SDK_API_KEY") else ""
+    DEFAULT_API_ENDPOINT = os.getenv("AZURE_SDK_API_ENDPOINT") if os.getenv("AZURE_SDK_API_ENDPOINT") else ""
+    DEFAULT_MODEL = os.getenv("AZURE_SDK_MODEL") if os.getenv("AZURE_SDK_MODEL") else "DeepSeek-V3"
+    DEFAULT_TEMPERATURE = float(os.getenv("AZURE_SDK_TEMPERATURE")) if os.getenv("AZURE_SDK_TEMPERATURE") else 0.3
+    DEFAULT_MAX_TOKENS = int(os.getenv("AZURE_SDK_MAX_TOKENS")) if os.getenv("AZURE_SDK_MAX_TOKENS") else 8000
 
     @staticmethod
     def getClient(api_key: Optional[str]=None, api_endpoint: Optional[str]=None):
-        if (api_key or AzureAnyAI.DEFAULT_API_KEY) and (api_endpoint or AzureAnyAI.DEFAULT_API_ENDPOINT):
+        if (api_key or AzureSdkAI.DEFAULT_API_KEY) and (api_endpoint or AzureSdkAI.DEFAULT_API_ENDPOINT):
             config.azure_sdk_client = ChatCompletionsClient(
-                endpoint=api_endpoint if api_endpoint else AzureAnyAI.DEFAULT_API_ENDPOINT,
-                credential=AzureKeyCredential(api_key if api_key else AzureAnyAI.DEFAULT_API_KEY),
+                endpoint=api_endpoint if api_endpoint else AzureSdkAI.DEFAULT_API_ENDPOINT,
+                credential=AzureKeyCredential(api_key if api_key else AzureSdkAI.DEFAULT_API_KEY),
             )
             return config.azure_sdk_client
         return None
@@ -57,18 +57,18 @@ class AzureAnyAI:
         #api_timeout: Optional[float]=None,
         **kwargs,
     ):
-        if not api_key and not AzureAnyAI.DEFAULT_API_KEY:
+        if not api_key and not AzureSdkAI.DEFAULT_API_KEY:
             raise ValueError("Azure API key is required.")
-        if not api_endpoint and not AzureAnyAI.DEFAULT_API_ENDPOINT:
+        if not api_endpoint and not AzureSdkAI.DEFAULT_API_ENDPOINT:
             raise ValueError("Azure API endpoint is required.")
         #if prefill:
         #    messages.append({'role': 'assistant', 'content': prefill})
-        return AzureAnyAI.getClient(api_key=api_key, api_endpoint=api_endpoint).complete(
+        return AzureSdkAI.getClient(api_key=api_key, api_endpoint=api_endpoint).complete(
             stream=stream,
-            messages=AzureAnyAI.toAzureMessages(messages),
-            model=model if model else AzureAnyAI.DEFAULT_MODEL,
-            temperature=temperature if temperature is not None else AzureAnyAI.DEFAULT_TEMPERATURE,
-            max_tokens=max_tokens if max_tokens else AzureAnyAI.DEFAULT_MAX_TOKENS,
+            messages=AzureSdkAI.toAzureMessages(messages),
+            model=model if model else AzureSdkAI.DEFAULT_MODEL,
+            temperature=temperature if temperature is not None else AzureSdkAI.DEFAULT_TEMPERATURE,
+            max_tokens=max_tokens if max_tokens else AzureSdkAI.DEFAULT_MAX_TOKENS,
             stop=stop,
             #response_format='json_object',
             tools=[ChatCompletionsToolDefinition(function=FunctionDefinition(**schema))] if schema else None,
@@ -94,7 +94,7 @@ class AzureAnyAI:
         #api_timeout: Optional[float]=None,
         **kwargs,
     ) -> dict:
-        completion = AzureAnyAI.getChatCompletion(
+        completion = AzureSdkAI.getChatCompletion(
             messages,
             model=model,
             schema=schema,

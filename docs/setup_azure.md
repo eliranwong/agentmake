@@ -55,9 +55,9 @@ To configure, run:
 For example, add or edit:
 
 ```
-AZURE_ANY_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-AZURE_ANY_API_ENDPOINT=https://xxxxxxxxxxxx.services.ai.azure.com/models
-AZURE_ANY_MODEL=grok-3
-AZURE_ANY_TEMPERATURE=0.3
-AZURE_ANY_MAX_TOKENS=16384
+AZURE_SDK_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+AZURE_SDK_API_ENDPOINT=https://xxxxxxxxxxxx.services.ai.azure.com/models
+AZURE_SDK_MODEL=grok-3
+AZURE_SDK_TEMPERATURE=0.3
+AZURE_SDK_MAX_TOKENS=16384
 ```
