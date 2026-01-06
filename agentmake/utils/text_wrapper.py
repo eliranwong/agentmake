@@ -8,6 +8,52 @@ def wrapText(content, terminal_width=None):
         terminal_width = shutil.get_terminal_size().columns
     return "\n".join([textwrap.fill(line, width=terminal_width) for line in content.split("\n")])
 
+# upack stream event text
+def get_stream_event_text(event, openai_style=False):
+    if event is None:
+        #continue
+        text_content = None
+    elif openai_style:
+        # openai
+        # when open api key is invalid for some reasons, event response in string
+        if isinstance(event, str):
+            text_content = event
+        elif hasattr(event, "data") and hasattr(event.data, "choices"): # mistralai
+            try:
+                text_content = event.data.choices[0].delta.content
+            except:
+                text_content = None
+        elif hasattr(event, "choices") and not event.choices: # in case of the 1st event of azure's completion
+            #continue
+            text_content = None
+        else:
+            text_content = event.choices[0].delta.content or ""
+    elif hasattr(event, "type") and event.type == "content-delta" and hasattr(event, "delta"): # cohere
+        text_content = event.delta.message.content.text
+    elif hasattr(event, "delta") and hasattr(event.delta, "text"): # anthropic
+        text_content = event.delta.text
+    elif hasattr(event, "content_block") and hasattr(event.content_block, "text"):
+        text_content = event.content_block.text
+    elif str(type(event)).startswith("<class 'anthropic.types"): # anthropic
+        #continue
+        text_content = None
+    elif hasattr(event, "message"): # newer ollama python package
+        text_content = event.message.content
+    elif isinstance(event, dict):
+        if "message" in event:
+            # ollama chat
+            text_content = event["message"].get("content", "")
+        else:
+            # llama.cpp chat
+            text_content = event["choices"][0]["delta"].get("content", "")
+    elif hasattr(event, "text"):
+        # vertex ai, genai
+        text_content = event.text
+    else:
+        #print(event)
+        text_content = None
+    return text_content
+
 class TextWrapper:
 
     def __init__(self, wrap_words: bool=True):
@@ -109,45 +155,7 @@ class TextWrapper:
                 finishOutputs(word_wrap, chat_response)
             if streaming_event is None or (not streaming_event.is_set() and not self.streaming_finished):
                 # RETRIEVE THE TEXT FROM THE RESPONSE
-                if event is None:
-                    continue
-                elif openai_style:
-                    # openai
-                    # when open api key is invalid for some reasons, event response in string
-                    if isinstance(event, str):
-                        answer = event
-                    elif hasattr(event, "data") and hasattr(event.data, "choices"): # mistralai
-                        try:
-                            answer = event.data.choices[0].delta.content
-                        except:
-                            answer = None
-                    elif hasattr(event, "choices") and not event.choices: # in case of the 1st event of azure's completion
-                        continue
-                    else:
-                        answer = event.choices[0].delta.content or ""
-                elif hasattr(event, "type") and event.type == "content-delta" and hasattr(event, "delta"): # cohere
-                    answer = event.delta.message.content.text
-                elif hasattr(event, "delta") and hasattr(event.delta, "text"): # anthropic
-                    answer = event.delta.text
-                elif hasattr(event, "content_block") and hasattr(event.content_block, "text"):
-                    answer = event.content_block.text
-                elif str(type(event)).startswith("<class 'anthropic.types"): # anthropic
-                    continue
-                elif hasattr(event, "message"): # newer ollama python package
-                    answer = event.message.content
-                elif isinstance(event, dict):
-                    if "message" in event:
-                        # ollama chat
-                        answer = event["message"].get("content", "")
-                    else:
-                        # llama.cpp chat
-                        answer = event["choices"][0]["delta"].get("content", "")
-                elif hasattr(event, "text"):
-                    # vertex ai, genai
-                    answer = event.text
-                else:
-                    #print(event)
-                    answer = None
+                answer = get_stream_event_text(event, openai_style)
                 # STREAM THE ANSWER
                 if answer is not None:
                     if first_event:
