@@ -102,6 +102,9 @@ def closeConnections(backend: str):
         config.xai_client.close()
         config.xai_client = None
 
+def is_openai_style(backend: str) -> bool:
+    return True if backend in ("azure_openai", "azure_cohere", "azure_deepseek", "azure_xai", "azure_sdk", "custom", "custom1", "custom2", "deepseek", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "openai", "xai") else False
+
 def readStreamingChunks(
         backend: str,
         completion: Any,
@@ -112,7 +115,7 @@ def readStreamingChunks(
     if isinstance(completion, str):
         # in case of mistral
         return completion
-    openai_style = True if backend in ("azure_openai", "azure_cohere", "azure_deepseek", "azure_xai", "azure_sdk", "custom", "custom1", "custom2", "deepseek", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "openai", "xai") else False
+    openai_style = is_openai_style(backend)
     try:
         text_wrapper = TextWrapper(word_wrap)
         if not streaming_event:
