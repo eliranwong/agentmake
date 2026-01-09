@@ -583,14 +583,14 @@ def agentmake(
             else: # a string instead
                 instruction_content = instruction
                 instruction = []
+            if instruction_content is None:
+                pass
             # check if it is a predefined instruction built-in with this SDK
             if USER_OS == "Windows":
                 instruction_content = os.path.join(*instruction_content.split("/"))
             possible_instruction_file_path_2 = os.path.join(PACKAGE_PATH, "instructions", f"{instruction_content}.md")
             possible_instruction_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "instructions", f"{instruction_content}.md")
-            if instruction_content is None:
-                pass
-            elif isFabricPattern(instruction_content): # fabric integration
+            if isFabricPattern(instruction_content): # fabric integration
                 instruction_content = getFabricPatternSystem(instruction_content[7:], instruction=True)
             elif os.path.isfile(possible_instruction_file_path_1):
                 instruction_file_content = readTextFile(possible_instruction_file_path_1)
@@ -1918,6 +1918,53 @@ def getFabricPatternSystem(pattern, instruction=False):
         if not instruction:
             system = re.sub(r'# INPUT.*', '', system, flags=re.DOTALL).rstrip()
     return system
+
+# unpack content
+def unpack_instruction_content(instruction_content):
+    if instruction_content is None:
+        return None
+    if USER_OS == "Windows":
+        instruction_content = os.path.join(*instruction_content.split("/"))
+    possible_instruction_file_path_2 = os.path.join(PACKAGE_PATH, "instructions", f"{instruction_content}.md")
+    possible_instruction_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "instructions", f"{instruction_content}.md")
+    if isFabricPattern(instruction_content): # fabric integration
+        instruction_content = getFabricPatternSystem(instruction_content[7:], instruction=True)
+    elif os.path.isfile(possible_instruction_file_path_1):
+        instruction_file_content = readTextFile(possible_instruction_file_path_1)
+        if instruction_file_content:
+            instruction_content = instruction_file_content
+    elif os.path.isfile(possible_instruction_file_path_2):
+        instruction_file_content = readTextFile(possible_instruction_file_path_2)
+        if instruction_file_content:
+            instruction_content = instruction_file_content
+    elif os.path.isfile(instruction_content): # instruction_content itself is a valid filepath
+        instruction_file_content = readTextFile(instruction_content)
+        if instruction_file_content:
+            instruction_content = instruction_file_content
+    return instruction_content
+
+def unpack_system_content(system_instruction):
+    if system_instruction is None:
+        return None
+    if USER_OS == "Windows":
+        system_instruction = os.path.join(*system_instruction.split("/"))
+    possible_system_file_path_2 = os.path.join(PACKAGE_PATH, "systems", f"{system_instruction}.md")
+    possible_system_file_path_1 = os.path.join(AGENTMAKE_USER_DIR, "systems", f"{system_instruction}.md")
+    if isFabricPattern(system_instruction): # fabric integration
+        system_instruction = getFabricPatternSystem(system_instruction[7:])
+    elif os.path.isfile(possible_system_file_path_1):
+        system_file_content = readTextFile(possible_system_file_path_1)
+        if system_file_content:
+            system_instruction = system_file_content
+    elif os.path.isfile(possible_system_file_path_2):
+        system_file_content = readTextFile(possible_system_file_path_2)
+        if system_file_content:
+            system_instruction = system_file_content
+    elif os.path.isfile(system_instruction): # system_instruction itself is a valid filepath
+        system_file_content = readTextFile(system_instruction)
+        if system_file_content:
+            system_instruction = system_file_content
+    return system_instruction
 
 # Suppress ResourceWarnings for Ollama connections
 # This is a workaround for the issue with Ollama connections not being closed properly
