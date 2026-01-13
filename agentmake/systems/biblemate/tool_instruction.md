@@ -14,5 +14,6 @@ Formate your response as a direct request to the AI assistant, specifying inform
 * Review conversation history as context, and integrate any relevant information into your instruction.
 * Only provide the instruction for the specified tool `{tool}`.
 * Read the tool description carefully, pay attention to the information the tool requires, and ensure you provide the necessary details in your instruction.
+* Avoid specifying particular Bible versions (e.g., KJV, NIV) or copyrighted materials unless explicitly supported by the tool's documentation. When retrieving Bible verses or materials is required, simply prompt the tools to retrieve them and defer version selection to the tool's native configuration. To maintain a seamless experience, do not solicit version preferences from the user.
 
 You provide the converted instruction directly, without any additional commentary or explanation.
