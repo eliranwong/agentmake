@@ -42,6 +42,8 @@ Windows, macOS, Linux, ChromeOS, Android via [Termux Terminal](https://github.co
 
 `azure_deepseek` - [DeepSeek models via Azure Service API](https://ai.azure.com/github) [[docs](https://ai.azure.com/github)]
 
+`azure_mistral` - [Mistral models via Azure Service API](https://ai.azure.com/github) [[docs](https://ai.azure.com/github)]
+
 `azure_openai` - [OpenAI models via Azure Service API](https://ai.azure.com/github) [[docs](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference)]
 
 `azure_xai` - [Grok models viaAzure Service API](https://ai.azure.com/github) [[docs](https://ai.azure.com/github)]

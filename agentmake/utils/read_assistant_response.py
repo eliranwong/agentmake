@@ -27,7 +27,7 @@ def getChatCompletionText(
             text_output = completion.choices[0].message.content
         elif backend in ("genai", "vertexai"):
             text_output = completion.candidates[0].content.parts[0].text
-        elif backend in ("azure_openai", "azure_cohere", "azure_deepseek", "azure_xai", "custom", "custom1", "custom2", "deepseek", "github", "googleai", "groq", "llamacpp", "mistral", "openai", "xai"):
+        elif backend in ("azure_openai", "azure_cohere", "azure_deepseek", "azure_mistral", "azure_xai", "custom", "custom1", "custom2", "deepseek", "github", "googleai", "groq", "llamacpp", "mistral", "openai", "xai"):
             text_output = completion.choices[0].message.content
         if print_on_terminal:
             print(wrapText(text_output) if word_wrap else text_output)
@@ -56,6 +56,9 @@ def closeConnections(backend: str):
     elif backend == "azure_deepseek" and hasattr(config, "azure_deepseek_client") and config.azure_deepseek_client is not None:
         config.azure_deepseek_client.close()
         config.azure_deepseek_client = None
+    elif backend == "azure_mistral" and hasattr(config, "azure_mistral_client") and config.azure_mistral_client is not None:
+        config.azure_mistral_client.close()
+        config.azure_mistral_client = None
     elif backend == "azure_xai" and hasattr(config, "azure_xai_client") and config.azure_xai_client is not None:
         config.azure_xai_client.close()
         config.azure_xai_client = None
@@ -103,7 +106,7 @@ def closeConnections(backend: str):
         config.xai_client = None
 
 def is_openai_style(backend: str) -> bool:
-    return True if backend in ("azure_openai", "azure_cohere", "azure_deepseek", "azure_xai", "azure_sdk", "custom", "custom1", "custom2", "deepseek", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "openai", "xai") else False
+    return True if backend in ("azure_openai", "azure_cohere", "azure_deepseek", "azure_mistral", "azure_xai", "azure_sdk", "custom", "custom1", "custom2", "deepseek", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "openai", "xai") else False
 
 def readStreamingChunks(
         backend: str,
