@@ -32,7 +32,7 @@ flashtext
 pypandoc
 markdown
 python-docx
-edge-tts
+edge-tts>=7.2.7
 xonsh[full]
 geocoder
 pendulum
