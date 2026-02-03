@@ -1,12 +1,23 @@
-# How to Create a Tool?
+# How to Create an Agent?
 
-You may create custom agents, to work with the `agent` parameter of the `agentmake` function.
+You may create custom agents to work with the `agent` parameter of the `agentmake` function.
 
-A `agentmake` agent automates multi-turn work and decision.
+An `agentmake` agent automates multi-turn work and decisions.
 
-It is a simple to create a agent to meet your own needs. Each agent is written as a python file, in which one parameters is specified:
+It is simple to create an agent to meet your needs. Each agent is defined in a Python file (`.py`) containing the following variable:
 
-1. `AGENT_FUNCTION` -
-    It is the funciton object being called to run an agent.
+### `AGENT_FUNCTION`
 
-For practical examples, check our built-in agents at https://github.com/eliranwong/agentmate-sdk/tree/main/agentmate_sdk/agents
+This is the function object called to run the agent.
+
+**Example Structure:**
+
+```python
+def my_agent_function(messages, **kwargs):
+    # Your agent logic here
+    pass
+
+AGENT_FUNCTION = my_agent_function
+```
+
+For practical examples, check our built-in agents at [https://github.com/eliranwong/agentmake/tree/main/agentmake/agents](https://github.com/eliranwong/agentmake/tree/main/agentmake/agents).

@@ -1,36 +1,58 @@
 # How to Create a Tool?
 
-You may create custom tools, to work with the `tool` parameter of the `agentmake` function.
+You can create custom tools to work with the `tool` parameter of the `agentmake` function.
 
-A `agentmake` tool takes actions to resolve user requests with function calling.
+An `agentmake` tool takes actions to resolve user requests through function calling.
 
-It is a simple to create a tool to meet your own needs. Each tool is written as a python file, in which two to four parameters are specified:
+Each tool is defined in a Python file (`.py`) specifying the following variables:
 
-1. `TOOL_SCHEMA` - It is the json schema that describes the parameters for function calling. This is a required parameter. IF you want pass the whole conversation for a particular tool to process within the tool execution, assign an empty dictionary to the `TOOL_SCHEMA`
+### 1. `TOOL_SCHEMA` (Required)
 
-Remarks: It is allowed to provide an empty dictionary as a TOOL_SCHEMA. In this case, the `agentmake` function passes the parameter `messages` to the TOOL_FUNCTION.
+The JSON schema describing the parameters for function calling.
+- If you want to pass the whole conversation for the tool to process, assign an empty dictionary (`{}`) to `TOOL_SCHEMA`. In this case, `agentmake` passes the `messages` parameter to `TOOL_FUNCTION`.
 
-2. `TOOL_FUNCTION` - It is the funciton object being called with the tool. This is a required parameter.
+### 2. `TOOL_FUNCTION` (Required)
 
+The function object called by the tool.
+
+**Arguments:**
+1.  **Structured Output:** Unpacked arguments from the dictionary generated according to `TOOL_SCHEMA`.
+2.  **`**kwargs`:** REQUIRED. The `agentmake` function passes runtime parameters (e.g., `backend`, `model`, `api_key`) providing the ability to run nested `agentmake` calls within your tool.
+
+**Return Values:**
+- **Empty string (`""`)**: User request resolved without needed chat extension. Any printed output is taken as the assistant's response.
+- **Non-empty string**: Provides context to extend the chat conversation.
+- **`None`**: Fall back to regular chat completion (useful for error handling).
+
+### 3. `TOOL_SYSTEM` (Optional)
+
+System message for running the tool.
+- Specify a string for the system message.
+- Assign an empty string `""` to avoid using a tool system message.
+- Omit to use the default `agentmake` tool system message.
+
+### 4. `TOOL_DESCRIPTION` (Optional)
+
+Description of the tool.
+- Optional if the tool description is already specified within `TOOL_SCHEMA`.
+
+---
+
+**Example Structure:**
+
+```python
+def my_tool_function(param1, **kwargs):
+    # Tool logic
+    return "Result"
+
+TOOL_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "param1": {"type": "string"}
+    }
+}
+
+TOOL_FUNCTION = my_tool_function
 ```
-Args:
-    i. The structured output, generated as a dictionary according to the TOOL_SCHEMA, is unpacked as arguments for the function.
-    ii. Each TOOL_FUNCTION must include `**kwargs` as part of its arguments, as the `agentmake` function passes the following parameters to the TOOL_FUNCTION, offering possibility to run nested `agentmake` functions within the TOOL_FUNCTION:
-        backend, model, model_keep_alive, temperature, max_tokens, context_window, batch_size, prefill, stop, stream, api_key, api_project_id, api_service_location, api_timeout, print_on_terminal, word_wrap
-Return
-    i. Empty string - User request is resolved without the need of chat extension. Any printed content or terminal output resulting from the execution of the function is taken as the assistant's response.
-    ii. Non-empty string - Provide context to extend chat conversation.
-    iii. None - Fall back to regular chat completion. It is useful for handling errors encounted when the function is executed.
-```
 
-3. `TOOL_SYSTEM` - This is optional. You may either:
-
-i. specifie the system message for running the tool.
-
-ii. assign an empty string to it if you do not want to use a tool system message.
-
-iii. omit this parameter to use `agentmake` default tool system message.
-
-For practical examples, check our built-in tools at https://github.com/eliranwong/agentmake/tree/main/agentmake/tools
-
-4. `TOOL_DESCRIPTION` - This is optional if you have the tool description specified in the `TOOL_SCHEMA`.
+For practical examples, check our built-in tools at [https://github.com/eliranwong/agentmake/tree/main/agentmake/tools](https://github.com/eliranwong/agentmake/tree/main/agentmake/tools).

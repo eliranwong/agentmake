@@ -1,13 +1,25 @@
 # How to Create a Plugin?
 
-You may create custom plugins, to work with the `plugin` parameter of the `agentmake` function.
+You can create custom plugins to work with the `input_content_plugin` or `output_content_plugin` parameters of the `agentmake` function.
 
-A `agentmake` plugin can process either user input or assistant output or both.
+An `agentmake` plugin can process user input, assistant output, or both.
 
-It is a simple to create a plugin to meet your own needs. Each plugin is written as a python file, in which one parameter is specified:
+Each plugin is defined in a Python file (`.py`) specifying the following variable:
 
-1. `CONTENT_PLUGIN`
-    It is the funciton object being called to work on either user input or assistant output or both.
-    This functions takes user input or assistant output as its first parameter and returns the processed result.
+### 1. `CONTENT_PLUGIN`
 
-For practical examples, check our built-in tools at https://github.com/eliranwong/agentmake/tree/main/agentmake/plugins
+The function object called to process content.
+- Takes the content (str) as its first parameter.
+- Returns the processed content (str).
+- Can accept `**kwargs` for accessing `agentmake` runtime parameters.
+
+**Example Structure:**
+
+```python
+def my_plugin(content, **kwargs):
+    return content.upper()
+
+CONTENT_PLUGIN = my_plugin
+```
+
+For practical examples, check our built-in plugins at [https://github.com/eliranwong/agentmake/tree/main/agentmake/plugins](https://github.com/eliranwong/agentmake/tree/main/agentmake/plugins).
