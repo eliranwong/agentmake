@@ -3,7 +3,9 @@ import os, shutil, getpass, logging
 
 PACKAGE_PATH = os.path.dirname(os.path.realpath(__file__))
 PACKAGE_NAME = os.path.basename(PACKAGE_PATH)
-AGENTMAKE_USER_DIR = os.getenv("AGENTMAKE_USER_DIR") if os.getenv("AGENTMAKE_USER_DIR") else os.path.join(os.path.expanduser("~"), "agentmake") # It is where users store their custom components, i.e. `tools`, `agents`, `plugins`, `systems`, `instructions`, and `prompts`.Custom components are placed outside the package directory, to avoid overriding upon upgrades.
+# User directory for custom components (tools, agents, plugins, systems, instructions, prompts)
+# Custom components are placed outside the package directory to avoid overriding upon upgrades.
+AGENTMAKE_USER_DIR = os.getenv("AGENTMAKE_USER_DIR", os.path.join(os.path.expanduser("~"), "agentmake"))
 
 STOP_FILE = os.path.join(PACKAGE_PATH, "temp", "stop_running")
 LOG_FILE = os.path.join(AGENTMAKE_USER_DIR, "errors.txt")
@@ -11,12 +13,13 @@ logging.basicConfig(format="[%(levelname)s]: %(message)s", level=logging.ERROR, 
 LOGGER = logging.getLogger(__name__)
 
 def load_configurations(env_file=""):
+    """Load environment configuration from .env file."""
     if not env_file:
-        backup_env = os.path.join(AGENTMAKE_USER_DIR, "agentmake.env")
-        if not os.path.isfile(backup_env):
-            shutil.copy(os.path.join(PACKAGE_PATH, "agentmake.env"), backup_env)
-    if os.path.isfile(backup_env):
-        load_dotenv(backup_env)
+        env_file = os.path.join(AGENTMAKE_USER_DIR, "agentmake.env")
+        if not os.path.isfile(env_file):
+            shutil.copy(os.path.join(PACKAGE_PATH, "agentmake.env"), env_file)
+    if env_file and os.path.isfile(env_file):
+        load_dotenv(env_file)
 load_configurations()
 
 from .backends.anthropic import AnthropicAI
@@ -44,6 +47,35 @@ from .backends.ollamacloud import OllamacloudAI
 from .backends.openai import OpenaiAI
 from .backends.xai import XaiAI
 
+# Backend registry mapping backend names to their class implementations
+BACKEND_REGISTRY = {
+    "anthropic": AnthropicAI,
+    "azure_openai": AzureAI,
+    "azure_anthropic": AzureAnthropicAI,
+    "azure_sdk": AzureSdkAI,
+    "azure_cohere": AzureCohereAI,
+    "azure_deepseek": AzureDeepseekAI,
+    "azure_mistral": AzureMistralAI,
+    "azure_xai": AzureXaiAI,
+    "cohere": CohereAI,
+    "custom": OpenaiCompatibleAI,
+    "custom1": OpenaiCompatibleAI1,
+    "custom2": OpenaiCompatibleAI2,
+    "deepseek": DeepseekAI,
+    "genai": GenaiAI,
+    "vertexai": GenaiAI,
+    "github": GithubAI,
+    "github_any": GithubAnyAI,
+    "googleai": GoogleaiAI,
+    "groq": GroqAI,
+    "llamacpp": LlamacppAI,
+    "mistral": MistralAI,
+    "ollama": OllamaAI,
+    "ollamacloud": OllamacloudAI,
+    "openai": OpenaiAI,
+    "xai": XaiAI,
+}
+
 from .utils.rag import getRagPrompt
 from .utils.read_assistant_response import getChatCompletionText, closeConnections
 from .utils.handle_text import readTextFile, writeTextFile
@@ -56,18 +88,24 @@ from pathlib import Path
 from copy import deepcopy
 import sys, re, platform, json, traceback, threading
 
-AGENTMAKE_ASSISTANT_NAME = os.getenv("AGENTMAKE_ASSISTANT_NAME") if os.getenv("AGENTMAKE_ASSISTANT_NAME") else "AI"
-AGENTMAKE_USERNAME = os.getenv("AGENTMAKE_USERNAME") if os.getenv("AGENTMAKE_USERNAME") else getpass.getuser().capitalize()
+AGENTMAKE_ASSISTANT_NAME = os.getenv("AGENTMAKE_ASSISTANT_NAME", "AI")
+AGENTMAKE_USERNAME = os.getenv("AGENTMAKE_USERNAME", getpass.getuser().capitalize())
 USER_OS = "macOS" if platform.system() == "Darwin" else platform.system()
-DEVELOPER_MODE = True if os.getenv("DEVELOPER_MODE") and os.getenv("DEVELOPER_MODE").upper() == "TRUE" else False
-SUPPORTED_AI_BACKENDS = ["anthropic", "azure_anthropic", "azure_openai", "azure_cohere", "azure_deepseek", "azure_mistral", "azure_xai", "azure_sdk", "cohere", "custom", "custom1", "custom2", "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp", "mistral", "ollama", "ollamacloud", "openai", "vertexai", "xai"]
-DEFAULT_AI_BACKEND = os.getenv("DEFAULT_AI_BACKEND") if os.getenv("DEFAULT_AI_BACKEND") else "ollama"
+DEVELOPER_MODE = os.getenv("DEVELOPER_MODE", "").upper() == "TRUE"
+SUPPORTED_AI_BACKENDS = [
+    "anthropic", "azure_anthropic", "azure_openai", "azure_cohere", "azure_deepseek",
+    "azure_mistral", "azure_xai", "azure_sdk", "cohere", "custom", "custom1", "custom2",
+    "deepseek", "genai", "github", "github_any", "googleai", "groq", "llamacpp",
+    "mistral", "ollama", "ollamacloud", "openai", "vertexai", "xai"
+]
+DEFAULT_AI_BACKEND = os.getenv("DEFAULT_AI_BACKEND", "ollama")
 RAW_SYSTEM_MESSAGE = f"You are my personal AI assistant. I am your user, {AGENTMAKE_USERNAME}. I will give you both text-based and non-text-based tasks, and the necessary tools to resolve my requests. Therefore, do not tell me that you are only a text-based language model. Try your best to resolve my requests. Do not address my name more than once in a single conversation unless I request it."
-DEFAULT_SYSTEM_MESSAGE = os.getenv("DEFAULT_SYSTEM_MESSAGE") if os.getenv("DEFAULT_SYSTEM_MESSAGE") else RAW_SYSTEM_MESSAGE
-DEFAULT_FOLLOW_UP_PROMPT = os.getenv("DEFAULT_FOLLOW_UP_PROMPT") if os.getenv("DEFAULT_FOLLOW_UP_PROMPT") else "Please tell me more."
-DEFAULT_TEXT_EDITOR = os.getenv("DEFAULT_TEXT_EDITOR") if os.getenv("DEFAULT_TEXT_EDITOR") else "etextedit"
-DEFAULT_MARKDOWN_THEME = os.getenv("DEFAULT_MARKDOWN_THEME") if os.getenv("DEFAULT_MARKDOWN_THEME") else "github-dark"
-DEFAULT_FABRIC_PATTERNS_PATH = os.getenv("DEFAULT_FABRIC_PATTERNS_PATH") if os.getenv("DEFAULT_FABRIC_PATTERNS_PATH") else os.path.join(os.path.expanduser("~"), ".config", "fabric", "patterns")
+DEFAULT_SYSTEM_MESSAGE = os.getenv("DEFAULT_SYSTEM_MESSAGE", RAW_SYSTEM_MESSAGE)
+DEFAULT_FOLLOW_UP_PROMPT = os.getenv("DEFAULT_FOLLOW_UP_PROMPT", "Please tell me more.")
+DEFAULT_TEXT_EDITOR = os.getenv("DEFAULT_TEXT_EDITOR", "etextedit")
+DEFAULT_MARKDOWN_THEME = os.getenv("DEFAULT_MARKDOWN_THEME", "github-dark")
+DEFAULT_FABRIC_PATTERNS_PATH = os.getenv("DEFAULT_FABRIC_PATTERNS_PATH", os.path.join(os.path.expanduser("~"), ".config", "fabric", "patterns"))
+NO_CONTENT = "[NO_CONTENT]"  # Constant for empty content marker
 # check if ollama is installed
 try:
     OllamaAI.getClient().ps()
@@ -103,6 +141,53 @@ def edit_configurations(env_file=""):
     os.system(f'''{DEFAULT_TEXT_EDITOR} "{env_file}"''')
     # reload
     load_configurations()
+
+
+def _load_resource(name: str, resource_type: str, ext: str = "py") -> Optional[str]:
+    """
+    Load a resource by name from user dir, package dir, or as file path.
+    
+    This helper consolidates the common pattern of checking multiple locations
+    for resources like plugins, agents, tools, systems, instructions, and prompts.
+    
+    Args:
+        name: Resource name or file path
+        resource_type: Folder name ('plugins', 'agents', 'tools', 'systems', 'instructions', 'prompts')
+        ext: File extension without dot (default 'py')
+    
+    Returns:
+        File content as string, or the original name if not a file (might be inline content)
+        Returns None if name is None
+    """
+    if name is None:
+        return None
+    
+    # Handle Windows path separators
+    if USER_OS == "Windows":
+        name = os.path.join(*name.split("/"))
+    
+    # Check user directory first (allows user overrides)
+    user_path = os.path.join(AGENTMAKE_USER_DIR, resource_type, f"{name}.{ext}")
+    if os.path.isfile(user_path):
+        content = readTextFile(user_path)
+        if content:
+            return content
+    
+    # Check package directory
+    package_path = os.path.join(PACKAGE_PATH, resource_type, f"{name}.{ext}")
+    if os.path.isfile(package_path):
+        content = readTextFile(package_path)
+        if content:
+            return content
+    
+    # Check if it's a direct file path
+    if os.path.isfile(name):
+        content = readTextFile(name)
+        if content:
+            return content
+    
+    # Return original string (might be inline content)
+    return name
 
 def agentmake(
     messages: Union[List[Dict[str, str]], str], # user request or messages containing user request; accepts either a single string or a list of dictionaries
@@ -737,7 +822,7 @@ def agentmake(
                             word_wrap=word_wrap,
                             **kwargs,
                         ) # returned response can be either 1) an empty string: no chat extension 2) a non-empty string: chat extension 3) none: errors encountered in executing the function
-                    function_text_output = terminal_output.getvalue().replace("```output\n```\n", "[NO_CONTENT]") # capture the function text output for function calling without chat extension
+                    function_text_output = terminal_output.getvalue().replace("```output\n```\n", NO_CONTENT) # capture the function text output for function calling without chat extension
                     # Restore the original stdout
                     sys.stdout = old_stdout
                 except Exception as e:
@@ -785,7 +870,7 @@ def agentmake(
                         **kwargs
                     )
                 else: # empty str; function executed successfully without chat extension
-                    output = function_text_output if function_text_output else "[NO_CONTENT]"
+                    output = function_text_output if function_text_output else NO_CONTENT
             else: # structured output
                 output = json.dumps(dictionary_output)
             if print_on_terminal:
@@ -1174,7 +1259,7 @@ def agentmake(
 
         # update the message list
         if not agent_response:
-            messages_copy.append({"role": "assistant", "content": output if output else "[NO_CONTENT]"})
+            messages_copy.append({"role": "assistant", "content": output if output else NO_CONTENT})
 
         # restore system message
         if original_system:
