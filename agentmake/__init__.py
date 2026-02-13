@@ -6,9 +6,13 @@ PACKAGE_NAME = os.path.basename(PACKAGE_PATH)
 # User directory for custom components (tools, agents, plugins, systems, instructions, prompts)
 # Custom components are placed outside the package directory to avoid overriding upon upgrades.
 AGENTMAKE_USER_DIR = os.getenv("AGENTMAKE_USER_DIR", os.path.join(os.path.expanduser("~"), "agentmake"))
+if not os.path.isdir(AGENTMAKE_USER_DIR):
+    Path(AGENTMAKE_USER_DIR).mkdir(parents=True, exist_ok=True)
 
 STOP_FILE = os.path.join(PACKAGE_PATH, "temp", "stop_running")
 LOG_FILE = os.path.join(AGENTMAKE_USER_DIR, "errors.txt")
+if not os.path.isfile(LOG_FILE):
+    open(LOG_FILE, 'w').close()
 logging.basicConfig(format="[%(levelname)s]: %(message)s", level=logging.ERROR, filename=LOG_FILE)
 LOGGER = logging.getLogger(__name__)
 
