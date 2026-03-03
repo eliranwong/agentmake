@@ -130,6 +130,7 @@ class OllamacloudAI:
         )
         jsonOutput = completion.message.content
         jsonOutput = re.sub("^[^{]*?({.*?})[^}]*?$", r"\1", jsonOutput)
+        jsonOutput = jsonOutput.replace('\n', '\\n').replace('\r', '')
         return json.loads(jsonOutput)
 
     @staticmethod

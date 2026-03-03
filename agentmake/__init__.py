@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from pathlib import Path
 import os, shutil, getpass, logging
 
 PACKAGE_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -88,7 +89,6 @@ from .utils.system import getCurrentDateTime
 from typing import Optional, Callable, Union, Any, List, Dict
 from io import StringIO
 from markitdown import MarkItDown
-from pathlib import Path
 from copy import deepcopy
 import sys, re, platform, json, traceback, threading
 
