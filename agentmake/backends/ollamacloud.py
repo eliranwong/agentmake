@@ -14,12 +14,12 @@ class OllamacloudAI:
 
     DEFAULT_API_KEY = os.getenv("OLLAMACLOUD_API_KEY").split(",") if os.getenv("OLLAMACLOUD_API_KEY") else ["agentmake"]
     DEFAULT_ENDPOINT = os.getenv("OLLAMACLOUD_ENDPOINT") if os.getenv("OLLAMACLOUD_ENDPOINT") else f"http://{get_local_ip()}:11434"
-    DEFAULT_MODEL = os.getenv("OLLAMACLOUD_MODEL") if os.getenv("OLLAMACLOUD_MODEL") else "llama3.2"
+    DEFAULT_MODEL = os.getenv("OLLAMACLOUD_MODEL") if os.getenv("OLLAMACLOUD_MODEL") else "glm-5"
     DEFAULT_TEMPERATURE = float(os.getenv("OLLAMACLOUD_TEMPERATURE")) if os.getenv("OLLAMACLOUD_TEMPERATURE") else 0.3
-    DEFAULT_MAX_TOKENS = int(os.getenv("OLLAMACLOUD_MAX_TOKENS")) if os.getenv("OLLAMACLOUD_MAX_TOKENS") else 65536
-    DEFAULT_CONTEXT_WINDOW = int(os.getenv("OLLAMACLOUD_CONTEXT_WINDOW")) if os.getenv("OLLAMACLOUD_CONTEXT_WINDOW") else 2048
-    DEFAULT_BATCH_SIZE = int(os.getenv("OLLAMACLOUD_BATCH_SIZE")) if os.getenv("OLLAMACLOUD_BATCH_SIZE") else 512
-    DEFAULT_KEEP_ALIVE = os.getenv("OLLAMACLOUD_KEEP_ALIVE") if os.getenv("OLLAMACLOUD_KEEP_ALIVE") else "5m"
+    DEFAULT_MAX_TOKENS = int(os.getenv("OLLAMACLOUD_MAX_TOKENS")) if os.getenv("OLLAMACLOUD_MAX_TOKENS") else None
+    DEFAULT_CONTEXT_WINDOW = int(os.getenv("OLLAMACLOUD_CONTEXT_WINDOW")) if os.getenv("OLLAMACLOUD_CONTEXT_WINDOW") else None
+    DEFAULT_BATCH_SIZE = int(os.getenv("OLLAMACLOUD_BATCH_SIZE")) if os.getenv("OLLAMACLOUD_BATCH_SIZE") else None
+    DEFAULT_KEEP_ALIVE = os.getenv("OLLAMACLOUD_KEEP_ALIVE") if os.getenv("OLLAMACLOUD_KEEP_ALIVE") else None
 
     @staticmethod
     def getApiKey():
