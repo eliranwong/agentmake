@@ -75,8 +75,12 @@ def transcribe_youtube_audio_google(url: str="", **kwargs):
                 print("Error: Could not extract video ID from URL")
                 return False
             
-            # Get transcript
-            transcript = YouTubeTranscriptApi.get_transcript(video_id)
+            # youtube-transcript-api 1.2 (required on Python 3.14) replaced the
+            # static get_transcript() helper with YouTubeTranscriptApi().fetch().
+            if hasattr(YouTubeTranscriptApi, "get_transcript"):
+                transcript = YouTubeTranscriptApi.get_transcript(video_id)
+            else:
+                transcript = YouTubeTranscriptApi().fetch(video_id)
             
             # Format transcript
             formatter = TextFormatter()

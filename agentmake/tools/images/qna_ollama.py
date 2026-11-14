@@ -55,7 +55,6 @@ def examine_images_ollama(query: str, image_filepath: Union[str, list], **kwargs
             model=OLLAMA_VISUAL_MODEL,
             messages=[{'role': 'user', 'content': query, 'images': content}],
             options=Options(
-                num_predict=2048,
                 temperature=float(os.getenv("OLLAMA_VISUAL_TEMPERATURE")) if os.getenv("OLLAMA_VISUAL_TEMPERATURE") else 0.3,
                 num_predict=int(os.getenv("OLLAMA_VISUAL_MAX_TOKENS")) if os.getenv("OLLAMA_VISUAL_MAX_TOKENS") else -1,
             ),

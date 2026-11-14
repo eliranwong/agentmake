@@ -2,7 +2,7 @@ from setuptools import setup
 import os, shutil
 
 package = "agentmake"
-version="1.2.23"
+version="1.2.24"
 
 # update version info
 info_file = os.path.join(package, "version.txt") # package readme
@@ -31,7 +31,7 @@ with open(os.path.join(package, "requirements.txt"), "r") as fileObj:
 setup(
     name="agentmake",
     version=version,
-    python_requires=">=3.8, <3.13",
+    python_requires=">=3.8",
     description="AgentMake AI: an agent developement kit (ADK) for developing agentic AI applications that support 16 AI backends and work with 7 agentic components, such as tools and agents. (Developer: Eliran Wong)",
     long_description=long_description,
     author="Eliran Wong",
@@ -139,7 +139,7 @@ setup(
     license="GNU General Public License (GPL)",
     install_requires=install_requires,
     extras_require={
-        'genai': ["google-genai>=1.46.0"],  # Dependencies for running Vertex AI
+        'genai': ["google-genai>=2.9.0; python_version >= '3.10'", "google-genai>=1.46.0; python_version < '3.10'"],  # 2.9+ declares Python 3.14 support
         'studio': ["agentmakestudio>=0.0.10"],  # Dependencies for AgentMake Studio
         'mcp': ["agentmakemcp>=0.0.4"],  # Dependencies for AgentMake Studio
     },
@@ -185,5 +185,7 @@ setup(
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
     ],
 )
